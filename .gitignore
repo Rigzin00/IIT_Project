@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+.env
+.venv
+venv/
+env/
+*.db
+*.sqlite3
+
+# Node / React
+node_modules/
+react_frontend/dist/
+react_frontend/build/
+react_frontend/.env
+react_frontend/.env.local
+react_frontend/.env.*.local
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
