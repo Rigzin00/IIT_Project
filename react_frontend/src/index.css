@@ -453,22 +453,312 @@ body {
   background: rgba(0,51,102,0.06);
 }
 
-/* Form label */
-.login-page .form-label {
-  color:       var(--iit-text-secondary);
-  font-family: var(--iit-font);
-  font-weight: 600;
+/* ═══════════════════════════════════════════════════════════════════════════
+   IIT Delhi Form System — scoped to .login-page
+   ─────────────────────────────────────────────────────────────────────────
+   Covers:  Labels · Inputs · Selects · Textareas · Checkboxes
+   States:  default · hover · focus · filled · error · disabled · read-only
+   Extra:   hint text · validation messages · icon-suffixed inputs
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Field wrapper ────────────────────────────────────────────────────── */
+/* Use <div class="iit-field"> around each label + control + message set  */
+.login-page .iit-field {
+  display:        flex;
+  flex-direction: column;
+  gap:            5px;
+  margin-bottom:  1rem;
+}
+.login-page .iit-field:last-child { margin-bottom: 0; }
+
+/* ── Label ────────────────────────────────────────────────────────────── */
+.login-page .form-label,
+.login-page .iit-label {
+  display:        block;
+  font-family:    var(--iit-font);
+  font-size:      var(--fs-sm);          /* 12 px */
+  font-weight:    var(--fw-semibold);
+  color:          var(--iit-text-secondary);
+  line-height:    var(--lh-tight);
+  margin-bottom:  0;                     /* spacing handled by .iit-field gap */
+  user-select:    none;
 }
 
-/* Form input */
-.login-page .form-input {
-  background:    var(--iit-bg-surface);
-  border:        1px solid var(--iit-border);
-  color:         var(--iit-text-primary);
-  font-family:   var(--iit-font);
+/* Required asterisk */
+.login-page .iit-label .iit-required {
+  color:        var(--iit-accent);       /* IIT red */
+  margin-left:  3px;
+  font-weight:  var(--fw-bold);
 }
-.login-page .form-input:focus   { border-color: var(--iit-border-focus); }
-.login-page .form-input::placeholder { color: var(--iit-text-muted); }
+
+/* ── Shared control base ─────────────────────────────────────────────── */
+.login-page .form-input,
+.login-page .iit-input,
+.login-page .iit-select,
+.login-page .iit-textarea {
+  width:           100%;
+  display:         block;
+  font-family:     var(--iit-font);
+  font-size:       var(--fs-body);       /* 13 px */
+  font-weight:     var(--fw-regular);
+  color:           var(--iit-text-primary);
+  line-height:     var(--lh-normal);
+
+  background:      var(--iit-bg-surface);
+  border:          1.5px solid var(--iit-border);
+  border-radius:   var(--radius-sm);
+  padding:         9px 12px;
+
+  outline:         none;
+  box-shadow:      none;
+  appearance:      none;
+  -webkit-appearance: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow   0.15s ease,
+    background   0.15s ease;
+}
+
+/* placeholder */
+.login-page .form-input::placeholder,
+.login-page .iit-input::placeholder,
+.login-page .iit-textarea::placeholder {
+  color:       var(--iit-text-muted);
+  font-weight: var(--fw-regular);
+  opacity:     1;
+}
+
+/* hover */
+.login-page .form-input:hover:not(:focus):not(:disabled):not([readonly]),
+.login-page .iit-input:hover:not(:focus):not(:disabled):not([readonly]),
+.login-page .iit-select:hover:not(:focus):not(:disabled),
+.login-page .iit-textarea:hover:not(:focus):not(:disabled):not([readonly]) {
+  border-color: #a8bfd6;               /* hover — mid blue-grey */
+}
+
+/* focus */
+.login-page .form-input:focus,
+.login-page .iit-input:focus,
+.login-page .iit-select:focus,
+.login-page .iit-textarea:focus {
+  border-color: var(--iit-primary);    /* navy focus border */
+  box-shadow:   0 0 0 3px rgba(0, 51, 102, 0.12);
+  background:   #ffffff;
+}
+
+/* filled — keep white bg when value exists */
+.login-page .form-input:not(:placeholder-shown),
+.login-page .iit-input:not(:placeholder-shown),
+.login-page .iit-textarea:not(:placeholder-shown) {
+  background: #ffffff;
+}
+
+/* disabled */
+.login-page .form-input:disabled,
+.login-page .iit-input:disabled,
+.login-page .iit-select:disabled,
+.login-page .iit-textarea:disabled {
+  background:   #eef1f5;
+  border-color: #d0d7e2;
+  color:        var(--iit-text-muted);
+  cursor:       not-allowed;
+  opacity:      0.7;
+}
+
+/* read-only */
+.login-page .form-input[readonly],
+.login-page .iit-input[readonly],
+.login-page .iit-textarea[readonly] {
+  background:   var(--iit-bg-surface);
+  border-color: var(--iit-border);
+  color:        var(--iit-text-secondary);
+  cursor:       default;
+}
+
+/* ── Error state (add .iit-error class to the control) ───────────────── */
+.login-page .form-input.iit-error,
+.login-page .iit-input.iit-error,
+.login-page .iit-select.iit-error,
+.login-page .iit-textarea.iit-error {
+  border-color: var(--iit-accent);     /* IIT red border on error */
+  box-shadow:   0 0 0 3px rgba(194, 23, 23, 0.10);
+}
+.login-page .form-input.iit-error:focus,
+.login-page .iit-input.iit-error:focus,
+.login-page .iit-select.iit-error:focus,
+.login-page .iit-textarea.iit-error:focus {
+  border-color: var(--iit-accent);
+  box-shadow:   0 0 0 3px rgba(194, 23, 23, 0.18);
+}
+
+/* ── Input with suffix icon (e.g. eye toggle) ────────────────────────── */
+.login-page .iit-input-wrap {
+  position: relative;
+  display:  block;
+}
+.login-page .iit-input-wrap .form-input,
+.login-page .iit-input-wrap .iit-input {
+  padding-right: 38px;                 /* room for icon button */
+}
+.login-page .iit-input-icon {
+  position:   absolute;
+  right:       8px;
+  top:         50%;
+  transform:  translateY(-50%);
+  display:    flex;
+  align-items: center;
+  background:  none;
+  border:      none;
+  cursor:      pointer;
+  padding:     4px;
+  color:       var(--iit-text-muted);
+  border-radius: 4px;
+  transition:  color 0.15s ease;
+}
+.login-page .iit-input-icon:hover { color: var(--iit-primary); }
+.login-page .iit-input-icon:focus-visible {
+  outline:    none;
+  box-shadow: 0 0 0 2px var(--iit-primary);
+}
+
+/* ── Select ──────────────────────────────────────────────────────────── */
+.login-page .iit-select {
+  padding-right: 36px;                 /* room for custom arrow */
+  cursor:        pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23585858' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:   no-repeat;
+  background-position: right 12px center;
+  background-size:     12px 8px;
+}
+.login-page .iit-select:disabled {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8a8a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.login-page .iit-select option {
+  font-family: var(--iit-font);
+  background:  #ffffff;
+  color:       var(--iit-text-primary);
+}
+
+/* ── Textarea ─────────────────────────────────────────────────────────── */
+.login-page .iit-textarea {
+  min-height:  96px;
+  resize:      vertical;
+  line-height: var(--lh-relaxed);
+}
+
+/* ── Checkbox ─────────────────────────────────────────────────────────── */
+/* Usage: <label class="iit-checkbox-label">
+            <input type="checkbox" class="iit-checkbox"> Label text
+          </label>                                                          */
+.login-page .iit-checkbox-label {
+  display:     inline-flex;
+  align-items: flex-start;
+  gap:         9px;
+  cursor:      pointer;
+  font-family: var(--iit-font);
+  font-size:   var(--fs-body);
+  font-weight: var(--fw-regular);
+  color:       var(--iit-text-primary);
+  line-height: var(--lh-normal);
+  user-select: none;
+}
+.login-page .iit-checkbox {
+  /* Hidden native checkbox */
+  appearance:      none;
+  -webkit-appearance: none;
+  flex-shrink:     0;
+  width:           17px;
+  height:          17px;
+  margin-top:      2px;
+  border:          1.5px solid var(--iit-border);
+  border-radius:   4px;
+  background:      var(--iit-bg-surface);
+  cursor:          pointer;
+  transition:
+    border-color 0.15s ease,
+    background   0.15s ease,
+    box-shadow   0.15s ease;
+}
+/* hover */
+.login-page .iit-checkbox:hover:not(:disabled) {
+  border-color: #a8bfd6;
+}
+/* checked */
+.login-page .iit-checkbox:checked {
+  background:   var(--iit-primary);
+  border-color: var(--iit-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath d='M1 4l3 3 5-6' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:   no-repeat;
+  background-position: center;
+}
+/* focus-visible */
+.login-page .iit-checkbox:focus-visible {
+  outline:    none;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.18);
+}
+/* disabled */
+.login-page .iit-checkbox:disabled {
+  background:   #eef1f5;
+  border-color: #d0d7e2;
+  cursor:       not-allowed;
+  opacity:      0.6;
+}
+.login-page .iit-checkbox-label:has(.iit-checkbox:disabled) {
+  color:   var(--iit-text-muted);
+  cursor:  not-allowed;
+}
+
+/* ── Validation messages ─────────────────────────────────────────────── */
+/* Error message below a field */
+.login-page .iit-msg-error {
+  display:     flex;
+  align-items: flex-start;
+  gap:         6px;
+  font-family: var(--iit-font);
+  font-size:   var(--fs-sm);
+  font-weight: var(--fw-regular);
+  color:       var(--iit-accent);         /* IIT red */
+  line-height: var(--lh-normal);
+  margin-top:  2px;
+}
+.login-page .iit-msg-error svg { flex-shrink: 0; margin-top: 1px; }
+
+/* Hint / helper text below a field */
+.login-page .iit-msg-hint {
+  display:     flex;
+  align-items: flex-start;
+  gap:         6px;
+  font-family: var(--iit-font);
+  font-size:   var(--fs-sm);
+  color:       var(--iit-text-secondary);
+  line-height: var(--lh-normal);
+  margin-top:  2px;
+  background:  var(--iit-bg-surface);
+  border:      1px solid var(--iit-border);
+  border-radius: var(--radius-sm);
+  padding:     6px 10px;
+}
+.login-page .iit-msg-hint span { color: var(--iit-accent); font-weight: var(--fw-semibold); }
+
+/* Banner-level form error (e.g. "Login failed") */
+.login-page .iit-form-error-banner {
+  display:      flex;
+  align-items:  flex-start;
+  gap:          8px;
+  background:   rgba(194, 23, 23, 0.07);
+  border:       1px solid rgba(194, 23, 23, 0.25);
+  border-left:  3px solid var(--iit-accent);
+  border-radius: var(--radius-sm);
+  padding:      10px 12px;
+  margin-bottom: 1rem;
+  font-family:  var(--iit-font);
+  font-size:    var(--fs-sm);
+  color:        var(--iit-accent);
+  line-height:  var(--lh-normal);
+  animation:    fadeUp 0.18s ease;
+}
+.login-page .iit-form-error-banner svg { flex-shrink: 0; margin-top: 1px; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    IIT Delhi Button System — scoped to .login-page

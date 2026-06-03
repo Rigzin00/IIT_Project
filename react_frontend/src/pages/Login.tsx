@@ -73,11 +73,11 @@ export default function Login() {
               <label className="form-label" htmlFor="login-email">
                 Institute Email
               </label>
-              <div style={{ position: 'relative' }}>
+              <div className="iit-input-wrap">
                 <input
                   id="login-email"
                   type="email"
-                  className="form-input"
+                  className={`form-input${error ? ' iit-error' : ''}`}
                   placeholder={activeRole.hint}
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError(''); }}
@@ -86,24 +86,24 @@ export default function Login() {
                 />
                 <button
                   type="button"
+                  className="iit-input-icon"
                   onClick={() => setShowHint(h => !h)}
-                  style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--iit-text-muted)', display: 'flex' }}
                   title="Show hint"
                 >
                   {showHint ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
               {showHint && (
-                <div style={{ marginTop: 6, fontSize: 12, color: 'var(--iit-text-secondary)', background: 'var(--iit-bg-surface)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--iit-border)' }}>
-                  💡 Hint: <span style={{ color: 'var(--iit-accent)' }}>{activeRole.hint}</span>
+                <div className="iit-msg-hint">
+                  💡 Hint: <span>{activeRole.hint}</span>
                 </div>
               )}
             </div>
 
             {error && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--danger-dim)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 6, padding: '8px 10px', marginBottom: '1rem' }}>
-                <AlertCircle size={14} color="var(--danger)" style={{ marginTop: 1, flexShrink: 0 }} />
-                <span style={{ fontSize: 12, color: 'var(--danger)' }}>{error}</span>
+              <div className="iit-form-error-banner">
+                <AlertCircle size={14} style={{ flexShrink: 0, marginTop: 1 }} />
+                <span>{error}</span>
               </div>
             )}
 
