@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
+/* Inter kept as a fallback stack; Titillium Web is the IIT Delhi standard font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
 
 :root {
+  /* ── Color palette ── */
   --bg-base: #0a0c12;
   --bg-card: #111318;
   --bg-card2: #1a1d27;
@@ -31,6 +33,29 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
+
+  /* ── IIT Delhi Typography Tokens ── */
+  --font-base:     'Titillium Web', 'Inter', system-ui, sans-serif;
+
+  /* Font-size scale (rem-based, root = 14px) */
+  --fs-h1:         1.571rem;  /* 22px — page title            */
+  --fs-h2:         1.286rem;  /* 18px — section heading       */
+  --fs-h3:         1.143rem;  /* 16px — card / modal title    */
+  --fs-h4:         1rem;      /* 14px — sub-section heading   */
+  --fs-body:       0.929rem;  /* 13px — default body text     */
+  --fs-sm:         0.857rem;  /* 12px — labels, captions      */
+  --fs-xs:         0.786rem;  /* 11px — meta, badges, hints   */
+  --fs-xxs:        0.714rem;  /* 10px — sidebar section caps  */
+
+  /* Font-weight scale */
+  --fw-regular:    400;
+  --fw-semibold:   600;
+  --fw-bold:       700;
+
+  /* Line-height scale */
+  --lh-tight:      1.25;
+  --lh-normal:     1.5;
+  --lh-relaxed:    1.65;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -39,11 +64,60 @@ html { font-size: 14px; }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-base);
   background: var(--bg-base);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: var(--lh-normal);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+}
+
+/* ─── IIT Delhi Typography Scale ─────────────────────────────────────────
+   Heading hierarchy: h1→h4
+   Body / UI text standardized via utility classes
+   Table typography defined here to override any local overrides
+─────────────────────────────────────────────────────────────────────── */
+
+/* Semantic headings */
+.t-h1 {
+  font-size: var(--fs-h1); font-weight: var(--fw-bold);
+  line-height: var(--lh-tight); letter-spacing: -0.3px;
+  font-family: var(--font-base);
+}
+.t-h2 {
+  font-size: var(--fs-h2); font-weight: var(--fw-bold);
+  line-height: var(--lh-tight); letter-spacing: -0.2px;
+  font-family: var(--font-base);
+}
+.t-h3 {
+  font-size: var(--fs-h3); font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  font-family: var(--font-base);
+}
+.t-h4 {
+  font-size: var(--fs-h4); font-weight: var(--fw-semibold);
+  line-height: var(--lh-normal);
+  font-family: var(--font-base);
+}
+
+/* Body text */
+.t-body   { font-size: var(--fs-body); font-weight: var(--fw-regular); line-height: var(--lh-normal); }
+.t-body-m { font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: var(--lh-normal); }
+
+/* Small / label text */
+.t-sm   { font-size: var(--fs-sm); font-weight: var(--fw-regular); line-height: var(--lh-normal); }
+.t-sm-m { font-size: var(--fs-sm); font-weight: var(--fw-semibold); line-height: var(--lh-normal); }
+
+/* Extra small / meta text */
+.t-xs   { font-size: var(--fs-xs); font-weight: var(--fw-regular); }
+.t-xs-m { font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
+
+/* Caps label (section headers, badge text, etc.) */
+.t-caps {
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+  text-transform: uppercase; letter-spacing: 0.6px;
 }
 
 #root { min-height: 100vh; display: flex; flex-direction: column; }
@@ -67,8 +141,9 @@ body {
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 14px; border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: 500; cursor: pointer;
-  border: none; transition: all 0.15s ease;
+  font-size: var(--fs-body); font-weight: var(--fw-semibold);
+  font-family: var(--font-base);
+  cursor: pointer; border: none; transition: all 0.15s ease;
   white-space: nowrap;
 }
 .btn-primary {
@@ -95,13 +170,15 @@ body {
 .btn-success:hover { background: rgba(34,197,94,0.22); }
 .btn-success:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.btn-sm { padding: 4px 10px; font-size: 12px; }
-.btn-xs { padding: 3px 8px; font-size: 11px; }
+.btn-sm { padding: 4px 10px; font-size: var(--fs-sm); }
+.btn-xs { padding: 3px 8px;  font-size: var(--fs-xs); }
 
 /* ─── Badges ─── */
 .badge {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 99px;
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+  font-family: var(--font-base);
   letter-spacing: 0.3px; white-space: nowrap;
 }
 .badge-pending   { background: var(--warning-dim);  color: var(--warning); }
@@ -113,33 +190,41 @@ body {
 
 /* ─── Form controls ─── */
 .form-label {
-  display: block; font-size: 12px; font-weight: 500;
+  display: block;
+  font-size: var(--fs-sm); font-weight: var(--fw-semibold);
+  font-family: var(--font-base);
   color: var(--text-secondary); margin-bottom: 4px;
 }
 .form-input {
   width: 100%;
   background: var(--bg-card2); border: 1px solid var(--border-light);
   border-radius: var(--radius-sm); color: var(--text-primary);
-  padding: 7px 10px; font-size: 13px; font-family: inherit;
+  padding: 7px 10px;
+  font-size: var(--fs-body); font-family: var(--font-base);
   outline: none; transition: border-color 0.15s;
 }
 .form-input:focus { border-color: var(--accent); }
 .form-input::placeholder { color: var(--text-muted); }
 .form-input option { background: var(--bg-card2); }
 .form-select { appearance: none; cursor: pointer; }
-.form-error { font-size: 12px; color: var(--danger); margin-top: 4px; }
+.form-error { font-size: var(--fs-sm); color: var(--danger); margin-top: 4px; }
 
 /* ─── Table ─── */
-.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--fs-body); font-family: var(--font-base);
+}
 .data-table th {
   text-align: left; padding: 8px 12px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
-  color: var(--text-muted); text-transform: uppercase;
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+  letter-spacing: 0.5px; color: var(--text-muted);
+  text-transform: uppercase;
   border-bottom: 1px solid var(--border); white-space: nowrap;
 }
 .data-table td {
   padding: 10px 12px; border-bottom: 1px solid var(--border);
   vertical-align: middle;
+  font-size: var(--fs-body); line-height: var(--lh-normal);
 }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tbody tr:hover { background: var(--bg-hover); }
@@ -162,14 +247,15 @@ body {
 .modal-header {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
 }
-.modal-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.modal-title { font-size: var(--fs-h3); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); }
 
 /* ─── Toast ─── */
 .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 100; display: flex; flex-direction: column; gap: 8px; }
 .toast {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 14px; border-radius: var(--radius-md);
-  font-size: 13px; font-weight: 500;
+  font-size: var(--fs-body); font-weight: var(--fw-semibold);
+  font-family: var(--font-base);
   box-shadow: var(--shadow-lg); min-width: 280px; max-width: 380px;
   animation: slideIn 0.2s ease;
 }
@@ -181,15 +267,20 @@ body {
 .divider { height: 1px; background: var(--border); margin: 1rem 0; }
 
 /* ─── Section header ─── */
-.section-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 0.75rem; }
+.section-title {
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+  font-family: var(--font-base);
+  color: var(--text-secondary); text-transform: uppercase;
+  letter-spacing: 0.6px; margin-bottom: 0.75rem;
+}
 
 /* ─── Stats ─── */
 .stat-card {
   background: var(--bg-card2); border: 1px solid var(--border); border-radius: var(--radius-md);
   padding: 1rem; display: flex; flex-direction: column; gap: 4px;
 }
-.stat-value { font-size: 22px; font-weight: 700; color: var(--text-primary); }
-.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+.stat-value { font-size: var(--fs-h1); font-weight: var(--fw-bold); font-family: var(--font-base); color: var(--text-primary); }
+.stat-label { font-size: var(--fs-xs); color: var(--text-muted); font-weight: var(--fw-semibold); font-family: var(--font-base); text-transform: uppercase; letter-spacing: 0.4px; }
 
 /* ─── Sidebar ─── */
 .sidebar {
@@ -200,13 +291,15 @@ body {
 .sidebar-logo {
   padding: 18px 16px; border-bottom: 1px solid var(--border);
 }
-.sidebar-logo-title { font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
-.sidebar-logo-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.sidebar-logo-title { font-size: var(--fs-h4); font-weight: var(--fw-bold); font-family: var(--font-base); color: var(--text-primary); line-height: var(--lh-tight); }
+.sidebar-logo-sub { font-size: var(--fs-xs); font-family: var(--font-base); color: var(--text-muted); margin-top: 2px; }
 .sidebar-nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; }
 .sidebar-link {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 10px; border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: 500; color: var(--text-secondary);
+  font-size: var(--fs-body); font-weight: var(--fw-semibold);
+  font-family: var(--font-base);
+  color: var(--text-secondary);
   cursor: pointer; border: none; background: none; width: 100%; text-align: left;
   transition: all 0.15s;
 }
@@ -214,7 +307,7 @@ body {
 .sidebar-link.active { background: var(--accent-dim); color: var(--accent-light); }
 .sidebar-link.active svg { color: var(--accent-light); }
 .sidebar-link svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
-.sidebar-section { padding: 10px 10px 4px; font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.sidebar-section { padding: 10px 10px 4px; font-size: var(--fs-xxs); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
 .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
 
 /* ─── Navbar ─── */
@@ -223,15 +316,15 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 20px; position: sticky; top: 0; z-index: 30;
 }
-.topbar-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.topbar-title { font-size: var(--fs-h4); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 
 /* ─── Layout ─── */
 .app-layout { display: flex; min-height: 100vh; }
 .main-content { flex: 1; overflow-x: hidden; }
 .page-header { padding: 20px 24px 0; }
-.page-title { font-size: 20px; font-weight: 700; color: var(--text-primary); }
-.page-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.page-title { font-size: var(--fs-h2); font-weight: var(--fw-bold); font-family: var(--font-base); color: var(--text-primary); line-height: var(--lh-tight); }
+.page-sub   { font-size: var(--fs-body); font-family: var(--font-base); color: var(--text-secondary); margin-top: 2px; line-height: var(--lh-normal); }
 .page-body { padding: 16px 24px 24px; }
 
 /* ─── Filter bar ─── */
@@ -253,7 +346,7 @@ body {
 /* ─── Empty state ─── */
 .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
 .empty-state svg { margin: 0 auto 0.75rem; opacity: 0.4; }
-.empty-state p { font-size: 13px; }
+.empty-state p { font-size: var(--fs-body); font-family: var(--font-base); }
 
 /* ─────────────────────────────────────────────────────────────────────────
    IIT Delhi Design System — Login page only
@@ -395,10 +488,10 @@ body {
 }
 .course-card:hover { border-color: var(--border-light); }
 .course-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.course-code { font-size: 11px; font-weight: 600; color: var(--accent-light); font-family: monospace; }
-.course-name { font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 2px 0 4px; }
-.course-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); }
-.course-desc { font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+.course-code { font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--accent-light); font-family: monospace; }
+.course-name { font-size: var(--fs-h4); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); margin: 2px 0 4px; }
+.course-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: var(--fs-sm); font-family: var(--font-base); color: var(--text-secondary); }
+.course-desc { font-size: var(--fs-sm); font-family: var(--font-base); color: var(--text-secondary); margin-top: 6px; line-height: var(--lh-relaxed); }
 
 /* ─── Animations ─── */
 @keyframes spin    { to { transform: rotate(360deg); } }
