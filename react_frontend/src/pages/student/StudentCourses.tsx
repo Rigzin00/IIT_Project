@@ -86,12 +86,21 @@ export default function StudentCourses() {
       <div className="sc-header">
         <div className="sc-header-inner">
           <div className="sc-title-group">
-            <div className="sc-icon-wrap">
+            {/* <div className="sc-icon-wrap">
               <BookOpen size={20} color="#C41212" />
-            </div>
+            </div> */}
+
+            <div className="sc-icon-wrap">
+            <img
+              src="/image.png"
+              alt="CSE Icon"
+               width={64}
+               height={64}
+              className="w-5 h-5 object-contain"
+            />
+          </div>
             <div>
               <div className="sc-page-title">Minor Course Registration</div>
-              <div className="sc-title-accent" />
               <div className="sc-page-sub">Browse and register for open minor-eligible courses</div>
             </div>
           </div>
@@ -105,7 +114,7 @@ export default function StudentCourses() {
         <div className="sc-search-wrap">
           <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
             <Search
-              size={14}
+              size={16}
               style={{
                 position: 'absolute', left: 11, top: '50%',
                 transform: 'translateY(-50%)',
@@ -157,7 +166,7 @@ export default function StudentCourses() {
                       <div className="sc-meta">
                         <span className="sc-meta-item">{course.department}</span>
                         <span className="sc-meta-sep">·</span>
-                        <span className="sc-credits-pill">★ {course.credits} cr</span>
+                        {/* <span className="sc-credits-pill">★ {course.credits} credit</span> */}
                         <span className="sc-meta-sep">·</span>
                         <span className="sc-meta-item">{course.professor_name}</span>
                       </div>

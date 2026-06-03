@@ -840,13 +840,22 @@
 }
 .sc-page .sc-title-group { display: flex; align-items: center; gap: 14px; }
 .sc-page .sc-icon-wrap {
-  width: 44px; height: 44px;
-  background: var(--sc-bg-surface);
-  border: 1.5px solid var(--sc-primary-border);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px var(--sc-primary-dim);
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sc-page .sc-icon-wrap img {
+  width: 80px;   /* Increase if needed */
+  height: 80px;
+  object-fit: contain;
 }
 .sc-page .sc-page-title {
   font-size: 20px;
@@ -863,14 +872,6 @@
   margin-top: 2px;
   line-height: 1.5;
 }
-/* Gold accent underline under title */
-.sc-page .sc-title-accent {
-  width: 32px; height: 3px;
-  background: linear-gradient(90deg, var(--sc-primary) 0%, var(--sc-gold) 100%);
-  border-radius: 2px;
-  margin-top: 5px;
-}
-
 /* ── Body ── */
 .sc-page .sc-body { padding: 20px 24px 28px; background: var(--sc-bg); min-height: calc(100vh - 120px); }
 
@@ -884,7 +885,7 @@
 }
 .sc-page .sc-search {
   flex: 1;
-  min-width: 220px;
+  min-width: 320px;
   max-width: 380px;
   background: var(--sc-bg-card);
   border: 1.5px solid var(--sc-border);
@@ -911,7 +912,7 @@
   color: var(--sc-text-muted);
   background: var(--sc-bg-card);
   border: 1px solid var(--sc-border);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 4px 12px;
   white-space: nowrap;
 }
@@ -969,8 +970,8 @@
   font-weight: 700;
   font-family: monospace;
   color: var(--sc-primary);
-  background: var(--sc-primary-dim);
-  border: 1px solid var(--sc-primary-border);
+  /* background: var(--sc-primary-dim); */
+  /* border: 1px solid var(--sc-primary-border); */
   border-radius: 5px;
   padding: 2px 8px;
   letter-spacing: 0.5px;
@@ -1014,33 +1015,22 @@
 }
 
 /* ── Status badge ── */
-.sc-page .sc-status {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  flex-shrink: 0;
-}
 .sc-page .sc-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
   font-family: var(--sc-font);
-  border-radius: 20px;
-  padding: 4px 10px;
   white-space: nowrap;
+  letter-spacing: 0.1px;
 }
-.sc-page .sc-status-pill.pending  { background: rgba(245,158,11,0.10); color: #B45309; border: 1px solid rgba(245,158,11,0.30); }
-.sc-page .sc-status-pill.approved { background: rgba(22,163,74,0.10);  color: #166534; border: 1px solid rgba(22,163,74,0.30); }
-.sc-page .sc-status-pill.rejected { background: rgba(196,18,18,0.08);  color: var(--sc-primary); border: 1px solid var(--sc-primary-border); }
-.sc-page .sc-grade-tag {
-  font-size: 11px;
-  font-family: var(--sc-font);
-  color: var(--sc-text-muted);
-}
-.sc-page .sc-grade-tag strong { color: var(--sc-text-heading); font-weight: 700; }
+/* Pending: neutral gray — not colored */
+.sc-page .sc-status-pill.pending  { color: var(--sc-text-muted); }
+/* Approved: dark text, understated */
+.sc-page .sc-status-pill.approved { color: #374151; }
+/* Rejected: site red only */
+.sc-page .sc-status-pill.rejected { color: var(--sc-red); }
 
 /* ── Register button ── */
 .sc-page .sc-register-btn {
