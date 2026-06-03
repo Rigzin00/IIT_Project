@@ -11,12 +11,18 @@ const ROLES: { id: Role; label: string; icon: typeof GraduationCap; hint: string
   { id: 'admin',     label: 'Admin',     icon: ShieldCheck,   hint: 'admin@institute.edu' },
 ];
 
+const QUICK_CREDS = [
+  { role: 'student'   as Role, email: 'rigzin.angdu@institute.edu' },
+  { role: 'professor' as Role, email: 'arpan.sen@institute.edu' },
+  { role: 'admin'     as Role, email: 'admin@institute.edu' },
+];
+
 export default function Login() {
   const { login: authLogin } = useAuth();
-  const [role, setRole] = useState<Role>('student');
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [role, setRole]         = useState<Role>('student');
+  const [email, setEmail]       = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
   const [showHint, setShowHint] = useState(false);
 
   const activeRole = ROLES.find(r => r.id === role)!;
@@ -42,17 +48,41 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div style={{ width: '100%', maxWidth: 400, padding: '0 16px' }}>
-        {/* Header */}
+      <div style={{ width: '100%', maxWidth: 460, padding: '0 16px' }}>
+
+        {/* ── Header ── */}
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div className="login-icon-badge" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 52, height: 52, borderRadius: 14, marginBottom: 14 }}>
-            <GraduationCap size={26} color="var(--iit-accent)" />
+          <div
+            className="login-icon-badge"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 56,
+              height: 56,
+              borderRadius: 16,
+              marginBottom: 16,
+            }}
+          >
+            <GraduationCap size={28} color="var(--iit-primary)" />
           </div>
+
           <div className="login-logo">Integrated Academic Portal</div>
+
+          {/* Gold accent divider under title */}
+          <div style={{
+            width: 40, height: 3,
+            background: 'linear-gradient(90deg, var(--iit-primary) 0%, var(--iit-gold) 100%)',
+            borderRadius: 2,
+            margin: '8px auto 10px',
+          }} />
+
           <div className="login-sub">Sign in with your institute credentials</div>
         </div>
 
+        {/* ── Card ── */}
         <div className="login-card">
+
           {/* Role Tabs */}
           <div className="role-tabs">
             {ROLES.map(r => (
@@ -68,9 +98,10 @@ export default function Login() {
             ))}
           </div>
 
+          {/* Form */}
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '1rem' }}>
-              <label className="form-label" htmlFor="login-email">
+            <div style={{ marginBottom: '1.125rem' }}>
+              <label className="form-label" htmlFor="login-email" style={{ marginBottom: 6, display: 'block' }}>
                 Institute Email
               </label>
               <div className="iit-input-wrap">
@@ -90,9 +121,10 @@ export default function Login() {
                   onClick={() => setShowHint(h => !h)}
                   title="Show hint"
                 >
-                  {showHint ? <EyeOff size={14} /> : <Eye size={14} />}
+                  {showHint ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
+
               {showHint && (
                 <div className="iit-msg-hint">
                   💡 Hint: <span>{activeRole.hint}</span>
@@ -118,25 +150,39 @@ export default function Login() {
             </button>
           </form>
 
-          <div style={{ marginTop: '1.25rem', padding: '10px', background: 'var(--iit-bg-surface)', borderRadius: 6, border: '1px solid var(--iit-border)' }}>
-            <div style={{ fontSize: 11, color: 'var(--iit-text-muted)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Test Credentials</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {[
-                { role: 'student',   email: 'rigzin.angdu@institute.edu' },
-                { role: 'professor', email: 'arpan.sen@institute.edu' },
-                { role: 'admin',     email: 'admin@institute.edu' },
-              ].map(c => (
+          {/* Divider */}
+          <div className="iit-divider">Quick Test Credentials</div>
+
+          {/* Quick Credentials Panel */}
+          <div className="iit-creds-panel">
+            <div className="iit-creds-title">Test Accounts</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {QUICK_CREDS.map(c => (
                 <button
                   key={c.role}
                   type="button"
-                  onClick={() => { setRole(c.role as Role); setEmail(c.email); setError(''); }}
-                  style={{ background: 'none', border: 'none', padding: '2px 0', cursor: 'pointer', textAlign: 'left', fontSize: 11, color: 'var(--iit-text-secondary)' }}
+                  className="iit-creds-btn"
+                  onClick={() => { setRole(c.role); setEmail(c.email); setError(''); }}
                 >
-                  <span style={{ color: 'var(--iit-primary)' }}>{c.role}</span>: {c.email}
+                  <span className="iit-creds-role">{c.role}</span>
+                  {': '}
+                  {c.email}
                 </button>
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Footer note */}
+        <div style={{
+          textAlign: 'center',
+          marginTop: '1.25rem',
+          fontSize: 11.5,
+          color: 'var(--iit-text-muted)',
+          fontFamily: 'var(--iit-font)',
+          lineHeight: 1.6,
+        }}>
+          IIT Delhi — Academic Management System
         </div>
       </div>
     </div>

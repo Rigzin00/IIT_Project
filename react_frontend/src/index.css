@@ -342,36 +342,58 @@
 } /* end @layer components */
 
 /* ══════════════════════════════════════════════════════════════════════════
-   LOGIN PAGE — IIT Delhi Design System
+   LOGIN PAGE — IIT Delhi Design System (Open Sans Theme)
    All tokens are scoped to .login-page so they never bleed into other pages.
 ══════════════════════════════════════════════════════════════════════════ */
 .login-page {
-  --iit-primary:         #003366;
-  --iit-accent:          #c21717;
-  --iit-accent-hover:    #a01313;
-  --iit-accent-dim:      rgba(194,23,23,0.10);
-  --iit-accent-border:   rgba(194,23,23,0.30);
-  --iit-text-primary:    #333333;
-  --iit-text-secondary:  #585858;
-  --iit-text-muted:      #8a8a8a;
-  --iit-text-on-dark:    #ffffff;
-  --iit-bg:              #ffffff;
-  --iit-bg-card:         #ffffff;
-  --iit-bg-surface:      #f5f7fa;
-  --iit-border:          #dcdcdc;
-  --iit-border-focus:    #003366;
-  --iit-shadow-card:     0 4px 24px rgba(0,51,102,0.10), 0 1px 4px rgba(0,0,0,0.06);
-  --iit-font:            'Titillium Web', 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --iit-font-size-base:  16px;
-  --iit-font-weight-base:700;
-  --iit-line-height-base:1.4286;
+  /* ── New IIT Delhi Color Palette ── */
+  --iit-primary:         #C41212;
+  --iit-primary-dark:    #9A0F0F;
+  --iit-primary-dim:     rgba(196,18,18,0.08);
+  --iit-primary-border:  rgba(196,18,18,0.25);
+  --iit-gold:            #F0A020;
+  --iit-gold-dim:        rgba(240,160,32,0.12);
+  --iit-gold-border:     rgba(240,160,32,0.35);
 
+  /* Legacy alias (kept for existing JSX refs) */
+  --iit-accent:          #C41212;
+  --iit-accent-hover:    #9A0F0F;
+  --iit-accent-dim:      rgba(196,18,18,0.08);
+  --iit-accent-border:   rgba(196,18,18,0.25);
+
+  /* Text */
+  --iit-text-primary:    #1F2937;
+  --iit-text-secondary:  #555555;
+  --iit-text-muted:      #9CA3AF;
+  --iit-text-on-dark:    #ffffff;
+
+  /* Surfaces */
+  --iit-bg:              #F2F2F2;
+  --iit-bg-card:         #FFFFFF;
+  --iit-bg-surface:      #F7EEEE;
+  --iit-bg-badge:        rgba(196,18,18,0.06);
+
+  /* Borders & Shadows */
+  --iit-border:          #E5E7EB;
+  --iit-border-focus:    #C41212;
+  --iit-shadow-card:     0 2px 16px rgba(196,18,18,0.08), 0 1px 4px rgba(0,0,0,0.05);
+  --iit-shadow-hover:    0 8px 32px rgba(196,18,18,0.14), 0 2px 8px rgba(0,0,0,0.08);
+
+  /* Typography */
+  --iit-font:            'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --iit-font-size-base:  15px;
+  --iit-font-weight-base:400;
+  --iit-line-height-base:1.5;
+
+  /* ── Layout ── */
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--iit-bg);
-  background-image: radial-gradient(ellipse 70% 55% at 50% -5%, rgba(0,51,102,0.08) 0%, transparent 100%);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(196,18,18,0.06) 0%, transparent 70%),
+    linear-gradient(180deg, #F2F2F2 0%, #F7EEEE 100%);
   font-family:   var(--iit-font);
   font-size:     var(--iit-font-size-base);
   font-weight:   var(--iit-font-weight-base);
@@ -380,83 +402,133 @@
   color-scheme:  light;
 }
 
+/* ── Decorative top stripe ── */
+.login-page::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--iit-primary) 0%, var(--iit-gold) 50%, var(--iit-primary) 100%);
+  z-index: 100;
+}
+
+/* ── Card ── */
 .login-page .login-card {
   background:    var(--iit-bg-card);
   border:        1px solid var(--iit-border);
-  border-radius: var(--radius-lg);
-  padding:       2rem;
-  width:         380px;
+  border-radius: 16px;
+  padding:       2.25rem 2rem;
+  width:         420px;
   box-shadow:    var(--iit-shadow-card);
+  position: relative;
+  overflow: hidden;
+  animation: loginCardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: box-shadow 300ms ease, transform 300ms ease;
 }
+.login-page .login-card:hover {
+  box-shadow: var(--iit-shadow-hover);
+  transform: translateY(-2px);
+}
+.login-page .login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--iit-primary) 0%, var(--iit-gold) 100%);
+}
+
+/* ── Header typography ── */
 .login-page .login-logo {
-  font-size:      22px;
+  font-size:      20px;
   font-weight:    700;
-  color:          var(--iit-primary);
+  color:          var(--iit-text-primary);
   margin-bottom:  4px;
   font-family:    var(--iit-font);
-  letter-spacing: -0.3px;
-  line-height:    var(--iit-line-height-base);
+  letter-spacing: -0.2px;
+  line-height:    1.3;
 }
 .login-page .login-sub {
-  font-size:     14px;
+  font-size:     13.5px;
   font-weight:   400;
   color:         var(--iit-text-secondary);
   margin-bottom: 1.5rem;
   font-family:   var(--iit-font);
-}
-.login-page .login-icon-badge {
-  background: var(--iit-accent-dim);
-  border:     1px solid var(--iit-accent-border);
+  line-height:   1.5;
 }
 
-/* Role tabs */
+/* ── Icon badge ── */
+.login-page .login-icon-badge {
+  background:    var(--iit-bg-surface);
+  border:        1.5px solid var(--iit-primary-border);
+  box-shadow:    0 2px 8px var(--iit-primary-dim);
+  transition:    box-shadow 300ms ease, transform 300ms ease;
+}
+.login-page .login-icon-badge:hover {
+  box-shadow:    0 4px 16px rgba(196,18,18,0.18);
+  transform:     scale(1.05);
+}
+
+/* ── Role tabs ── */
 .login-page .role-tabs {
   display: flex;
-  background: var(--iit-bg-surface);
-  border-radius: var(--radius-sm);
-  padding: 3px;
-  margin-bottom: 1.25rem;
-  gap: 2px;
+  background: #F7EEEE;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 1.5rem;
+  gap: 3px;
   border: 1px solid var(--iit-border);
 }
 .login-page .role-tab {
   flex: 1;
   text-align: center;
-  padding: 6px 4px;
-  border-radius: 5px;
-  font-size: 12px;
-  font-weight: 700;
+  padding: 8px 6px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
   cursor: pointer;
   border: none;
   background: none;
   color: var(--iit-text-muted);
-  transition: all 200ms ease;
+  transition: all 300ms ease;
   font-family: var(--iit-font);
-  line-height: var(--iit-line-height-base);
+  line-height: 1.4;
+  letter-spacing: 0.1px;
 }
-.login-page .role-tab.active             { background: var(--iit-primary); color: var(--iit-text-on-dark); }
-.login-page .role-tab:hover:not(.active) { color: var(--iit-text-primary); background: rgba(0,51,102,0.06); }
-.login-page .role-tab:focus-visible      { outline: none; box-shadow: 0 0 0 2px var(--iit-border-focus); }
+.login-page .role-tab.active {
+  background: var(--iit-primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(196,18,18,0.30);
+}
+.login-page .role-tab:hover:not(.active) {
+  color: var(--iit-primary);
+  background: rgba(196,18,18,0.06);
+}
+.login-page .role-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--iit-primary);
+}
 
-/* Labels */
+/* ── Form labels ── */
 .login-page .form-label,
 .login-page .iit-label {
   display: block;
   font-family: var(--iit-font);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--iit-text-secondary);
-  line-height: var(--iit-line-height-base);
+  line-height: 1.4;
   margin-bottom: 0;
   user-select: none;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
 }
-.login-page .iit-label .iit-required { color: var(--iit-accent); margin-left: 3px; font-weight: 700; }
+.login-page .iit-label .iit-required { color: var(--iit-primary); margin-left: 3px; font-weight: 700; }
 
 /* Field wrapper */
 .login-page .iit-field           { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
-.login-page .iit-field:last-child{ margin-bottom: 0; }
+.login-page .iit-field:last-child { margin-bottom: 0; }
 
-/* Inputs */
+/* ── Inputs ── */
 .login-page .form-input,
 .login-page .iit-input,
 .login-page .iit-select,
@@ -467,31 +539,39 @@
   font-size: 14px;
   font-weight: 400;
   color: var(--iit-text-primary);
-  line-height: var(--iit-line-height-base);
-  background: var(--iit-bg-surface);
+  line-height: 1.5;
+  background: #FAFAFA;
   border: 1.5px solid var(--iit-border);
-  border-radius: 3px;
-  padding: 9px 12px;
+  border-radius: 8px;
+  padding: 10px 14px;
   outline: none;
   box-shadow: none;
   appearance: none;
   -webkit-appearance: none;
-  transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+  transition: border-color 300ms ease, box-shadow 300ms ease, background 300ms ease;
 }
 .login-page .form-input::placeholder,
 .login-page .iit-input::placeholder,
-.login-page .iit-textarea::placeholder { color: var(--iit-text-muted); font-weight: 400; opacity: 1; }
-
+.login-page .iit-textarea::placeholder {
+  color: var(--iit-text-muted);
+  font-weight: 400;
+  opacity: 1;
+}
 .login-page .form-input:hover:not(:focus):not(:disabled):not([readonly]),
 .login-page .iit-input:hover:not(:focus):not(:disabled):not([readonly]),
 .login-page .iit-select:hover:not(:focus):not(:disabled),
-.login-page .iit-textarea:hover:not(:focus):not(:disabled):not([readonly]) { border-color: #a8bfd6; }
-
+.login-page .iit-textarea:hover:not(:focus):not(:disabled):not([readonly]) {
+  border-color: #D1D5DB;
+  background: #FFFFFF;
+}
 .login-page .form-input:focus,
 .login-page .iit-input:focus,
 .login-page .iit-select:focus,
-.login-page .iit-textarea:focus { border-color: var(--iit-primary); box-shadow: 0 0 0 3px rgba(0,51,102,0.12); background: #ffffff; }
-
+.login-page .iit-textarea:focus {
+  border-color: var(--iit-primary);
+  box-shadow: 0 0 0 3px rgba(196,18,18,0.10);
+  background: #ffffff;
+}
 .login-page .form-input:not(:placeholder-shown),
 .login-page .iit-input:not(:placeholder-shown),
 .login-page .iit-textarea:not(:placeholder-shown) { background: #ffffff; }
@@ -499,107 +579,127 @@
 .login-page .form-input:disabled,
 .login-page .iit-input:disabled,
 .login-page .iit-select:disabled,
-.login-page .iit-textarea:disabled { background: #eef1f5; border-color: #d0d7e2; color: var(--iit-text-muted); cursor: not-allowed; opacity: 0.7; }
-
+.login-page .iit-textarea:disabled {
+  background: #F3F4F6;
+  border-color: var(--iit-border);
+  color: var(--iit-text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 .login-page .form-input[readonly],
 .login-page .iit-input[readonly],
-.login-page .iit-textarea[readonly] { background: var(--iit-bg-surface); border-color: var(--iit-border); color: var(--iit-text-secondary); cursor: default; }
+.login-page .iit-textarea[readonly] {
+  background: var(--iit-bg-surface);
+  border-color: var(--iit-border);
+  color: var(--iit-text-secondary);
+  cursor: default;
+}
 
 /* Error state */
 .login-page .form-input.iit-error,
 .login-page .iit-input.iit-error,
 .login-page .iit-select.iit-error,
-.login-page .iit-textarea.iit-error { border-color: var(--iit-accent); box-shadow: 0 0 0 3px rgba(194,23,23,0.10); }
+.login-page .iit-textarea.iit-error {
+  border-color: var(--iit-primary);
+  box-shadow: 0 0 0 3px rgba(196,18,18,0.10);
+}
 .login-page .form-input.iit-error:focus,
 .login-page .iit-input.iit-error:focus,
 .login-page .iit-select.iit-error:focus,
-.login-page .iit-textarea.iit-error:focus { border-color: var(--iit-accent); box-shadow: 0 0 0 3px rgba(194,23,23,0.18); }
+.login-page .iit-textarea.iit-error:focus {
+  border-color: var(--iit-primary);
+  box-shadow: 0 0 0 3px rgba(196,18,18,0.18);
+}
 
-/* Input icon */
+/* ── Input with icon ── */
 .login-page .iit-input-wrap { position: relative; display: block; }
 .login-page .iit-input-wrap .form-input,
-.login-page .iit-input-wrap .iit-input { padding-right: 38px; }
+.login-page .iit-input-wrap .iit-input { padding-right: 42px; }
 .login-page .iit-input-icon {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
   display: flex; align-items: center;
   background: none; border: none; cursor: pointer; padding: 4px;
-  color: var(--iit-text-muted); border-radius: 4px; transition: color 200ms ease;
+  color: var(--iit-text-muted); border-radius: 6px;
+  transition: color 300ms ease, background 300ms ease;
 }
-.login-page .iit-input-icon:hover         { color: var(--iit-primary); }
+.login-page .iit-input-icon:hover {
+  color: var(--iit-primary);
+  background: var(--iit-primary-dim);
+}
 .login-page .iit-input-icon:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--iit-primary); }
 
 /* Select */
 .login-page .iit-select {
   padding-right: 36px;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23585858' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555555' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px;
 }
 .login-page .iit-select option { font-family: var(--iit-font); background: #ffffff; color: var(--iit-text-primary); }
 
 /* Textarea */
-.login-page .iit-textarea { min-height: 96px; resize: vertical; line-height: var(--iit-line-height-base); }
+.login-page .iit-textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
 
 /* Checkbox */
 .login-page .iit-checkbox-label {
   display: inline-flex; align-items: flex-start; gap: 9px; cursor: pointer;
   font-family: var(--iit-font); font-size: 14px; font-weight: 400;
-  color: var(--iit-text-primary); line-height: var(--iit-line-height-base); user-select: none;
+  color: var(--iit-text-primary); line-height: 1.5; user-select: none;
 }
 .login-page .iit-checkbox {
   appearance: none; -webkit-appearance: none; flex-shrink: 0;
   width: 17px; height: 17px; margin-top: 2px;
   border: 1.5px solid var(--iit-border); border-radius: 4px;
-  background: var(--iit-bg-surface); cursor: pointer;
-  transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+  background: #FAFAFA; cursor: pointer;
+  transition: border-color 300ms ease, background 300ms ease, box-shadow 300ms ease;
 }
-.login-page .iit-checkbox:hover:not(:disabled) { border-color: #a8bfd6; }
+.login-page .iit-checkbox:hover:not(:disabled) { border-color: var(--iit-primary); }
 .login-page .iit-checkbox:checked {
   background: var(--iit-primary); border-color: var(--iit-primary);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath d='M1 4l3 3 5-6' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: center;
 }
-.login-page .iit-checkbox:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,51,102,0.18); }
-.login-page .iit-checkbox:disabled      { background: #eef1f5; border-color: #d0d7e2; cursor: not-allowed; opacity: 0.6; }
+.login-page .iit-checkbox:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(196,18,18,0.18); }
+.login-page .iit-checkbox:disabled      { background: #F3F4F6; border-color: var(--iit-border); cursor: not-allowed; opacity: 0.6; }
 .login-page .iit-checkbox-label:has(.iit-checkbox:disabled) { color: var(--iit-text-muted); cursor: not-allowed; }
 
-/* Messages */
+/* ── Messages ── */
 .login-page .iit-msg-error {
   display: flex; align-items: flex-start; gap: 6px;
   font-family: var(--iit-font); font-size: 12px; font-weight: 400;
-  color: var(--iit-accent); line-height: var(--iit-line-height-base); margin-top: 2px;
+  color: var(--iit-primary); line-height: 1.5; margin-top: 2px;
 }
 .login-page .iit-msg-hint {
   display: flex; align-items: flex-start; gap: 6px;
   font-family: var(--iit-font); font-size: 12px;
-  color: var(--iit-text-secondary); line-height: var(--iit-line-height-base);
-  margin-top: 2px; background: var(--iit-bg-surface);
-  border: 1px solid var(--iit-border); border-radius: var(--radius-sm); padding: 6px 10px;
+  color: var(--iit-text-secondary); line-height: 1.5;
+  margin-top: 6px; background: #FFF8EC;
+  border: 1px solid var(--iit-gold-border); border-radius: 6px; padding: 6px 10px;
 }
-.login-page .iit-msg-hint span { color: var(--iit-accent); font-weight: 700; }
+.login-page .iit-msg-hint span { color: var(--iit-gold); font-weight: 700; }
 .login-page .iit-form-error-banner {
   display: flex; align-items: flex-start; gap: 8px;
-  background: rgba(194,23,23,0.07);
-  border: 1px solid rgba(194,23,23,0.25);
-  border-left: 3px solid var(--iit-accent);
-  border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem;
-  font-family: var(--iit-font); font-size: 12px;
-  color: var(--iit-accent); line-height: var(--iit-line-height-base);
-  animation: fadeUp 0.18s ease;
+  background: rgba(196,18,18,0.06);
+  border: 1px solid rgba(196,18,18,0.20);
+  border-left: 3px solid var(--iit-primary);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 1rem;
+  font-family: var(--iit-font); font-size: 13px;
+  color: var(--iit-primary); line-height: 1.5;
+  animation: fadeUp 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .login-page .iit-form-error-banner svg { flex-shrink: 0; margin-top: 1px; }
 
-/* IIT button variants */
+/* ── Buttons ── */
 .login-page .btn-iit-primary,
 .login-page .btn-iit-danger,
 .login-page .btn-iit-secondary {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-  padding: 10px 18px;
-  font-family: var(--iit-font); font-size: 14px; font-weight: 700;
-  letter-spacing: 0.25px; line-height: 1; white-space: nowrap;
-  border-radius: var(--radius-sm); border: 2px solid transparent;
+  padding: 11px 20px;
+  font-family: var(--iit-font); font-size: 14.5px; font-weight: 700;
+  letter-spacing: 0.3px; line-height: 1; white-space: nowrap;
+  border-radius: 8px; border: 2px solid transparent;
   cursor: pointer; user-select: none; position: relative; overflow: hidden;
-  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease, opacity 200ms ease, transform 100ms ease;
+  transition: background-color 300ms ease, border-color 300ms ease, box-shadow 300ms ease, transform 150ms ease;
 }
 .login-page .btn-iit-primary.loading::after,
 .login-page .btn-iit-danger.loading::after,
@@ -608,34 +708,90 @@
   border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent;
   animation: iit-btn-spin 0.65s linear infinite; flex-shrink: 0;
 }
-.login-page .btn-iit-primary  { background: #003366; border-color: #003366; color: #fff; box-shadow: 0 2px 6px rgba(0,51,102,0.25); }
-.login-page .btn-iit-primary:hover:not(:disabled)  { background: #00264d; border-color: #00264d; box-shadow: 0 4px 12px rgba(0,51,102,0.35); transform: translateY(-1px); }
-.login-page .btn-iit-primary:focus-visible          { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #003366; outline: none; }
-.login-page .btn-iit-primary:disabled               { background: #7fa3cc; border-color: #7fa3cc; opacity: 0.55; cursor: not-allowed; }
+.login-page .btn-iit-primary  { background: var(--iit-primary); border-color: var(--iit-primary); color: #fff; box-shadow: 0 2px 8px rgba(196,18,18,0.30); }
+.login-page .btn-iit-primary:hover:not(:disabled)  { background: var(--iit-primary-dark); border-color: var(--iit-primary-dark); box-shadow: 0 6px 20px rgba(196,18,18,0.40); transform: translateY(-1px); }
+.login-page .btn-iit-primary:focus-visible          { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--iit-primary); outline: none; }
+.login-page .btn-iit-primary:disabled               { background: #E88080; border-color: #E88080; opacity: 0.60; cursor: not-allowed; }
 
-.login-page .btn-iit-danger   { background: #c21717; border-color: #c21717; color: #fff; box-shadow: 0 2px 6px rgba(194,23,23,0.25); }
-.login-page .btn-iit-danger:hover:not(:disabled)   { background: #a01313; border-color: #a01313; box-shadow: 0 4px 12px rgba(194,23,23,0.35); transform: translateY(-1px); }
-.login-page .btn-iit-danger:focus-visible           { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #c21717; outline: none; }
-.login-page .btn-iit-danger:disabled                { background: #e88080; border-color: #e88080; opacity: 0.55; cursor: not-allowed; }
+.login-page .btn-iit-danger   { background: var(--iit-primary); border-color: var(--iit-primary); color: #fff; box-shadow: 0 2px 8px rgba(196,18,18,0.25); }
+.login-page .btn-iit-danger:hover:not(:disabled)   { background: var(--iit-primary-dark); border-color: var(--iit-primary-dark); box-shadow: 0 6px 20px rgba(196,18,18,0.40); transform: translateY(-1px); }
+.login-page .btn-iit-danger:focus-visible           { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--iit-primary); outline: none; }
+.login-page .btn-iit-danger:disabled                { background: #E88080; border-color: #E88080; opacity: 0.55; cursor: not-allowed; }
 
-.login-page .btn-iit-secondary { background: #fff; border-color: #003366; color: #003366; }
-.login-page .btn-iit-secondary:hover:not(:disabled) { background: rgba(0,51,102,0.05); box-shadow: 0 3px 8px rgba(0,51,102,0.15); transform: translateY(-1px); }
-.login-page .btn-iit-secondary:focus-visible        { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #003366; outline: none; }
-.login-page .btn-iit-secondary:disabled             { background: #f5f7fa; border-color: #b0c4de; color: #8a9bb0; opacity: 0.60; cursor: not-allowed; }
+.login-page .btn-iit-secondary { background: #fff; border-color: var(--iit-primary); color: var(--iit-primary); }
+.login-page .btn-iit-secondary:hover:not(:disabled) { background: var(--iit-primary-dim); box-shadow: 0 4px 12px rgba(196,18,18,0.15); transform: translateY(-1px); }
+.login-page .btn-iit-secondary:focus-visible        { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--iit-primary); outline: none; }
+.login-page .btn-iit-secondary:disabled             { background: #F3F4F6; border-color: var(--iit-border); color: var(--iit-text-muted); opacity: 0.60; cursor: not-allowed; }
 
-/* Shim: .btn.btn-primary inside .login-page → navy instead of indigo */
+/* Shim: .btn.btn-primary inside .login-page → IIT Red */
 .login-page .btn.btn-primary {
-  background: #003366; border-color: #003366; color: #fff;
-  font-family: var(--iit-font); font-weight: 700; letter-spacing: 0.25px;
-  box-shadow: 0 2px 6px rgba(0,51,102,0.25); border: 2px solid #003366;
-  transition: background-color 200ms ease, box-shadow 200ms ease, transform 100ms ease;
+  background: var(--iit-primary); border-color: var(--iit-primary); color: #fff;
+  font-family: var(--iit-font); font-size: 14.5px; font-weight: 700; letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(196,18,18,0.30); border: 2px solid var(--iit-primary);
+  border-radius: 8px; padding: 11px 20px;
+  transition: background-color 300ms ease, box-shadow 300ms ease, transform 150ms ease;
 }
 .login-page .btn.btn-primary::after                              { content: none; }
-.login-page .btn.btn-primary:hover:not(:disabled):not(.loading)  { background: #00264d; border-color: #00264d; box-shadow: 0 4px 12px rgba(0,51,102,0.35); transform: translateY(-1px); }
-.login-page .btn.btn-primary:focus-visible                        { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #003366; }
-.login-page .btn.btn-primary:active:not(:disabled):not(.loading)  { background: #001f3d; box-shadow: 0 1px 3px rgba(0,51,102,0.20); transform: translateY(0); }
-.login-page .btn.btn-primary:disabled                             { background: #7fa3cc; border-color: #7fa3cc; box-shadow: none; cursor: not-allowed; opacity: 0.55; transform: none; }
-.login-page .btn.btn-primary.loading                              { background: #003366; border-color: #003366; box-shadow: none; cursor: not-allowed; opacity: 0.72; transform: none; pointer-events: none; }
+.login-page .btn.btn-primary:hover:not(:disabled):not(.loading)  { background: var(--iit-primary-dark); border-color: var(--iit-primary-dark); box-shadow: 0 6px 20px rgba(196,18,18,0.40); transform: translateY(-1px); }
+.login-page .btn.btn-primary:focus-visible                        { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--iit-primary); }
+.login-page .btn.btn-primary:active:not(:disabled):not(.loading)  { background: #7A0C0C; box-shadow: 0 1px 4px rgba(196,18,18,0.25); transform: translateY(0); }
+.login-page .btn.btn-primary:disabled                             { background: #E88080; border-color: #E88080; box-shadow: none; cursor: not-allowed; opacity: 0.60; transform: none; }
+.login-page .btn.btn-primary.loading                              { background: var(--iit-primary); border-color: var(--iit-primary); box-shadow: none; cursor: not-allowed; opacity: 0.75; transform: none; pointer-events: none; }
+
+/* ── Spinner override for login ── */
+.login-page .spinner { border-color: rgba(196,18,18,0.20); border-top-color: #C41212; }
+
+/* ── Quick credentials panel ── */
+.login-page .iit-creds-panel {
+  margin-top: 1.25rem;
+  padding: 12px 14px;
+  background: #F7EEEE;
+  border-radius: 10px;
+  border: 1px solid var(--iit-border);
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+.login-page .iit-creds-panel:hover {
+  border-color: var(--iit-primary-border);
+  box-shadow: 0 2px 8px rgba(196,18,18,0.06);
+}
+.login-page .iit-creds-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--iit-font);
+  color: var(--iit-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.login-page .iit-creds-title::before {
+  content: '';
+  display: inline-block;
+  width: 10px; height: 2px;
+  background: var(--iit-gold);
+  border-radius: 2px;
+}
+.login-page .iit-creds-btn {
+  background: none; border: none; padding: 3px 0; cursor: pointer;
+  text-align: left; font-size: 12px; font-family: var(--iit-font);
+  color: var(--iit-text-secondary); display: block; width: 100%;
+  transition: color 300ms ease;
+  line-height: 1.6;
+}
+.login-page .iit-creds-btn:hover { color: var(--iit-primary); }
+.login-page .iit-creds-btn .iit-creds-role { color: var(--iit-primary); font-weight: 700; }
+
+/* ── Divider ── */
+.login-page .iit-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 1.25rem 0 1rem;
+  font-size: 11px; font-family: var(--iit-font);
+  color: var(--iit-text-muted); font-weight: 600; letter-spacing: 0.4px;
+}
+.login-page .iit-divider::before,
+.login-page .iit-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--iit-border);
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    ANIMATIONS
@@ -644,6 +800,7 @@
 @keyframes iit-btn-spin { to { transform: rotate(360deg); } }
 @keyframes fadeUp       { from { opacity: 0; transform: translateY(8px); }  to { opacity: 1; transform: translateY(0); } }
 @keyframes slideIn      { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes loginCardIn  { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 /* ══════════════════════════════════════════════════════════════════════════
    RESPONSIVE
