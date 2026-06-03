@@ -45,8 +45,8 @@ export default function Login() {
       <div style={{ width: '100%', maxWidth: 400, padding: '0 16px' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 52, height: 52, borderRadius: 14, background: 'var(--accent-dim)', border: '1px solid var(--accent-border)', marginBottom: 14 }}>
-            <GraduationCap size={26} color="var(--accent-light)" />
+          <div className="login-icon-badge" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 52, height: 52, borderRadius: 14, marginBottom: 14 }}>
+            <GraduationCap size={26} color="var(--iit-accent)" />
           </div>
           <div className="login-logo">Integrated Academic Portal</div>
           <div className="login-sub">Sign in with your institute credentials</div>
@@ -87,15 +87,15 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowHint(h => !h)}
-                  style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
+                  style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--iit-text-muted)', display: 'flex' }}
                   title="Show hint"
                 >
                   {showHint ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
               </div>
               {showHint && (
-                <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-muted)', background: 'var(--bg-card2)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border)' }}>
-                  💡 Hint: <span style={{ color: 'var(--accent-light)' }}>{activeRole.hint}</span>
+                <div style={{ marginTop: 6, fontSize: 12, color: 'var(--iit-text-secondary)', background: 'var(--iit-bg-surface)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--iit-border)' }}>
+                  💡 Hint: <span style={{ color: 'var(--iit-accent)' }}>{activeRole.hint}</span>
                 </div>
               )}
             </div>
@@ -112,8 +112,8 @@ export default function Login() {
             </button>
           </form>
 
-          <div style={{ marginTop: '1.25rem', padding: '10px', background: 'var(--bg-base)', borderRadius: 6, border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Test Credentials</div>
+          <div style={{ marginTop: '1.25rem', padding: '10px', background: 'var(--iit-bg-surface)', borderRadius: 6, border: '1px solid var(--iit-border)' }}>
+            <div style={{ fontSize: 11, color: 'var(--iit-text-muted)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Test Credentials</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               {[
                 { role: 'student',   email: 'rigzin.angdu@institute.edu' },
@@ -124,9 +124,9 @@ export default function Login() {
                   key={c.role}
                   type="button"
                   onClick={() => { setRole(c.role as Role); setEmail(c.email); setError(''); }}
-                  style={{ background: 'none', border: 'none', padding: '2px 0', cursor: 'pointer', textAlign: 'left', fontSize: 11, color: 'var(--text-muted)' }}
+                  style={{ background: 'none', border: 'none', padding: '2px 0', cursor: 'pointer', textAlign: 'left', fontSize: 11, color: 'var(--iit-text-secondary)' }}
                 >
-                  <span style={{ color: 'var(--accent-light)' }}>{c.role}</span>: {c.email}
+                  <span style={{ color: 'var(--iit-primary)' }}>{c.role}</span>: {c.email}
                 </button>
               ))}
             </div>

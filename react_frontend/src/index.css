@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
 
 :root {
   --bg-base: #0a0c12;
@@ -254,27 +255,138 @@ body {
 .empty-state svg { margin: 0 auto 0.75rem; opacity: 0.4; }
 .empty-state p { font-size: 13px; }
 
-/* ─── Login page ─── */
+/* ─────────────────────────────────────────────────────────────────────────
+   IIT Delhi Design System — Login page only
+   Tokens are scoped to .login-page so they never bleed into other pages.
+───────────────────────────────────────────────────────────────────────── */
 .login-page {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: var(--bg-base);
-  background-image: radial-gradient(ellipse 60% 50% at 50% -10%, rgba(99,102,241,0.15) 0%, transparent 100%);
+  /* ── IIT Delhi semantic design tokens ── */
+  --iit-primary:        #003366;          /* Deep navy — primary brand colour    */
+  --iit-accent:         #c21717;          /* IIT Delhi red — call-to-action       */
+  --iit-accent-hover:   #a01313;          /* Darkened red for hover states        */
+  --iit-accent-dim:     rgba(194,23,23,0.10);  /* Subtle red tint for icon bg    */
+  --iit-accent-border:  rgba(194,23,23,0.30);  /* Red-tinted border                */
+  --iit-text-primary:   #333333;          /* Body / heading text                  */
+  --iit-text-secondary: #585858;          /* Secondary / label text               */
+  --iit-text-muted:     #8a8a8a;          /* Placeholder, hint text               */
+  --iit-bg:             #ffffff;          /* Page background                      */
+  --iit-bg-card:        #ffffff;          /* Card surface                         */
+  --iit-bg-surface:     #f5f7fa;          /* Inset / raised surface               */
+  --iit-border:         #dcdcdc;          /* Default border                       */
+  --iit-border-focus:   #003366;          /* Input focus ring — primary navy      */
+  --iit-shadow-card:    0 4px 24px rgba(0,51,102,0.10), 0 1px 4px rgba(0,0,0,0.06);
+  --iit-font:           'Titillium Web', system-ui, sans-serif;
+
+  /* ── Layout ── */
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--iit-bg);
+  background-image:
+    radial-gradient(ellipse 70% 55% at 50% -5%, rgba(0,51,102,0.08) 0%, transparent 100%);
+
+  /* ── Typography ── */
+  font-family: var(--iit-font);
+  color: var(--iit-text-primary);
 }
-.login-card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 2rem; width: 380px;
-  box-shadow: var(--shadow-lg);
+
+/* Card */
+.login-page .login-card {
+  background:    var(--iit-bg-card);
+  border:        1px solid var(--iit-border);
+  border-radius: var(--radius-lg);
+  padding:       2rem;
+  width:         380px;
+  box-shadow:    var(--iit-shadow-card);
 }
-.login-logo { font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
-.login-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 1.5rem; }
-.role-tabs { display: flex; background: var(--bg-card2); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 1.25rem; gap: 2px; }
-.role-tab {
-  flex: 1; text-align: center; padding: 6px 4px; border-radius: 5px;
-  font-size: 12px; font-weight: 500; cursor: pointer; border: none;
-  background: none; color: var(--text-muted); transition: all 0.15s;
+
+/* Logo / heading */
+.login-page .login-logo {
+  font-size:   22px;
+  font-weight: 700;
+  color:       var(--iit-primary);
+  margin-bottom: 4px;
+  font-family: var(--iit-font);
+  letter-spacing: -0.3px;
 }
-.role-tab.active { background: var(--accent); color: #fff; }
-.role-tab:hover:not(.active) { color: var(--text-primary); }
+
+/* Sub-heading */
+.login-page .login-sub {
+  font-size:   12px;
+  color:       var(--iit-text-secondary);
+  margin-bottom: 1.5rem;
+  font-family: var(--iit-font);
+}
+
+/* Icon badge above logo */
+.login-page .login-icon-badge {
+  background:    var(--iit-accent-dim);
+  border:        1px solid var(--iit-accent-border);
+}
+
+/* Role tab strip */
+.login-page .role-tabs {
+  display:       flex;
+  background:    var(--iit-bg-surface);
+  border-radius: var(--radius-sm);
+  padding:       3px;
+  margin-bottom: 1.25rem;
+  gap:           2px;
+  border:        1px solid var(--iit-border);
+}
+
+/* Individual role tab */
+.login-page .role-tab {
+  flex:         1;
+  text-align:   center;
+  padding:      6px 4px;
+  border-radius: 5px;
+  font-size:    12px;
+  font-weight:  600;
+  cursor:       pointer;
+  border:       none;
+  background:   none;
+  color:        var(--iit-text-muted);
+  transition:   all 0.15s ease;
+  font-family:  var(--iit-font);
+}
+.login-page .role-tab.active {
+  background: var(--iit-primary);
+  color:      #ffffff;
+}
+.login-page .role-tab:hover:not(.active) {
+  color:      var(--iit-text-primary);
+  background: rgba(0,51,102,0.06);
+}
+
+/* Form label */
+.login-page .form-label {
+  color:       var(--iit-text-secondary);
+  font-family: var(--iit-font);
+  font-weight: 600;
+}
+
+/* Form input */
+.login-page .form-input {
+  background:    var(--iit-bg-surface);
+  border:        1px solid var(--iit-border);
+  color:         var(--iit-text-primary);
+  font-family:   var(--iit-font);
+}
+.login-page .form-input:focus   { border-color: var(--iit-border-focus); }
+.login-page .form-input::placeholder { color: var(--iit-text-muted); }
+
+/* Primary submit button */
+.login-page .btn-primary {
+  background:  var(--iit-accent);
+  color:       #ffffff;
+  font-family: var(--iit-font);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.login-page .btn-primary:hover:not(:disabled) { background: var(--iit-accent-hover); }
+.login-page .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* ─── Course card ─── */
 .course-card {
