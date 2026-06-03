@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, XCircle, Search } from 'lucide-react';
 import { getStudentCourses, getStudentProfile, registerCourse } from '../../api/student';
 import type { Course, Registration } from '../../api/student';
 import { useAuth } from '../../context/AuthContext';
@@ -7,10 +7,10 @@ import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/Spinner';
 import type { StudentUser } from '../../api/auth';
 
-const STATUS_ICON: Record<string, { icon: typeof CheckCircle2; color: string; label: string }> = {
-  pending:  { icon: Clock,          color: 'var(--warning)', label: 'Pending' },
-  approved: { icon: CheckCircle2,   color: 'var(--success)', label: 'Approved' },
-  rejected: { icon: XCircle,        color: 'var(--danger)',  label: 'Rejected' },
+const STATUS_CFG: Record<string, { icon: typeof CheckCircle2; label: string; pill: string }> = {
+  pending: { icon: Clock, label: 'Pending', pill: 'pending' },
+  approved: { icon: CheckCircle2, label: 'Approved', pill: 'approved' },
+  rejected: { icon: XCircle, label: 'Rejected', pill: 'rejected' },
 };
 
 export default function StudentCourses() {
@@ -53,7 +53,6 @@ export default function StudentCourses() {
       const res = await registerCourse(studentUser.id, courseId);
       if (res.success) {
         showToast('success', 'Pre-registration submitted!');
-        // Refresh registrations
         const profileRes = await getStudentProfile(studentUser.id);
         if (profileRes.success) setMyRegs(profileRes.registrations);
       } else {
@@ -73,79 +72,114 @@ export default function StudentCourses() {
   );
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
-      <Spinner size="lg" />
+    <div className="sc-page">
+      <div className="sc-loading">
+        <Spinner size="lg" />
+      </div>
     </div>
   );
 
   return (
-    <div>
-      <div className="page-header">
-        <div className="page-title">Minor Course Registration</div>
-        <div className="page-sub">Browse and register for open minor-eligible courses</div>
-      </div>
-      <div className="page-body">
+    <div className="sc-page">
 
-        {/* Search */}
-        <div style={{ marginBottom: 14, display: 'flex', gap: 10, alignItems: 'center' }}>
-          <input
-            id="course-search"
-            type="text"
-            className="form-input"
-            placeholder="Search by course name, code, or department…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ maxWidth: 360 }}
-          />
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            {filtered.length} course{filtered.length !== 1 ? 's' : ''} available
-          </span>
+      {/* ── Page Header ── */}
+      <div className="sc-header">
+        <div className="sc-header-inner">
+          <div className="sc-title-group">
+            <div className="sc-icon-wrap">
+              <BookOpen size={20} color="#C41212" />
+            </div>
+            <div>
+              <div className="sc-page-title">Minor Course Registration</div>
+              <div className="sc-title-accent" />
+              <div className="sc-page-sub">Browse and register for open minor-eligible courses</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Body ── */}
+      <div className="sc-body">
+
+        {/* Search + count */}
+        <div className="sc-search-wrap">
+          <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+            <Search
+              size={14}
+              style={{
+                position: 'absolute', left: 11, top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--sc-text-muted)', pointerEvents: 'none',
+              }}
+            />
+            <input
+              id="course-search"
+              type="text"
+              className="sc-search"
+              placeholder="Search by name, code, or department…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ paddingLeft: 34 }}
+            />
+          </div>
+          <div className="sc-count-badge">
+            <span>{filtered.length}</span>
+            {filtered.length !== 1 ? 'courses' : 'course'} available
+          </div>
         </div>
 
+        {/* Empty state */}
         {filtered.length === 0 ? (
-          <div className="empty-state">
-            <BookOpen size={36} />
+          <div className="sc-empty">
+            <div className="sc-empty-icon">
+              <BookOpen size={24} />
+            </div>
             <p>No courses available for registration right now.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
-            {filtered.map(course => {
+          <div className="sc-grid">
+            {filtered.map((course, idx) => {
               const reg = getRegStatus(course.id);
               const isRegistering = registering === course.id;
-              const statusInfo = reg ? STATUS_ICON[reg.status] : null;
+              const statusInfo = reg ? STATUS_CFG[reg.status] : null;
               const StatusIcon = statusInfo?.icon;
 
               return (
-                <div key={course.id} className="course-card">
-                  <div className="course-card-header">
-                    <div style={{ flex: 1 }}>
-                      <div className="course-code">{course.id}</div>
-                      <div className="course-name">{course.name}</div>
-                      <div className="course-meta">
-                        <span>{course.department}</span>
-                        <span>·</span>
-                        <span>{course.credits} credits</span>
-                        <span>·</span>
-                        <span>{course.professor_name}</span>
+                <div
+                  key={course.id}
+                  className="sc-card"
+                  style={{ animationDelay: `${idx * 40}ms` }}
+                >
+                  <div className="sc-card-top">
+                    <div className="sc-card-info">
+                      <div className="sc-code">{course.id}</div>
+                      <div className="sc-name">{course.name}</div>
+                      <div className="sc-meta">
+                        <span className="sc-meta-item">{course.department}</span>
+                        <span className="sc-meta-sep">·</span>
+                        <span className="sc-credits-pill">★ {course.credits} cr</span>
+                        <span className="sc-meta-sep">·</span>
+                        <span className="sc-meta-item">{course.professor_name}</span>
                       </div>
                     </div>
-                    <div style={{ flexShrink: 0 }}>
+
+                    <div className="sc-status">
                       {reg ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                            {StatusIcon && <StatusIcon size={14} color={statusInfo?.color} />}
-                            <span style={{ fontSize: 12, fontWeight: 600, color: statusInfo?.color }}>
-                              {statusInfo?.label}
-                            </span>
+                        <>
+                          <div className={`sc-status-pill ${statusInfo?.pill}`}>
+                            {StatusIcon && <StatusIcon size={12} />}
+                            {statusInfo?.label}
                           </div>
                           {reg.grade && (
-                            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Grade: <strong style={{ color: 'var(--text-primary)' }}>{reg.grade}</strong></span>
+                            <span className="sc-grade-tag">
+                              Grade: <strong>{reg.grade}</strong>
+                            </span>
                           )}
-                        </div>
+                        </>
                       ) : (
                         <button
                           id={`register-${course.id}`}
-                          className="btn btn-primary btn-sm"
+                          className="sc-register-btn"
                           onClick={() => handleRegister(course.id)}
                           disabled={isRegistering}
                         >
@@ -154,8 +188,9 @@ export default function StudentCourses() {
                       )}
                     </div>
                   </div>
+
                   {course.description && (
-                    <div className="course-desc">{course.description}</div>
+                    <div className="sc-desc">{course.description}</div>
                   )}
                 </div>
               );

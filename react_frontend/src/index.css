@@ -794,6 +794,329 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   STUDENT COURSES PAGE — IIT Delhi Design System
+   Scoped to .sc-page so it never bleeds into other pages.
+══════════════════════════════════════════════════════════════════════════ */
+.sc-page {
+  --sc-primary:        #C41212;
+  --sc-primary-dark:   #9A0F0F;
+  --sc-primary-dim:    rgba(196,18,18,0.07);
+  --sc-primary-border: rgba(196,18,18,0.22);
+  --sc-gold:           #F0A020;
+  --sc-gold-dim:       rgba(240,160,32,0.10);
+  --sc-gold-border:    rgba(240,160,32,0.30);
+
+  --sc-text-heading:   #1F2937;
+  --sc-text-body:      #555555;
+  --sc-text-muted:     #9CA3AF;
+  --sc-text-white:     #ffffff;
+
+  --sc-bg:             #F2F2F2;
+  --sc-bg-card:        #FFFFFF;
+  --sc-bg-surface:     #F7EEEE;
+  --sc-border:         #E5E7EB;
+  --sc-shadow-card:    0 1px 6px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  --sc-shadow-hover:   0 6px 24px rgba(196,18,18,0.10), 0 1px 4px rgba(0,0,0,0.06);
+
+  --sc-font:           'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  font-family: var(--sc-font);
+  color: var(--sc-text-body);
+}
+
+/* ── Page header ── */
+.sc-page .sc-header {
+  padding: 20px 24px 0;
+  border-bottom: 1px solid var(--sc-border);
+  background: var(--sc-bg-card);
+}
+.sc-page .sc-header-inner {
+  padding-bottom: 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sc-page .sc-title-group { display: flex; align-items: center; gap: 14px; }
+.sc-page .sc-icon-wrap {
+  width: 44px; height: 44px;
+  background: var(--sc-bg-surface);
+  border: 1.5px solid var(--sc-primary-border);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px var(--sc-primary-dim);
+}
+.sc-page .sc-page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sc-text-heading);
+  font-family: var(--sc-font);
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+}
+.sc-page .sc-page-sub {
+  font-size: 13px;
+  color: var(--sc-text-muted);
+  font-family: var(--sc-font);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+/* Gold accent underline under title */
+.sc-page .sc-title-accent {
+  width: 32px; height: 3px;
+  background: linear-gradient(90deg, var(--sc-primary) 0%, var(--sc-gold) 100%);
+  border-radius: 2px;
+  margin-top: 5px;
+}
+
+/* ── Body ── */
+.sc-page .sc-body { padding: 20px 24px 28px; background: var(--sc-bg); min-height: calc(100vh - 120px); }
+
+/* ── Search bar ── */
+.sc-page .sc-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.sc-page .sc-search {
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+  background: var(--sc-bg-card);
+  border: 1.5px solid var(--sc-border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  font-family: var(--sc-font);
+  color: var(--sc-text-heading);
+  outline: none;
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+.sc-page .sc-search::placeholder { color: var(--sc-text-muted); }
+.sc-page .sc-search:focus {
+  border-color: var(--sc-primary);
+  box-shadow: 0 0 0 3px rgba(196,18,18,0.09);
+}
+.sc-page .sc-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--sc-font);
+  color: var(--sc-text-muted);
+  background: var(--sc-bg-card);
+  border: 1px solid var(--sc-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+.sc-page .sc-count-badge span { color: var(--sc-primary); font-weight: 700; font-size: 13px; }
+
+/* ── Course card grid ── */
+.sc-page .sc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+/* ── Individual course card ── */
+.sc-page .sc-card {
+  background: var(--sc-bg-card);
+  border: 1px solid var(--sc-border);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--sc-shadow-card);
+  transition: box-shadow 300ms ease, transform 300ms ease, border-color 300ms ease;
+  position: relative;
+  overflow: hidden;
+  animation: scCardIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sc-page .sc-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--sc-primary) 0%, var(--sc-gold) 100%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.sc-page .sc-card:hover {
+  box-shadow: var(--sc-shadow-hover);
+  transform: translateY(-3px);
+  border-color: rgba(196,18,18,0.18);
+}
+.sc-page .sc-card:hover::before { opacity: 1; }
+
+.sc-page .sc-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sc-page .sc-card-info { flex: 1; min-width: 0; }
+.sc-page .sc-code {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--sc-primary);
+  background: var(--sc-primary-dim);
+  border: 1px solid var(--sc-primary-border);
+  border-radius: 5px;
+  padding: 2px 8px;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.sc-page .sc-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sc-text-heading);
+  font-family: var(--sc-font);
+  line-height: 1.35;
+  margin-bottom: 5px;
+}
+.sc-page .sc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+}
+.sc-page .sc-meta-item {
+  font-size: 12px;
+  color: var(--sc-text-muted);
+  font-family: var(--sc-font);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sc-page .sc-meta-sep { color: var(--sc-border); font-size: 10px; }
+.sc-page .sc-credits-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sc-gold);
+  background: var(--sc-gold-dim);
+  border: 1px solid var(--sc-gold-border);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-family: var(--sc-font);
+}
+
+/* ── Status badge ── */
+.sc-page .sc-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.sc-page .sc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--sc-font);
+  border-radius: 20px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.sc-page .sc-status-pill.pending  { background: rgba(245,158,11,0.10); color: #B45309; border: 1px solid rgba(245,158,11,0.30); }
+.sc-page .sc-status-pill.approved { background: rgba(22,163,74,0.10);  color: #166534; border: 1px solid rgba(22,163,74,0.30); }
+.sc-page .sc-status-pill.rejected { background: rgba(196,18,18,0.08);  color: var(--sc-primary); border: 1px solid var(--sc-primary-border); }
+.sc-page .sc-grade-tag {
+  font-size: 11px;
+  font-family: var(--sc-font);
+  color: var(--sc-text-muted);
+}
+.sc-page .sc-grade-tag strong { color: var(--sc-text-heading); font-weight: 700; }
+
+/* ── Register button ── */
+.sc-page .sc-register-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--sc-font);
+  color: #fff;
+  background: var(--sc-primary);
+  border: 2px solid var(--sc-primary);
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 300ms ease, box-shadow 300ms ease, transform 150ms ease;
+  box-shadow: 0 2px 6px rgba(196,18,18,0.22);
+}
+.sc-page .sc-register-btn:hover:not(:disabled) {
+  background: var(--sc-primary-dark);
+  border-color: var(--sc-primary-dark);
+  box-shadow: 0 5px 16px rgba(196,18,18,0.33);
+  transform: translateY(-1px);
+}
+.sc-page .sc-register-btn:disabled {
+  opacity: 0.60;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Description ── */
+.sc-page .sc-desc {
+  font-size: 13px;
+  color: var(--sc-text-body);
+  font-family: var(--sc-font);
+  line-height: 1.65;
+  border-top: 1px solid var(--sc-border);
+  padding-top: 10px;
+  margin-top: 0;
+}
+
+/* ── Empty state ── */
+.sc-page .sc-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--sc-text-muted);
+  font-family: var(--sc-font);
+}
+.sc-page .sc-empty-icon {
+  width: 56px; height: 56px;
+  background: var(--sc-bg-surface);
+  border: 1.5px solid var(--sc-border);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+  color: var(--sc-primary);
+  opacity: 0.7;
+}
+.sc-page .sc-empty p {
+  font-size: 14px;
+  color: var(--sc-text-muted);
+  margin: 0;
+}
+
+/* ── Loading overlay ── */
+.sc-page .sc-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+.sc-page .spinner { border-color: rgba(196,18,18,0.20); border-top-color: #C41212; }
+
+/* ══════════════════════════════════════════════════════════════════════════
    ANIMATIONS
 ══════════════════════════════════════════════════════════════════════════ */
 @keyframes spin         { to { transform: rotate(360deg); } }
@@ -801,6 +1124,7 @@
 @keyframes fadeUp       { from { opacity: 0; transform: translateY(8px); }  to { opacity: 1; transform: translateY(0); } }
 @keyframes slideIn      { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes loginCardIn  { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes scCardIn     { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ══════════════════════════════════════════════════════════════════════════
    RESPONSIVE
