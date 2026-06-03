@@ -107,7 +107,13 @@ export default function Login() {
               </div>
             )}
 
-            <button type="submit" className="btn btn-primary" id="login-submit" style={{ width: '100%', justifyContent: 'center', padding: '9px 14px', fontSize: 14 }} disabled={loading}>
+            <button
+              type="submit"
+              id="login-submit"
+              className={`btn btn-primary${loading ? ' loading' : ''}`}
+              style={{ width: '100%', justifyContent: 'center' }}
+              disabled={loading}
+            >
               {loading ? <><Spinner /> Signing in…</> : `Sign in as ${activeRole.label}`}
             </button>
           </form>

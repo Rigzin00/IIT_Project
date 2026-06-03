@@ -470,16 +470,299 @@ body {
 .login-page .form-input:focus   { border-color: var(--iit-border-focus); }
 .login-page .form-input::placeholder { color: var(--iit-text-muted); }
 
-/* Primary submit button */
-.login-page .btn-primary {
-  background:  var(--iit-accent);
-  color:       #ffffff;
-  font-family: var(--iit-font);
-  font-weight: 700;
-  letter-spacing: 0.2px;
+/* ═══════════════════════════════════════════════════════════════════════════
+   IIT Delhi Button System — scoped to .login-page
+   Three variants × six interaction states
+   ─────────────────────────────────────────────────────────────────────────
+   Variants
+     .btn-iit-primary   — Navy #003366  (primary action)
+     .btn-iit-danger    — Red  #c21717  (destructive / accent)
+     .btn-iit-secondary — White, navy border (secondary / ghost)
+   States: default · hover · focus-visible · active · disabled · loading
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Shared base reset (applies to all three variants) ── */
+.login-page .btn-iit-primary,
+.login-page .btn-iit-danger,
+.login-page .btn-iit-secondary {
+  /* Layout */
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             8px;
+  width:           100%;
+
+  /* Spacing */
+  padding:         10px 18px;
+
+  /* Typography */
+  font-family:     var(--iit-font);
+  font-size:       var(--fs-body);
+  font-weight:     var(--fw-bold);
+  letter-spacing:  0.25px;
+  line-height:     1;
+  white-space:     nowrap;
+
+  /* Shape */
+  border-radius:   var(--radius-sm);
+  border:          2px solid transparent;
+
+  /* Behaviour */
+  cursor:          pointer;
+  user-select:     none;
+  text-decoration: none;
+
+  /* Transitions — smooth across all states */
+  transition:
+    background-color 0.18s ease,
+    border-color     0.18s ease,
+    box-shadow       0.18s ease,
+    opacity          0.18s ease,
+    transform        0.1s  ease;
+
+  /* Loading spinner slot (::after pseudo-element) */
+  position: relative;
+  overflow:  hidden;
 }
-.login-page .btn-primary:hover:not(:disabled) { background: var(--iit-accent-hover); }
-.login-page .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Remove the default outline; we draw our own focus ring */
+.login-page .btn-iit-primary:focus,
+.login-page .btn-iit-danger:focus,
+.login-page .btn-iit-secondary:focus { outline: none; }
+
+/* ── Loading spinner (shared) ─────────────────────────────────────────── */
+/* Applied by adding class .loading to the button element                  */
+.login-page .btn-iit-primary.loading,
+.login-page .btn-iit-danger.loading,
+.login-page .btn-iit-secondary.loading {
+  cursor:         not-allowed;
+  pointer-events: none;
+  opacity:        0.75;
+}
+
+/* Inline spinner injected via ::after so no extra markup is needed */
+.login-page .btn-iit-primary.loading::after,
+.login-page .btn-iit-danger.loading::after,
+.login-page .btn-iit-secondary.loading::after {
+  content:       '';
+  display:       inline-block;
+  width:         14px;
+  height:        14px;
+  border-radius: 50%;
+  border:        2px solid currentColor;
+  border-top-color: transparent;
+  animation:     iit-btn-spin 0.65s linear infinite;
+  flex-shrink:   0;
+}
+
+@keyframes iit-btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 1. PRIMARY — IIT Delhi Navy Blue ─────────────────────────────────── */
+.login-page .btn-iit-primary {
+  background:   #003366;
+  border-color: #003366;
+  color:        #ffffff;
+  box-shadow:   0 2px 6px rgba(0, 51, 102, 0.25);
+}
+
+/* hover */
+.login-page .btn-iit-primary:hover:not(:disabled):not(.loading) {
+  background:   #00264d;
+  border-color: #00264d;
+  box-shadow:   0 4px 12px rgba(0, 51, 102, 0.35);
+  transform:    translateY(-1px);
+}
+
+/* focus-visible — navy focus ring */
+.login-page .btn-iit-primary:focus-visible {
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 5px #003366;
+}
+
+/* active / pressed */
+.login-page .btn-iit-primary:active:not(:disabled):not(.loading) {
+  background:   #001f3d;
+  border-color: #001f3d;
+  box-shadow:   0 1px 3px rgba(0, 51, 102, 0.20);
+  transform:    translateY(0px);
+}
+
+/* disabled */
+.login-page .btn-iit-primary:disabled {
+  background:   #7fa3cc;
+  border-color: #7fa3cc;
+  box-shadow:   none;
+  cursor:       not-allowed;
+  opacity:      0.55;
+  transform:    none;
+}
+
+/* loading (spinner colour inherits white from color) */
+.login-page .btn-iit-primary.loading {
+  background:   #003366;
+  border-color: #003366;
+}
+
+/* ── 2. DANGER — IIT Delhi Accent Red ────────────────────────────────── */
+.login-page .btn-iit-danger {
+  background:   #c21717;
+  border-color: #c21717;
+  color:        #ffffff;
+  box-shadow:   0 2px 6px rgba(194, 23, 23, 0.25);
+}
+
+/* hover */
+.login-page .btn-iit-danger:hover:not(:disabled):not(.loading) {
+  background:   #a01313;
+  border-color: #a01313;
+  box-shadow:   0 4px 12px rgba(194, 23, 23, 0.35);
+  transform:    translateY(-1px);
+}
+
+/* focus-visible — red focus ring */
+.login-page .btn-iit-danger:focus-visible {
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 5px #c21717;
+}
+
+/* active / pressed */
+.login-page .btn-iit-danger:active:not(:disabled):not(.loading) {
+  background:   #870f0f;
+  border-color: #870f0f;
+  box-shadow:   0 1px 3px rgba(194, 23, 23, 0.20);
+  transform:    translateY(0px);
+}
+
+/* disabled */
+.login-page .btn-iit-danger:disabled {
+  background:   #e88080;
+  border-color: #e88080;
+  box-shadow:   none;
+  cursor:       not-allowed;
+  opacity:      0.55;
+  transform:    none;
+}
+
+/* loading */
+.login-page .btn-iit-danger.loading {
+  background:   #c21717;
+  border-color: #c21717;
+}
+
+/* ── 3. SECONDARY — White with Navy Border ────────────────────────────── */
+.login-page .btn-iit-secondary {
+  background:   #ffffff;
+  border-color: #003366;
+  color:        #003366;
+  box-shadow:   0 1px 3px rgba(0, 51, 102, 0.10);
+}
+
+/* hover */
+.login-page .btn-iit-secondary:hover:not(:disabled):not(.loading) {
+  background:   rgba(0, 51, 102, 0.05);
+  border-color: #003366;
+  box-shadow:   0 3px 8px rgba(0, 51, 102, 0.15);
+  transform:    translateY(-1px);
+}
+
+/* focus-visible — navy ring */
+.login-page .btn-iit-secondary:focus-visible {
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 5px #003366;
+}
+
+/* active / pressed */
+.login-page .btn-iit-secondary:active:not(:disabled):not(.loading) {
+  background:   rgba(0, 51, 102, 0.10);
+  border-color: #00264d;
+  box-shadow:   none;
+  transform:    translateY(0px);
+}
+
+/* disabled */
+.login-page .btn-iit-secondary:disabled {
+  background:   #f5f7fa;
+  border-color: #b0c4de;
+  color:        #8a9bb0;
+  box-shadow:   none;
+  cursor:       not-allowed;
+  opacity:      0.60;
+  transform:    none;
+}
+
+/* loading (spinner colour inherits navy from color) */
+.login-page .btn-iit-secondary.loading {
+  background:   #ffffff;
+  border-color: #003366;
+}
+
+/* ── Compatibility shim: old .btn-primary inside .login-page ─────────── */
+/* Keeps the pre-existing login submit button working without JSX changes  */
+/* ::after is suppressed here — <Spinner /> in JSX handles loading UI      */
+.login-page .btn.btn-primary {
+  background:   #003366;
+  border-color: #003366;
+  color:        #ffffff;
+  font-family:  var(--iit-font);
+  font-weight:  var(--fw-bold);
+  letter-spacing: 0.25px;
+  box-shadow:   0 2px 6px rgba(0,51,102,0.25);
+  border:       2px solid #003366;
+  transition:
+    background-color 0.18s ease,
+    box-shadow       0.18s ease,
+    transform        0.10s ease;
+}
+
+/* Suppress CSS pseudo-spinner — JSX <Spinner/> component handles this */
+.login-page .btn.btn-primary::after { content: none; }
+
+/* default → hover */
+.login-page .btn.btn-primary:hover:not(:disabled):not(.loading) {
+  background:   #00264d;
+  border-color: #00264d;
+  box-shadow:   0 4px 12px rgba(0,51,102,0.35);
+  transform:    translateY(-1px);
+}
+
+/* focus-visible ring */
+.login-page .btn.btn-primary:focus-visible {
+  outline:    none;
+  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #003366;
+}
+
+/* active / pressed */
+.login-page .btn.btn-primary:active:not(:disabled):not(.loading) {
+  background: #001f3d;
+  box-shadow: 0 1px 3px rgba(0,51,102,0.20);
+  transform:  translateY(0);
+}
+
+/* disabled */
+.login-page .btn.btn-primary:disabled {
+  background:   #7fa3cc;
+  border-color: #7fa3cc;
+  box-shadow:   none;
+  cursor:       not-allowed;
+  opacity:      0.55;
+  transform:    none;
+}
+
+/* loading — same as disabled visually but class-driven */
+.login-page .btn.btn-primary.loading {
+  background:   #003366;
+  border-color: #003366;
+  box-shadow:   none;
+  cursor:       not-allowed;
+  opacity:      0.72;
+  transform:    none;
+  pointer-events: none;
+}
 
 /* ─── Course card ─── */
 .course-card {
