@@ -1,390 +1,385 @@
 @import "tailwindcss";
 
-/* Inter kept as a fallback stack; Titillium Web is the IIT Delhi standard font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
+/* ── Fonts loaded via <link> tags in index.html ──────────────────────────
+   CSS @import url() after @import "tailwindcss" is ignored by the CSS spec.
+   Both Titillium Web and Inter are loaded in the HTML <head> instead.
+────────────────────────────────────────────────────────────────────────── */
 
-:root {
-  /* ── Color palette ── */
-  --bg-base: #0a0c12;
-  --bg-card: #111318;
-  --bg-card2: #1a1d27;
-  --bg-hover: #1e2130;
-  --border: #252836;
-  --border-light: #2e3248;
-  --text-primary: #e8eaf0;
-  --text-secondary: #7e84a0;
-  --text-muted: #4a5070;
-  --accent: #6366f1;
-  --accent-light: #818cf8;
-  --accent-dim: rgba(99, 102, 241, 0.15);
-  --accent-border: rgba(99, 102, 241, 0.35);
-  --success: #22c55e;
-  --success-dim: rgba(34, 197, 94, 0.12);
-  --warning: #f59e0b;
-  --warning-dim: rgba(245, 158, 11, 0.12);
-  --danger: #ef4444;
-  --danger-dim: rgba(239, 68, 68, 0.12);
-  --info: #38bdf8;
-  --info-dim: rgba(56, 189, 248, 0.12);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,0.6);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+@layer base {
+  :root {
+    /* Color palette */
+    --bg-base:        #0a0c12;
+    --bg-card:        #111318;
+    --bg-card2:       #1a1d27;
+    --bg-hover:       #1e2130;
+    --border:         #252836;
+    --border-light:   #2e3248;
+    --text-primary:   #e8eaf0;
+    --text-secondary: #7e84a0;
+    --text-muted:     #4a5070;
+    --accent:         #6366f1;
+    --accent-light:   #818cf8;
+    --accent-dim:     rgba(99, 102, 241, 0.15);
+    --accent-border:  rgba(99, 102, 241, 0.35);
+    --success:        #22c55e;
+    --success-dim:    rgba(34, 197, 94, 0.12);
+    --warning:        #f59e0b;
+    --warning-dim:    rgba(245, 158, 11, 0.12);
+    --danger:         #ef4444;
+    --danger-dim:     rgba(239, 68, 68, 0.12);
+    --info:           #38bdf8;
+    --info-dim:       rgba(56, 189, 248, 0.12);
+    --shadow-sm:      0 1px 3px rgba(0,0,0,0.4);
+    --shadow-md:      0 4px 12px rgba(0,0,0,0.5);
+    --shadow-lg:      0 12px 32px rgba(0,0,0,0.6);
 
-  /* ── IIT Delhi Typography Tokens ── */
-  --font-base:     'Titillium Web', 'Inter', system-ui, sans-serif;
+    /* Typography */
+    --font-base:   'Titillium Web', 'Inter', system-ui, sans-serif;
+    --fs-xxs:      0.714rem;
+    --fs-xs:       0.786rem;
+    --fs-sm:       0.857rem;
+    --fs-body:     0.929rem;
+    --fs-h4:       1rem;
+    --fs-h3:       1.143rem;
+    --fs-h2:       1.286rem;
+    --fs-h1:       1.571rem;
+    --fw-regular:  400;
+    --fw-semibold: 600;
+    --fw-bold:     700;
+    --lh-tight:    1.25;
+    --lh-normal:   1.5;
+    --lh-relaxed:  1.65;
 
-  /* Font-size scale (rem-based, root = 14px) */
-  --fs-h1:         1.571rem;  /* 22px — page title            */
-  --fs-h2:         1.286rem;  /* 18px — section heading       */
-  --fs-h3:         1.143rem;  /* 16px — card / modal title    */
-  --fs-h4:         1rem;      /* 14px — sub-section heading   */
-  --fs-body:       0.929rem;  /* 13px — default body text     */
-  --fs-sm:         0.857rem;  /* 12px — labels, captions      */
-  --fs-xs:         0.786rem;  /* 11px — meta, badges, hints   */
-  --fs-xxs:        0.714rem;  /* 10px — sidebar section caps  */
+    /* Radius */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
 
-  /* Font-weight scale */
-  --fw-regular:    400;
-  --fw-semibold:   600;
-  --fw-bold:       700;
-
-  /* Line-height scale */
-  --lh-tight:      1.25;
-  --lh-normal:     1.5;
-  --lh-relaxed:    1.65;
+  *, *::before, *::after { box-sizing: border-box; }
+  html { font-size: 14px; }
+  body {
+    margin: 0;
+    font-family: var(--font-base);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: var(--lh-normal);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-regular);
+  }
+  #root { @apply flex flex-col min-h-screen; }
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-base); }
+  ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 99px; }
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-
-html { font-size: 14px; }
-
-body {
-  margin: 0;
-  font-family: var(--font-base);
-  background: var(--bg-base);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: var(--lh-normal);
-  font-size: var(--fs-body);
-  font-weight: var(--fw-regular);
-}
-
-/* ─── IIT Delhi Typography Scale ─────────────────────────────────────────
-   Heading hierarchy: h1→h4
-   Body / UI text standardized via utility classes
-   Table typography defined here to override any local overrides
-─────────────────────────────────────────────────────────────────────── */
-
-/* Semantic headings */
-.t-h1 {
-  font-size: var(--fs-h1); font-weight: var(--fw-bold);
-  line-height: var(--lh-tight); letter-spacing: -0.3px;
-  font-family: var(--font-base);
-}
-.t-h2 {
-  font-size: var(--fs-h2); font-weight: var(--fw-bold);
-  line-height: var(--lh-tight); letter-spacing: -0.2px;
-  font-family: var(--font-base);
-}
-.t-h3 {
-  font-size: var(--fs-h3); font-weight: var(--fw-semibold);
-  line-height: var(--lh-tight);
-  font-family: var(--font-base);
-}
-.t-h4 {
-  font-size: var(--fs-h4); font-weight: var(--fw-semibold);
-  line-height: var(--lh-normal);
-  font-family: var(--font-base);
-}
-
-/* Body text */
-.t-body   { font-size: var(--fs-body); font-weight: var(--fw-regular); line-height: var(--lh-normal); }
-.t-body-m { font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: var(--lh-normal); }
-
-/* Small / label text */
-.t-sm   { font-size: var(--fs-sm); font-weight: var(--fw-regular); line-height: var(--lh-normal); }
-.t-sm-m { font-size: var(--fs-sm); font-weight: var(--fw-semibold); line-height: var(--lh-normal); }
-
-/* Extra small / meta text */
-.t-xs   { font-size: var(--fs-xs); font-weight: var(--fw-regular); }
-.t-xs-m { font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
-
-/* Caps label (section headers, badge text, etc.) */
-.t-caps {
-  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
-  text-transform: uppercase; letter-spacing: 0.6px;
-}
-
-#root { min-height: 100vh; display: flex; flex-direction: column; }
-
-/* ─── Scrollbar ─── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 99px; }
-
-/* ─── Card ─── */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
-}
-.card-sm { padding: 0.875rem; }
-.card2 { background: var(--bg-card2); }
-
-/* ─── Buttons ─── */
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: var(--radius-sm);
-  font-size: var(--fs-body); font-weight: var(--fw-semibold);
-  font-family: var(--font-base);
-  cursor: pointer; border: none; transition: all 0.15s ease;
-  white-space: nowrap;
-}
-.btn-primary {
-  background: var(--accent); color: #fff;
-}
-.btn-primary:hover { background: var(--accent-light); }
-.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-
-.btn-ghost {
-  background: transparent; color: var(--text-secondary); border: 1px solid var(--border);
-}
-.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
-.btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.btn-danger {
-  background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239,68,68,0.25);
-}
-.btn-danger:hover { background: rgba(239,68,68,0.22); }
-.btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.btn-success {
-  background: var(--success-dim); color: var(--success); border: 1px solid rgba(34,197,94,0.25);
-}
-.btn-success:hover { background: rgba(34,197,94,0.22); }
-.btn-success:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.btn-sm { padding: 4px 10px; font-size: var(--fs-sm); }
-.btn-xs { padding: 3px 8px;  font-size: var(--fs-xs); }
-
-/* ─── Badges ─── */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 99px;
-  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
-  font-family: var(--font-base);
-  letter-spacing: 0.3px; white-space: nowrap;
-}
-.badge-pending   { background: var(--warning-dim);  color: var(--warning); }
-.badge-approved  { background: var(--success-dim);  color: var(--success); }
-.badge-rejected  { background: var(--danger-dim);   color: var(--danger); }
-.badge-info      { background: var(--info-dim);     color: var(--info); }
-.badge-neutral   { background: rgba(126,132,160,0.15); color: var(--text-secondary); }
-.badge-accent    { background: var(--accent-dim);   color: var(--accent-light); }
-
-/* ─── Form controls ─── */
-.form-label {
-  display: block;
-  font-size: var(--fs-sm); font-weight: var(--fw-semibold);
-  font-family: var(--font-base);
-  color: var(--text-secondary); margin-bottom: 4px;
-}
-.form-input {
-  width: 100%;
-  background: var(--bg-card2); border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm); color: var(--text-primary);
-  padding: 7px 10px;
-  font-size: var(--fs-body); font-family: var(--font-base);
-  outline: none; transition: border-color 0.15s;
-}
-.form-input:focus { border-color: var(--accent); }
-.form-input::placeholder { color: var(--text-muted); }
-.form-input option { background: var(--bg-card2); }
-.form-select { appearance: none; cursor: pointer; }
-.form-error { font-size: var(--fs-sm); color: var(--danger); margin-top: 4px; }
-
-/* ─── Table ─── */
-.data-table {
-  width: 100%; border-collapse: collapse;
-  font-size: var(--fs-body); font-family: var(--font-base);
-}
-.data-table th {
-  text-align: left; padding: 8px 12px;
-  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
-  letter-spacing: 0.5px; color: var(--text-muted);
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--border); white-space: nowrap;
-}
-.data-table td {
-  padding: 10px 12px; border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-  font-size: var(--fs-body); line-height: var(--lh-normal);
-}
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tbody tr:hover { background: var(--bg-hover); }
-.data-table .actions { display: flex; gap: 6px; align-items: center; }
-
-/* ─── Modal ─── */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 50;
-  background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center; padding: 1rem;
-}
-.modal-box {
-  background: var(--bg-card); border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg); padding: 1.5rem;
-  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  animation: fadeUp 0.18s ease;
-}
-.modal-box-lg { max-width: 640px; }
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
-}
-.modal-title { font-size: var(--fs-h3); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); }
-
-/* ─── Toast ─── */
-.toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 100; display: flex; flex-direction: column; gap: 8px; }
-.toast {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-radius: var(--radius-md);
-  font-size: var(--fs-body); font-weight: var(--fw-semibold);
-  font-family: var(--font-base);
-  box-shadow: var(--shadow-lg); min-width: 280px; max-width: 380px;
-  animation: slideIn 0.2s ease;
-}
-.toast-success { background: var(--bg-card2); border: 1px solid rgba(34,197,94,0.35); color: var(--success); }
-.toast-error   { background: var(--bg-card2); border: 1px solid rgba(239,68,68,0.35);   color: var(--danger); }
-.toast-info    { background: var(--bg-card2); border: 1px solid rgba(56,189,248,0.35);   color: var(--info); }
-
-/* ─── Divider ─── */
-.divider { height: 1px; background: var(--border); margin: 1rem 0; }
-
-/* ─── Section header ─── */
-.section-title {
-  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
-  font-family: var(--font-base);
-  color: var(--text-secondary); text-transform: uppercase;
-  letter-spacing: 0.6px; margin-bottom: 0.75rem;
-}
-
-/* ─── Stats ─── */
-.stat-card {
-  background: var(--bg-card2); border: 1px solid var(--border); border-radius: var(--radius-md);
-  padding: 1rem; display: flex; flex-direction: column; gap: 4px;
-}
-.stat-value { font-size: var(--fs-h1); font-weight: var(--fw-bold); font-family: var(--font-base); color: var(--text-primary); }
-.stat-label { font-size: var(--fs-xs); color: var(--text-muted); font-weight: var(--fw-semibold); font-family: var(--font-base); text-transform: uppercase; letter-spacing: 0.4px; }
-
-/* ─── Sidebar ─── */
-.sidebar {
-  width: 220px; min-width: 220px; background: var(--bg-card);
-  border-right: 1px solid var(--border); display: flex; flex-direction: column;
-  padding: 0; min-height: 100vh;
-}
-.sidebar-logo {
-  padding: 18px 16px; border-bottom: 1px solid var(--border);
-}
-.sidebar-logo-title { font-size: var(--fs-h4); font-weight: var(--fw-bold); font-family: var(--font-base); color: var(--text-primary); line-height: var(--lh-tight); }
-.sidebar-logo-sub { font-size: var(--fs-xs); font-family: var(--font-base); color: var(--text-muted); margin-top: 2px; }
-.sidebar-nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; }
-.sidebar-link {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px; border-radius: var(--radius-sm);
-  font-size: var(--fs-body); font-weight: var(--fw-semibold);
-  font-family: var(--font-base);
-  color: var(--text-secondary);
-  cursor: pointer; border: none; background: none; width: 100%; text-align: left;
-  transition: all 0.15s;
-}
-.sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
-.sidebar-link.active { background: var(--accent-dim); color: var(--accent-light); }
-.sidebar-link.active svg { color: var(--accent-light); }
-.sidebar-link svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
-.sidebar-section { padding: 10px 10px 4px; font-size: var(--fs-xxs); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-.sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
-
-/* ─── Navbar ─── */
-.topbar {
-  height: 52px; border-bottom: 1px solid var(--border); background: var(--bg-card);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px; position: sticky; top: 0; z-index: 30;
-}
-.topbar-title { font-size: var(--fs-h4); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
-
-/* ─── Layout ─── */
-.app-layout { display: flex; min-height: 100vh; }
-.main-content { flex: 1; overflow-x: hidden; }
-.page-header { padding: 20px 24px 0; }
-.page-title { font-size: var(--fs-h2); font-weight: var(--fw-bold); font-family: var(--font-base); color: var(--text-primary); line-height: var(--lh-tight); }
-.page-sub   { font-size: var(--fs-body); font-family: var(--font-base); color: var(--text-secondary); margin-top: 2px; line-height: var(--lh-normal); }
-.page-body { padding: 16px 24px 24px; }
-
-/* ─── Filter bar ─── */
-.filter-bar {
-  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  padding: 10px 12px; background: var(--bg-card2);
-  border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 14px;
-}
-.filter-bar .form-input { width: auto; min-width: 140px; }
-
-/* ─── Spinner ─── */
-.spinner {
-  display: inline-block; width: 18px; height: 18px;
-  border: 2px solid var(--border); border-top-color: var(--accent);
-  border-radius: 50%; animation: spin 0.6s linear infinite;
-}
-.spinner-lg { width: 32px; height: 32px; border-width: 3px; }
-
-/* ─── Empty state ─── */
-.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
-.empty-state svg { margin: 0 auto 0.75rem; opacity: 0.4; }
-.empty-state p { font-size: var(--fs-body); font-family: var(--font-base); }
-
-/* ─────────────────────────────────────────────────────────────────────────
-   IIT Delhi Design System — Login page only
-   Tokens are scoped to .login-page so they never bleed into other pages.
-───────────────────────────────────────────────────────────────────────── */
-.login-page {
-  /* ── IIT Delhi semantic design tokens ── */
-  --iit-primary:        #003366;          /* Deep navy — primary brand colour    */
-  --iit-accent:         #c21717;          /* IIT Delhi red — call-to-action       */
-  --iit-accent-hover:   #a01313;          /* Darkened red for hover states        */
-  --iit-accent-dim:     rgba(194,23,23,0.10);  /* Subtle red tint for icon bg    */
-  --iit-accent-border:  rgba(194,23,23,0.30);  /* Red-tinted border                */
-  --iit-text-primary:   #333333;          /* Body / heading text                  */
-  --iit-text-secondary: #585858;          /* Secondary / label text               */
-  --iit-text-muted:     #8a8a8a;          /* Placeholder, hint text               */
-  --iit-bg:             #ffffff;          /* Page background                      */
-  --iit-bg-card:        #ffffff;          /* Card surface                         */
-  --iit-bg-surface:     #f5f7fa;          /* Inset / raised surface               */
-  --iit-border:         #dcdcdc;          /* Default border                       */
-  --iit-border-focus:   #003366;          /* Input focus ring — primary navy      */
-  --iit-shadow-card:    0 4px 24px rgba(0,51,102,0.10), 0 1px 4px rgba(0,0,0,0.06);
-  --iit-font:           'Titillium Web', system-ui, sans-serif;
+@layer components {
 
   /* ── Layout ── */
+  .app-layout   { @apply flex min-h-screen; }
+  .main-content { @apply flex-1 overflow-x-hidden; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+  }
+  .card-sm { padding: 0.875rem; }
+  .card2   { background: var(--bg-card2); }
+
+  /* ── Buttons ── */
+  .btn {
+    @apply inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+    font-family: var(--font-base);
+    border: none;
+    transition: all 0.15s ease;
+  }
+  .btn-primary          { background: var(--accent); color: #fff; }
+  .btn-primary:hover    { background: var(--accent-light); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .btn-ghost            { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+  .btn-ghost:hover      { background: var(--bg-hover); color: var(--text-primary); }
+  .btn-ghost:disabled   { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-danger           { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); }
+  .btn-danger:hover     { background: rgba(239,68,68,0.22); }
+  .btn-danger:disabled  { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-success          { background: var(--success-dim); color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+  .btn-success:hover    { background: rgba(34,197,94,0.22); }
+  .btn-success:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-sm { padding: 4px 10px; font-size: var(--fs-sm); }
+  .btn-xs { padding: 3px 8px;  font-size: var(--fs-xs); }
+
+  /* ── Badges ── */
+  .badge {
+    @apply inline-flex items-center gap-1 whitespace-nowrap;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    font-family: var(--font-base);
+    letter-spacing: 0.3px;
+  }
+  .badge-pending  { background: var(--warning-dim);         color: var(--warning); }
+  .badge-approved { background: var(--success-dim);         color: var(--success); }
+  .badge-rejected { background: var(--danger-dim);          color: var(--danger); }
+  .badge-info     { background: var(--info-dim);            color: var(--info); }
+  .badge-neutral  { background: rgba(126,132,160,0.15);     color: var(--text-secondary); }
+  .badge-accent   { background: var(--accent-dim);          color: var(--accent-light); }
+
+  /* ── Form ── */
+  .form-label {
+    @apply block;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    font-family: var(--font-base);
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+  .form-input {
+    @apply w-full outline-none;
+    background: var(--bg-card2);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 7px 10px;
+    font-size: var(--fs-body);
+    font-family: var(--font-base);
+    transition: border-color 0.15s;
+  }
+  .form-input:focus        { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input option       { background: var(--bg-card2); }
+  .form-select             { appearance: none; cursor: pointer; }
+  .form-error              { font-size: var(--fs-sm); color: var(--danger); margin-top: 4px; }
+
+  /* ── Table ── */
+  .data-table { @apply w-full border-collapse; font-size: var(--fs-body); font-family: var(--font-base); }
+  .data-table th {
+    @apply text-left uppercase whitespace-nowrap;
+    padding: 8px 12px;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    font-size: var(--fs-body);
+    line-height: var(--lh-normal);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tbody tr:hover   { background: var(--bg-hover); }
+  .data-table .actions         { @apply flex gap-1.5 items-center; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+  }
+  .modal-box {
+    @apply w-full overflow-y-auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    max-width: 480px;
+    max-height: 90vh;
+    box-shadow: var(--shadow-lg);
+    animation: fadeUp 0.18s ease;
+  }
+  .modal-box-lg { max-width: 640px; }
+  .modal-header { @apply flex items-center justify-between; margin-bottom: 1.25rem; }
+  .modal-title  { font-size: var(--fs-h3); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); }
+
+  /* ── Toast ── */
+  .toast-container { @apply fixed bottom-6 right-6 z-[100] flex flex-col gap-2; }
+  .toast {
+    @apply flex items-center gap-2.5;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+    font-family: var(--font-base);
+    box-shadow: var(--shadow-lg);
+    min-width: 280px;
+    max-width: 380px;
+    animation: slideIn 0.2s ease;
+  }
+  .toast-success { background: var(--bg-card2); border: 1px solid rgba(34,197,94,0.35);  color: var(--success); }
+  .toast-error   { background: var(--bg-card2); border: 1px solid rgba(239,68,68,0.35);  color: var(--danger); }
+  .toast-info    { background: var(--bg-card2); border: 1px solid rgba(56,189,248,0.35); color: var(--info); }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+  /* ── Section title ── */
+  .section-title {
+    @apply uppercase;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    font-family: var(--font-base);
+    color: var(--text-secondary);
+    letter-spacing: 0.6px;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── Stat cards ── */
+  .stat-card {
+    @apply flex flex-col gap-1;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+  }
+  .stat-value { font-size: var(--fs-h1); font-weight: var(--fw-bold);     font-family: var(--font-base); color: var(--text-primary); }
+  .stat-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    @apply flex flex-col min-h-screen;
+    width: 220px;
+    min-width: 220px;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+  }
+  .sidebar-logo       { padding: 18px 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo-title { font-size: var(--fs-h4); font-weight: var(--fw-bold);     font-family: var(--font-base); color: var(--text-primary); line-height: var(--lh-tight); }
+  .sidebar-logo-sub   { font-size: var(--fs-xs); font-family: var(--font-base);   color: var(--text-muted); margin-top: 2px; }
+  .sidebar-nav        { @apply flex-1 flex flex-col gap-0.5; padding: 10px 8px; }
+  .sidebar-section    { padding: 10px 10px 4px; font-size: var(--fs-xxs); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .sidebar-footer     { padding: 12px 8px; border-top: 1px solid var(--border); }
+  .sidebar-link {
+    @apply flex items-center gap-2.5 border-none bg-transparent w-full text-left cursor-pointer;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-semibold);
+    font-family: var(--font-base);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .sidebar-link:hover      { background: var(--bg-hover); color: var(--text-primary); }
+  .sidebar-link.active     { background: var(--accent-dim); color: var(--accent-light); }
+  .sidebar-link.active svg { color: var(--accent-light); }
+  .sidebar-link svg        { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+
+  /* ── Topbar ── */
+  .topbar {
+    @apply flex items-center justify-between sticky top-0 z-30;
+    height: 52px;
+    padding: 0 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-title { font-size: var(--fs-h4); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); }
+  .topbar-right { @apply flex items-center gap-2.5; }
+
+  /* ── Page layout ── */
+  .page-header { padding: 20px 24px 0; }
+  .page-title  { font-size: var(--fs-h2); font-weight: var(--fw-bold);    font-family: var(--font-base); color: var(--text-primary); line-height: var(--lh-tight); }
+  .page-sub    { font-size: var(--fs-body); font-family: var(--font-base); color: var(--text-secondary); margin-top: 2px; line-height: var(--lh-normal); }
+  .page-body   { padding: 16px 24px 24px; }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    @apply flex flex-wrap gap-2 items-center;
+    padding: 10px 12px;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+  }
+  .filter-bar .form-input { @apply w-auto; min-width: 140px; }
+
+  /* ── Spinner ── */
+  .spinner {
+    @apply inline-block rounded-full;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 0.6s linear infinite;
+  }
+  .spinner-lg { width: 32px; height: 32px; border-width: 3px; }
+  .login-page .spinner { border-color: rgba(0,51,102,0.25); border-top-color: #003366; }
+
+  /* ── Empty state ── */
+  .empty-state { @apply text-center py-12 px-4; color: var(--text-muted); }
+  .empty-state svg { @apply mx-auto mb-3 opacity-40; }
+  .empty-state p   { font-size: var(--fs-body); font-family: var(--font-base); }
+
+  /* ── Course cards ── */
+  .course-card {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    transition: border-color 0.15s;
+  }
+  .course-card:hover  { border-color: var(--border-light); }
+  .course-card-header { @apply flex items-start justify-between gap-2.5; }
+  .course-code        { font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--accent-light); font-family: monospace; }
+  .course-name        { font-size: var(--fs-h4); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); margin: 2px 0 4px; }
+  .course-meta        { @apply flex gap-2.5 items-center flex-wrap; font-size: var(--fs-sm); font-family: var(--font-base); color: var(--text-secondary); }
+  .course-desc        { font-size: var(--fs-sm); font-family: var(--font-base); color: var(--text-secondary); margin-top: 6px; line-height: var(--lh-relaxed); }
+
+} /* end @layer components */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LOGIN PAGE — IIT Delhi Design System
+   All tokens are scoped to .login-page so they never bleed into other pages.
+══════════════════════════════════════════════════════════════════════════ */
+.login-page {
+  --iit-primary:         #003366;
+  --iit-accent:          #c21717;
+  --iit-accent-hover:    #a01313;
+  --iit-accent-dim:      rgba(194,23,23,0.10);
+  --iit-accent-border:   rgba(194,23,23,0.30);
+  --iit-text-primary:    #333333;
+  --iit-text-secondary:  #585858;
+  --iit-text-muted:      #8a8a8a;
+  --iit-text-on-dark:    #ffffff;
+  --iit-bg:              #ffffff;
+  --iit-bg-card:         #ffffff;
+  --iit-bg-surface:      #f5f7fa;
+  --iit-border:          #dcdcdc;
+  --iit-border-focus:    #003366;
+  --iit-shadow-card:     0 4px 24px rgba(0,51,102,0.10), 0 1px 4px rgba(0,0,0,0.06);
+  --iit-font:            'Titillium Web', 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --iit-font-size-base:  16px;
+  --iit-font-weight-base:700;
+  --iit-line-height-base:1.4286;
+
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--iit-bg);
-  background-image:
-    radial-gradient(ellipse 70% 55% at 50% -5%, rgba(0,51,102,0.08) 0%, transparent 100%);
-
-  /* ── Typography ── */
-  font-family: var(--iit-font);
-  color: var(--iit-text-primary);
+  background-image: radial-gradient(ellipse 70% 55% at 50% -5%, rgba(0,51,102,0.08) 0%, transparent 100%);
+  font-family:   var(--iit-font);
+  font-size:     var(--iit-font-size-base);
+  font-weight:   var(--iit-font-weight-base);
+  line-height:   var(--iit-line-height-base);
+  color:         var(--iit-text-primary);
+  color-scheme:  light;
 }
 
-/* Card */
 .login-page .login-card {
   background:    var(--iit-bg-card);
   border:        1px solid var(--iit-border);
@@ -393,688 +388,269 @@ body {
   width:         380px;
   box-shadow:    var(--iit-shadow-card);
 }
-
-/* Logo / heading */
 .login-page .login-logo {
-  font-size:   22px;
-  font-weight: 700;
-  color:       var(--iit-primary);
-  margin-bottom: 4px;
-  font-family: var(--iit-font);
+  font-size:      22px;
+  font-weight:    700;
+  color:          var(--iit-primary);
+  margin-bottom:  4px;
+  font-family:    var(--iit-font);
   letter-spacing: -0.3px;
+  line-height:    var(--iit-line-height-base);
 }
-
-/* Sub-heading */
 .login-page .login-sub {
-  font-size:   12px;
-  color:       var(--iit-text-secondary);
+  font-size:     14px;
+  font-weight:   400;
+  color:         var(--iit-text-secondary);
   margin-bottom: 1.5rem;
-  font-family: var(--iit-font);
+  font-family:   var(--iit-font);
 }
-
-/* Icon badge above logo */
 .login-page .login-icon-badge {
-  background:    var(--iit-accent-dim);
-  border:        1px solid var(--iit-accent-border);
+  background: var(--iit-accent-dim);
+  border:     1px solid var(--iit-accent-border);
 }
 
-/* Role tab strip */
+/* Role tabs */
 .login-page .role-tabs {
-  display:       flex;
-  background:    var(--iit-bg-surface);
+  display: flex;
+  background: var(--iit-bg-surface);
   border-radius: var(--radius-sm);
-  padding:       3px;
+  padding: 3px;
   margin-bottom: 1.25rem;
-  gap:           2px;
-  border:        1px solid var(--iit-border);
+  gap: 2px;
+  border: 1px solid var(--iit-border);
 }
-
-/* Individual role tab */
 .login-page .role-tab {
-  flex:         1;
-  text-align:   center;
-  padding:      6px 4px;
+  flex: 1;
+  text-align: center;
+  padding: 6px 4px;
   border-radius: 5px;
-  font-size:    12px;
-  font-weight:  600;
-  cursor:       pointer;
-  border:       none;
-  background:   none;
-  color:        var(--iit-text-muted);
-  transition:   all 0.15s ease;
-  font-family:  var(--iit-font);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--iit-text-muted);
+  transition: all 200ms ease;
+  font-family: var(--iit-font);
+  line-height: var(--iit-line-height-base);
 }
-.login-page .role-tab.active {
-  background: var(--iit-primary);
-  color:      #ffffff;
-}
-.login-page .role-tab:hover:not(.active) {
-  color:      var(--iit-text-primary);
-  background: rgba(0,51,102,0.06);
-}
+.login-page .role-tab.active             { background: var(--iit-primary); color: var(--iit-text-on-dark); }
+.login-page .role-tab:hover:not(.active) { color: var(--iit-text-primary); background: rgba(0,51,102,0.06); }
+.login-page .role-tab:focus-visible      { outline: none; box-shadow: 0 0 0 2px var(--iit-border-focus); }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   IIT Delhi Form System — scoped to .login-page
-   ─────────────────────────────────────────────────────────────────────────
-   Covers:  Labels · Inputs · Selects · Textareas · Checkboxes
-   States:  default · hover · focus · filled · error · disabled · read-only
-   Extra:   hint text · validation messages · icon-suffixed inputs
-═══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Field wrapper ────────────────────────────────────────────────────── */
-/* Use <div class="iit-field"> around each label + control + message set  */
-.login-page .iit-field {
-  display:        flex;
-  flex-direction: column;
-  gap:            5px;
-  margin-bottom:  1rem;
-}
-.login-page .iit-field:last-child { margin-bottom: 0; }
-
-/* ── Label ────────────────────────────────────────────────────────────── */
+/* Labels */
 .login-page .form-label,
 .login-page .iit-label {
-  display:        block;
-  font-family:    var(--iit-font);
-  font-size:      var(--fs-sm);          /* 12 px */
-  font-weight:    var(--fw-semibold);
-  color:          var(--iit-text-secondary);
-  line-height:    var(--lh-tight);
-  margin-bottom:  0;                     /* spacing handled by .iit-field gap */
-  user-select:    none;
+  display: block;
+  font-family: var(--iit-font);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--iit-text-secondary);
+  line-height: var(--iit-line-height-base);
+  margin-bottom: 0;
+  user-select: none;
 }
+.login-page .iit-label .iit-required { color: var(--iit-accent); margin-left: 3px; font-weight: 700; }
 
-/* Required asterisk */
-.login-page .iit-label .iit-required {
-  color:        var(--iit-accent);       /* IIT red */
-  margin-left:  3px;
-  font-weight:  var(--fw-bold);
-}
+/* Field wrapper */
+.login-page .iit-field           { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
+.login-page .iit-field:last-child{ margin-bottom: 0; }
 
-/* ── Shared control base ─────────────────────────────────────────────── */
+/* Inputs */
 .login-page .form-input,
 .login-page .iit-input,
 .login-page .iit-select,
 .login-page .iit-textarea {
-  width:           100%;
-  display:         block;
-  font-family:     var(--iit-font);
-  font-size:       var(--fs-body);       /* 13 px */
-  font-weight:     var(--fw-regular);
-  color:           var(--iit-text-primary);
-  line-height:     var(--lh-normal);
-
-  background:      var(--iit-bg-surface);
-  border:          1.5px solid var(--iit-border);
-  border-radius:   var(--radius-sm);
-  padding:         9px 12px;
-
-  outline:         none;
-  box-shadow:      none;
-  appearance:      none;
+  width: 100%;
+  display: block;
+  font-family: var(--iit-font);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--iit-text-primary);
+  line-height: var(--iit-line-height-base);
+  background: var(--iit-bg-surface);
+  border: 1.5px solid var(--iit-border);
+  border-radius: 3px;
+  padding: 9px 12px;
+  outline: none;
+  box-shadow: none;
+  appearance: none;
   -webkit-appearance: none;
-
-  transition:
-    border-color 0.15s ease,
-    box-shadow   0.15s ease,
-    background   0.15s ease;
+  transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
 }
-
-/* placeholder */
 .login-page .form-input::placeholder,
 .login-page .iit-input::placeholder,
-.login-page .iit-textarea::placeholder {
-  color:       var(--iit-text-muted);
-  font-weight: var(--fw-regular);
-  opacity:     1;
-}
+.login-page .iit-textarea::placeholder { color: var(--iit-text-muted); font-weight: 400; opacity: 1; }
 
-/* hover */
 .login-page .form-input:hover:not(:focus):not(:disabled):not([readonly]),
 .login-page .iit-input:hover:not(:focus):not(:disabled):not([readonly]),
 .login-page .iit-select:hover:not(:focus):not(:disabled),
-.login-page .iit-textarea:hover:not(:focus):not(:disabled):not([readonly]) {
-  border-color: #a8bfd6;               /* hover — mid blue-grey */
-}
+.login-page .iit-textarea:hover:not(:focus):not(:disabled):not([readonly]) { border-color: #a8bfd6; }
 
-/* focus */
 .login-page .form-input:focus,
 .login-page .iit-input:focus,
 .login-page .iit-select:focus,
-.login-page .iit-textarea:focus {
-  border-color: var(--iit-primary);    /* navy focus border */
-  box-shadow:   0 0 0 3px rgba(0, 51, 102, 0.12);
-  background:   #ffffff;
-}
+.login-page .iit-textarea:focus { border-color: var(--iit-primary); box-shadow: 0 0 0 3px rgba(0,51,102,0.12); background: #ffffff; }
 
-/* filled — keep white bg when value exists */
 .login-page .form-input:not(:placeholder-shown),
 .login-page .iit-input:not(:placeholder-shown),
-.login-page .iit-textarea:not(:placeholder-shown) {
-  background: #ffffff;
-}
+.login-page .iit-textarea:not(:placeholder-shown) { background: #ffffff; }
 
-/* disabled */
 .login-page .form-input:disabled,
 .login-page .iit-input:disabled,
 .login-page .iit-select:disabled,
-.login-page .iit-textarea:disabled {
-  background:   #eef1f5;
-  border-color: #d0d7e2;
-  color:        var(--iit-text-muted);
-  cursor:       not-allowed;
-  opacity:      0.7;
-}
+.login-page .iit-textarea:disabled { background: #eef1f5; border-color: #d0d7e2; color: var(--iit-text-muted); cursor: not-allowed; opacity: 0.7; }
 
-/* read-only */
 .login-page .form-input[readonly],
 .login-page .iit-input[readonly],
-.login-page .iit-textarea[readonly] {
-  background:   var(--iit-bg-surface);
-  border-color: var(--iit-border);
-  color:        var(--iit-text-secondary);
-  cursor:       default;
-}
+.login-page .iit-textarea[readonly] { background: var(--iit-bg-surface); border-color: var(--iit-border); color: var(--iit-text-secondary); cursor: default; }
 
-/* ── Error state (add .iit-error class to the control) ───────────────── */
+/* Error state */
 .login-page .form-input.iit-error,
 .login-page .iit-input.iit-error,
 .login-page .iit-select.iit-error,
-.login-page .iit-textarea.iit-error {
-  border-color: var(--iit-accent);     /* IIT red border on error */
-  box-shadow:   0 0 0 3px rgba(194, 23, 23, 0.10);
-}
+.login-page .iit-textarea.iit-error { border-color: var(--iit-accent); box-shadow: 0 0 0 3px rgba(194,23,23,0.10); }
 .login-page .form-input.iit-error:focus,
 .login-page .iit-input.iit-error:focus,
 .login-page .iit-select.iit-error:focus,
-.login-page .iit-textarea.iit-error:focus {
-  border-color: var(--iit-accent);
-  box-shadow:   0 0 0 3px rgba(194, 23, 23, 0.18);
-}
+.login-page .iit-textarea.iit-error:focus { border-color: var(--iit-accent); box-shadow: 0 0 0 3px rgba(194,23,23,0.18); }
 
-/* ── Input with suffix icon (e.g. eye toggle) ────────────────────────── */
-.login-page .iit-input-wrap {
-  position: relative;
-  display:  block;
-}
+/* Input icon */
+.login-page .iit-input-wrap { position: relative; display: block; }
 .login-page .iit-input-wrap .form-input,
-.login-page .iit-input-wrap .iit-input {
-  padding-right: 38px;                 /* room for icon button */
-}
+.login-page .iit-input-wrap .iit-input { padding-right: 38px; }
 .login-page .iit-input-icon {
-  position:   absolute;
-  right:       8px;
-  top:         50%;
-  transform:  translateY(-50%);
-  display:    flex;
-  align-items: center;
-  background:  none;
-  border:      none;
-  cursor:      pointer;
-  padding:     4px;
-  color:       var(--iit-text-muted);
-  border-radius: 4px;
-  transition:  color 0.15s ease;
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center;
+  background: none; border: none; cursor: pointer; padding: 4px;
+  color: var(--iit-text-muted); border-radius: 4px; transition: color 200ms ease;
 }
-.login-page .iit-input-icon:hover { color: var(--iit-primary); }
-.login-page .iit-input-icon:focus-visible {
-  outline:    none;
-  box-shadow: 0 0 0 2px var(--iit-primary);
-}
+.login-page .iit-input-icon:hover         { color: var(--iit-primary); }
+.login-page .iit-input-icon:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--iit-primary); }
 
-/* ── Select ──────────────────────────────────────────────────────────── */
+/* Select */
 .login-page .iit-select {
-  padding-right: 36px;                 /* room for custom arrow */
-  cursor:        pointer;
+  padding-right: 36px;
+  cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23585858' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:   no-repeat;
-  background-position: right 12px center;
-  background-size:     12px 8px;
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 12px 8px;
 }
-.login-page .iit-select:disabled {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8a8a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-}
-.login-page .iit-select option {
-  font-family: var(--iit-font);
-  background:  #ffffff;
-  color:       var(--iit-text-primary);
-}
+.login-page .iit-select option { font-family: var(--iit-font); background: #ffffff; color: var(--iit-text-primary); }
 
-/* ── Textarea ─────────────────────────────────────────────────────────── */
-.login-page .iit-textarea {
-  min-height:  96px;
-  resize:      vertical;
-  line-height: var(--lh-relaxed);
-}
+/* Textarea */
+.login-page .iit-textarea { min-height: 96px; resize: vertical; line-height: var(--iit-line-height-base); }
 
-/* ── Checkbox ─────────────────────────────────────────────────────────── */
-/* Usage: <label class="iit-checkbox-label">
-            <input type="checkbox" class="iit-checkbox"> Label text
-          </label>                                                          */
+/* Checkbox */
 .login-page .iit-checkbox-label {
-  display:     inline-flex;
-  align-items: flex-start;
-  gap:         9px;
-  cursor:      pointer;
-  font-family: var(--iit-font);
-  font-size:   var(--fs-body);
-  font-weight: var(--fw-regular);
-  color:       var(--iit-text-primary);
-  line-height: var(--lh-normal);
-  user-select: none;
+  display: inline-flex; align-items: flex-start; gap: 9px; cursor: pointer;
+  font-family: var(--iit-font); font-size: 14px; font-weight: 400;
+  color: var(--iit-text-primary); line-height: var(--iit-line-height-base); user-select: none;
 }
 .login-page .iit-checkbox {
-  /* Hidden native checkbox */
-  appearance:      none;
-  -webkit-appearance: none;
-  flex-shrink:     0;
-  width:           17px;
-  height:          17px;
-  margin-top:      2px;
-  border:          1.5px solid var(--iit-border);
-  border-radius:   4px;
-  background:      var(--iit-bg-surface);
-  cursor:          pointer;
-  transition:
-    border-color 0.15s ease,
-    background   0.15s ease,
-    box-shadow   0.15s ease;
+  appearance: none; -webkit-appearance: none; flex-shrink: 0;
+  width: 17px; height: 17px; margin-top: 2px;
+  border: 1.5px solid var(--iit-border); border-radius: 4px;
+  background: var(--iit-bg-surface); cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
 }
-/* hover */
-.login-page .iit-checkbox:hover:not(:disabled) {
-  border-color: #a8bfd6;
-}
-/* checked */
+.login-page .iit-checkbox:hover:not(:disabled) { border-color: #a8bfd6; }
 .login-page .iit-checkbox:checked {
-  background:   var(--iit-primary);
-  border-color: var(--iit-primary);
+  background: var(--iit-primary); border-color: var(--iit-primary);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath d='M1 4l3 3 5-6' stroke='white' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:   no-repeat;
-  background-position: center;
+  background-repeat: no-repeat; background-position: center;
 }
-/* focus-visible */
-.login-page .iit-checkbox:focus-visible {
-  outline:    none;
-  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.18);
-}
-/* disabled */
-.login-page .iit-checkbox:disabled {
-  background:   #eef1f5;
-  border-color: #d0d7e2;
-  cursor:       not-allowed;
-  opacity:      0.6;
-}
-.login-page .iit-checkbox-label:has(.iit-checkbox:disabled) {
-  color:   var(--iit-text-muted);
-  cursor:  not-allowed;
-}
+.login-page .iit-checkbox:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,51,102,0.18); }
+.login-page .iit-checkbox:disabled      { background: #eef1f5; border-color: #d0d7e2; cursor: not-allowed; opacity: 0.6; }
+.login-page .iit-checkbox-label:has(.iit-checkbox:disabled) { color: var(--iit-text-muted); cursor: not-allowed; }
 
-/* ── Validation messages ─────────────────────────────────────────────── */
-/* Error message below a field */
+/* Messages */
 .login-page .iit-msg-error {
-  display:     flex;
-  align-items: flex-start;
-  gap:         6px;
-  font-family: var(--iit-font);
-  font-size:   var(--fs-sm);
-  font-weight: var(--fw-regular);
-  color:       var(--iit-accent);         /* IIT red */
-  line-height: var(--lh-normal);
-  margin-top:  2px;
+  display: flex; align-items: flex-start; gap: 6px;
+  font-family: var(--iit-font); font-size: 12px; font-weight: 400;
+  color: var(--iit-accent); line-height: var(--iit-line-height-base); margin-top: 2px;
 }
-.login-page .iit-msg-error svg { flex-shrink: 0; margin-top: 1px; }
-
-/* Hint / helper text below a field */
 .login-page .iit-msg-hint {
-  display:     flex;
-  align-items: flex-start;
-  gap:         6px;
-  font-family: var(--iit-font);
-  font-size:   var(--fs-sm);
-  color:       var(--iit-text-secondary);
-  line-height: var(--lh-normal);
-  margin-top:  2px;
-  background:  var(--iit-bg-surface);
-  border:      1px solid var(--iit-border);
-  border-radius: var(--radius-sm);
-  padding:     6px 10px;
+  display: flex; align-items: flex-start; gap: 6px;
+  font-family: var(--iit-font); font-size: 12px;
+  color: var(--iit-text-secondary); line-height: var(--iit-line-height-base);
+  margin-top: 2px; background: var(--iit-bg-surface);
+  border: 1px solid var(--iit-border); border-radius: var(--radius-sm); padding: 6px 10px;
 }
-.login-page .iit-msg-hint span { color: var(--iit-accent); font-weight: var(--fw-semibold); }
-
-/* Banner-level form error (e.g. "Login failed") */
+.login-page .iit-msg-hint span { color: var(--iit-accent); font-weight: 700; }
 .login-page .iit-form-error-banner {
-  display:      flex;
-  align-items:  flex-start;
-  gap:          8px;
-  background:   rgba(194, 23, 23, 0.07);
-  border:       1px solid rgba(194, 23, 23, 0.25);
-  border-left:  3px solid var(--iit-accent);
-  border-radius: var(--radius-sm);
-  padding:      10px 12px;
-  margin-bottom: 1rem;
-  font-family:  var(--iit-font);
-  font-size:    var(--fs-sm);
-  color:        var(--iit-accent);
-  line-height:  var(--lh-normal);
-  animation:    fadeUp 0.18s ease;
+  display: flex; align-items: flex-start; gap: 8px;
+  background: rgba(194,23,23,0.07);
+  border: 1px solid rgba(194,23,23,0.25);
+  border-left: 3px solid var(--iit-accent);
+  border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 1rem;
+  font-family: var(--iit-font); font-size: 12px;
+  color: var(--iit-accent); line-height: var(--iit-line-height-base);
+  animation: fadeUp 0.18s ease;
 }
 .login-page .iit-form-error-banner svg { flex-shrink: 0; margin-top: 1px; }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   IIT Delhi Button System — scoped to .login-page
-   Three variants × six interaction states
-   ─────────────────────────────────────────────────────────────────────────
-   Variants
-     .btn-iit-primary   — Navy #003366  (primary action)
-     .btn-iit-danger    — Red  #c21717  (destructive / accent)
-     .btn-iit-secondary — White, navy border (secondary / ghost)
-   States: default · hover · focus-visible · active · disabled · loading
-═══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Shared base reset (applies to all three variants) ── */
+/* IIT button variants */
 .login-page .btn-iit-primary,
 .login-page .btn-iit-danger,
 .login-page .btn-iit-secondary {
-  /* Layout */
-  display:         inline-flex;
-  align-items:     center;
-  justify-content: center;
-  gap:             8px;
-  width:           100%;
-
-  /* Spacing */
-  padding:         10px 18px;
-
-  /* Typography */
-  font-family:     var(--iit-font);
-  font-size:       var(--fs-body);
-  font-weight:     var(--fw-bold);
-  letter-spacing:  0.25px;
-  line-height:     1;
-  white-space:     nowrap;
-
-  /* Shape */
-  border-radius:   var(--radius-sm);
-  border:          2px solid transparent;
-
-  /* Behaviour */
-  cursor:          pointer;
-  user-select:     none;
-  text-decoration: none;
-
-  /* Transitions — smooth across all states */
-  transition:
-    background-color 0.18s ease,
-    border-color     0.18s ease,
-    box-shadow       0.18s ease,
-    opacity          0.18s ease,
-    transform        0.1s  ease;
-
-  /* Loading spinner slot (::after pseudo-element) */
-  position: relative;
-  overflow:  hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+  padding: 10px 18px;
+  font-family: var(--iit-font); font-size: 14px; font-weight: 700;
+  letter-spacing: 0.25px; line-height: 1; white-space: nowrap;
+  border-radius: var(--radius-sm); border: 2px solid transparent;
+  cursor: pointer; user-select: none; position: relative; overflow: hidden;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease, opacity 200ms ease, transform 100ms ease;
 }
-
-/* Remove the default outline; we draw our own focus ring */
-.login-page .btn-iit-primary:focus,
-.login-page .btn-iit-danger:focus,
-.login-page .btn-iit-secondary:focus { outline: none; }
-
-/* ── Loading spinner (shared) ─────────────────────────────────────────── */
-/* Applied by adding class .loading to the button element                  */
-.login-page .btn-iit-primary.loading,
-.login-page .btn-iit-danger.loading,
-.login-page .btn-iit-secondary.loading {
-  cursor:         not-allowed;
-  pointer-events: none;
-  opacity:        0.75;
-}
-
-/* Inline spinner injected via ::after so no extra markup is needed */
 .login-page .btn-iit-primary.loading::after,
 .login-page .btn-iit-danger.loading::after,
 .login-page .btn-iit-secondary.loading::after {
-  content:       '';
-  display:       inline-block;
-  width:         14px;
-  height:        14px;
-  border-radius: 50%;
-  border:        2px solid currentColor;
-  border-top-color: transparent;
-  animation:     iit-btn-spin 0.65s linear infinite;
-  flex-shrink:   0;
+  content: ''; display: inline-block; width: 14px; height: 14px;
+  border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent;
+  animation: iit-btn-spin 0.65s linear infinite; flex-shrink: 0;
 }
+.login-page .btn-iit-primary  { background: #003366; border-color: #003366; color: #fff; box-shadow: 0 2px 6px rgba(0,51,102,0.25); }
+.login-page .btn-iit-primary:hover:not(:disabled)  { background: #00264d; border-color: #00264d; box-shadow: 0 4px 12px rgba(0,51,102,0.35); transform: translateY(-1px); }
+.login-page .btn-iit-primary:focus-visible          { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #003366; outline: none; }
+.login-page .btn-iit-primary:disabled               { background: #7fa3cc; border-color: #7fa3cc; opacity: 0.55; cursor: not-allowed; }
 
-@keyframes iit-btn-spin {
-  to { transform: rotate(360deg); }
-}
+.login-page .btn-iit-danger   { background: #c21717; border-color: #c21717; color: #fff; box-shadow: 0 2px 6px rgba(194,23,23,0.25); }
+.login-page .btn-iit-danger:hover:not(:disabled)   { background: #a01313; border-color: #a01313; box-shadow: 0 4px 12px rgba(194,23,23,0.35); transform: translateY(-1px); }
+.login-page .btn-iit-danger:focus-visible           { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #c21717; outline: none; }
+.login-page .btn-iit-danger:disabled                { background: #e88080; border-color: #e88080; opacity: 0.55; cursor: not-allowed; }
 
-/* ── 1. PRIMARY — IIT Delhi Navy Blue ─────────────────────────────────── */
-.login-page .btn-iit-primary {
-  background:   #003366;
-  border-color: #003366;
-  color:        #ffffff;
-  box-shadow:   0 2px 6px rgba(0, 51, 102, 0.25);
-}
+.login-page .btn-iit-secondary { background: #fff; border-color: #003366; color: #003366; }
+.login-page .btn-iit-secondary:hover:not(:disabled) { background: rgba(0,51,102,0.05); box-shadow: 0 3px 8px rgba(0,51,102,0.15); transform: translateY(-1px); }
+.login-page .btn-iit-secondary:focus-visible        { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #003366; outline: none; }
+.login-page .btn-iit-secondary:disabled             { background: #f5f7fa; border-color: #b0c4de; color: #8a9bb0; opacity: 0.60; cursor: not-allowed; }
 
-/* hover */
-.login-page .btn-iit-primary:hover:not(:disabled):not(.loading) {
-  background:   #00264d;
-  border-color: #00264d;
-  box-shadow:   0 4px 12px rgba(0, 51, 102, 0.35);
-  transform:    translateY(-1px);
-}
-
-/* focus-visible — navy focus ring */
-.login-page .btn-iit-primary:focus-visible {
-  box-shadow:
-    0 0 0 3px #ffffff,
-    0 0 0 5px #003366;
-}
-
-/* active / pressed */
-.login-page .btn-iit-primary:active:not(:disabled):not(.loading) {
-  background:   #001f3d;
-  border-color: #001f3d;
-  box-shadow:   0 1px 3px rgba(0, 51, 102, 0.20);
-  transform:    translateY(0px);
-}
-
-/* disabled */
-.login-page .btn-iit-primary:disabled {
-  background:   #7fa3cc;
-  border-color: #7fa3cc;
-  box-shadow:   none;
-  cursor:       not-allowed;
-  opacity:      0.55;
-  transform:    none;
-}
-
-/* loading (spinner colour inherits white from color) */
-.login-page .btn-iit-primary.loading {
-  background:   #003366;
-  border-color: #003366;
-}
-
-/* ── 2. DANGER — IIT Delhi Accent Red ────────────────────────────────── */
-.login-page .btn-iit-danger {
-  background:   #c21717;
-  border-color: #c21717;
-  color:        #ffffff;
-  box-shadow:   0 2px 6px rgba(194, 23, 23, 0.25);
-}
-
-/* hover */
-.login-page .btn-iit-danger:hover:not(:disabled):not(.loading) {
-  background:   #a01313;
-  border-color: #a01313;
-  box-shadow:   0 4px 12px rgba(194, 23, 23, 0.35);
-  transform:    translateY(-1px);
-}
-
-/* focus-visible — red focus ring */
-.login-page .btn-iit-danger:focus-visible {
-  box-shadow:
-    0 0 0 3px #ffffff,
-    0 0 0 5px #c21717;
-}
-
-/* active / pressed */
-.login-page .btn-iit-danger:active:not(:disabled):not(.loading) {
-  background:   #870f0f;
-  border-color: #870f0f;
-  box-shadow:   0 1px 3px rgba(194, 23, 23, 0.20);
-  transform:    translateY(0px);
-}
-
-/* disabled */
-.login-page .btn-iit-danger:disabled {
-  background:   #e88080;
-  border-color: #e88080;
-  box-shadow:   none;
-  cursor:       not-allowed;
-  opacity:      0.55;
-  transform:    none;
-}
-
-/* loading */
-.login-page .btn-iit-danger.loading {
-  background:   #c21717;
-  border-color: #c21717;
-}
-
-/* ── 3. SECONDARY — White with Navy Border ────────────────────────────── */
-.login-page .btn-iit-secondary {
-  background:   #ffffff;
-  border-color: #003366;
-  color:        #003366;
-  box-shadow:   0 1px 3px rgba(0, 51, 102, 0.10);
-}
-
-/* hover */
-.login-page .btn-iit-secondary:hover:not(:disabled):not(.loading) {
-  background:   rgba(0, 51, 102, 0.05);
-  border-color: #003366;
-  box-shadow:   0 3px 8px rgba(0, 51, 102, 0.15);
-  transform:    translateY(-1px);
-}
-
-/* focus-visible — navy ring */
-.login-page .btn-iit-secondary:focus-visible {
-  box-shadow:
-    0 0 0 3px #ffffff,
-    0 0 0 5px #003366;
-}
-
-/* active / pressed */
-.login-page .btn-iit-secondary:active:not(:disabled):not(.loading) {
-  background:   rgba(0, 51, 102, 0.10);
-  border-color: #00264d;
-  box-shadow:   none;
-  transform:    translateY(0px);
-}
-
-/* disabled */
-.login-page .btn-iit-secondary:disabled {
-  background:   #f5f7fa;
-  border-color: #b0c4de;
-  color:        #8a9bb0;
-  box-shadow:   none;
-  cursor:       not-allowed;
-  opacity:      0.60;
-  transform:    none;
-}
-
-/* loading (spinner colour inherits navy from color) */
-.login-page .btn-iit-secondary.loading {
-  background:   #ffffff;
-  border-color: #003366;
-}
-
-/* ── Compatibility shim: old .btn-primary inside .login-page ─────────── */
-/* Keeps the pre-existing login submit button working without JSX changes  */
-/* ::after is suppressed here — <Spinner /> in JSX handles loading UI      */
+/* Shim: .btn.btn-primary inside .login-page → navy instead of indigo */
 .login-page .btn.btn-primary {
-  background:   #003366;
-  border-color: #003366;
-  color:        #ffffff;
-  font-family:  var(--iit-font);
-  font-weight:  var(--fw-bold);
-  letter-spacing: 0.25px;
-  box-shadow:   0 2px 6px rgba(0,51,102,0.25);
-  border:       2px solid #003366;
-  transition:
-    background-color 0.18s ease,
-    box-shadow       0.18s ease,
-    transform        0.10s ease;
+  background: #003366; border-color: #003366; color: #fff;
+  font-family: var(--iit-font); font-weight: 700; letter-spacing: 0.25px;
+  box-shadow: 0 2px 6px rgba(0,51,102,0.25); border: 2px solid #003366;
+  transition: background-color 200ms ease, box-shadow 200ms ease, transform 100ms ease;
 }
+.login-page .btn.btn-primary::after                              { content: none; }
+.login-page .btn.btn-primary:hover:not(:disabled):not(.loading)  { background: #00264d; border-color: #00264d; box-shadow: 0 4px 12px rgba(0,51,102,0.35); transform: translateY(-1px); }
+.login-page .btn.btn-primary:focus-visible                        { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #003366; }
+.login-page .btn.btn-primary:active:not(:disabled):not(.loading)  { background: #001f3d; box-shadow: 0 1px 3px rgba(0,51,102,0.20); transform: translateY(0); }
+.login-page .btn.btn-primary:disabled                             { background: #7fa3cc; border-color: #7fa3cc; box-shadow: none; cursor: not-allowed; opacity: 0.55; transform: none; }
+.login-page .btn.btn-primary.loading                              { background: #003366; border-color: #003366; box-shadow: none; cursor: not-allowed; opacity: 0.72; transform: none; pointer-events: none; }
 
-/* Suppress CSS pseudo-spinner — JSX <Spinner/> component handles this */
-.login-page .btn.btn-primary::after { content: none; }
+/* ══════════════════════════════════════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════════════════════════════════════ */
+@keyframes spin         { to { transform: rotate(360deg); } }
+@keyframes iit-btn-spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp       { from { opacity: 0; transform: translateY(8px); }  to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn      { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
 
-/* default → hover */
-.login-page .btn.btn-primary:hover:not(:disabled):not(.loading) {
-  background:   #00264d;
-  border-color: #00264d;
-  box-shadow:   0 4px 12px rgba(0,51,102,0.35);
-  transform:    translateY(-1px);
-}
-
-/* focus-visible ring */
-.login-page .btn.btn-primary:focus-visible {
-  outline:    none;
-  box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px #003366;
-}
-
-/* active / pressed */
-.login-page .btn.btn-primary:active:not(:disabled):not(.loading) {
-  background: #001f3d;
-  box-shadow: 0 1px 3px rgba(0,51,102,0.20);
-  transform:  translateY(0);
-}
-
-/* disabled */
-.login-page .btn.btn-primary:disabled {
-  background:   #7fa3cc;
-  border-color: #7fa3cc;
-  box-shadow:   none;
-  cursor:       not-allowed;
-  opacity:      0.55;
-  transform:    none;
-}
-
-/* loading — same as disabled visually but class-driven */
-.login-page .btn.btn-primary.loading {
-  background:   #003366;
-  border-color: #003366;
-  box-shadow:   none;
-  cursor:       not-allowed;
-  opacity:      0.72;
-  transform:    none;
-  pointer-events: none;
-}
-
-/* ─── Course card ─── */
-.course-card {
-  background: var(--bg-card2); border: 1px solid var(--border); border-radius: var(--radius-md);
-  padding: 1rem; transition: border-color 0.15s;
-}
-.course-card:hover { border-color: var(--border-light); }
-.course-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.course-code { font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--accent-light); font-family: monospace; }
-.course-name { font-size: var(--fs-h4); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-primary); margin: 2px 0 4px; }
-.course-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: var(--fs-sm); font-family: var(--font-base); color: var(--text-secondary); }
-.course-desc { font-size: var(--fs-sm); font-family: var(--font-base); color: var(--text-secondary); margin-top: 6px; line-height: var(--lh-relaxed); }
-
-/* ─── Animations ─── */
-@keyframes spin    { to { transform: rotate(360deg); } }
-@keyframes fadeUp  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
-
-/* ─── Responsive ─── */
+/* ══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .sidebar { display: none; }
-  .page-body { padding: 12px 14px 14px; }
-  .filter-bar { flex-direction: column; align-items: stretch; }
+  .sidebar                { display: none; }
+  .page-body              { padding: 12px 14px 14px; }
+  .filter-bar             { flex-direction: column; align-items: stretch; }
   .filter-bar .form-input { width: 100%; min-width: unset; }
 }
