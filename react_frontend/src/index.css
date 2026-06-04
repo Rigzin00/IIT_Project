@@ -251,34 +251,200 @@
   .stat-label { font-size: var(--fs-xs); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
 
   /* ── Sidebar ── */
-  .sidebar {
-    @apply flex flex-col min-h-screen;
-    width: 220px;
-    min-width: 220px;
-    background: var(--bg-card);
-    border-right: 1px solid var(--border);
-  }
-  .sidebar-logo       { padding: 18px 16px; border-bottom: 1px solid var(--border); }
-  .sidebar-logo-title { font-size: var(--fs-h4); font-weight: var(--fw-bold);     font-family: var(--font-base); color: var(--text-primary); line-height: var(--lh-tight); }
-  .sidebar-logo-sub   { font-size: var(--fs-xs); font-family: var(--font-base);   color: var(--text-muted); margin-top: 2px; }
-  .sidebar-nav        { @apply flex-1 flex flex-col gap-0.5; padding: 10px 8px; }
-  .sidebar-section    { padding: 10px 10px 4px; font-size: var(--fs-xxs); font-weight: var(--fw-semibold); font-family: var(--font-base); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
-  .sidebar-footer     { padding: 12px 8px; border-top: 1px solid var(--border); }
-  .sidebar-link {
-    @apply flex items-center gap-2.5 border-none bg-transparent w-full text-left cursor-pointer;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    font-size: var(--fs-body);
-    font-weight: var(--fw-semibold);
-    font-family: var(--font-base);
-    color: var(--text-secondary);
-    transition: all 0.15s;
-  }
-  .sidebar-link:hover      { background: var(--bg-hover); color: var(--text-primary); }
-  .sidebar-link.active     { background: var(--accent-dim); color: var(--accent-light); }
-  .sidebar-link.active svg { color: var(--accent-light); }
-  .sidebar-link svg        { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+  /* ══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .sidebar                { display: none; }
+  .page-body              { padding: 12px 14px 14px; }
+  .filter-bar             { flex-direction: column; align-items: stretch; }
+  .filter-bar .form-input { width: 100%; min-width: unset; }
+  .sc-page .sc-body       { padding: 16px; }
+  .sc-page .sc-header     { padding: 0 16px; }
+  .sc-page .sc-grid       { grid-template-columns: 1fr; }
+}
 
+/* ══════════════════════════════════════════════════════════════════════════
+   SIDEBAR — matches sc-page theme exactly
+   Same font, same colors, same border logic, same variable names.
+══════════════════════════════════════════════════════════════════════════ */
+.sc-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 220px;
+  min-width: 220px;
+  background: #FFFFFF;
+  border-right: 1px solid #E5E7EB;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #4B5563;
+  position: relative;
+}
+
+
+/* ── Logo block ── */
+.sc-sidebar-logo {
+  padding: 16px 16px 32px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.sc-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Icon box — mirrors sc-page icon-wrap style */
+.sc-sidebar-brand-icon {
+  width: 34px;
+  height: 34px;
+  border-left: 3px solid #C41212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sc-sidebar-brand-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1F2937;
+  line-height: 1.25;
+  letter-spacing: -0.1px;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.sc-sidebar-brand-sub {
+  font-size: 10.5px;
+  color: #9CA3AF;
+  margin-top: 1px;
+  line-height: 1.3;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Role label — plain red text, no colored bg per role */
+.sc-sidebar-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #C41212;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  
+}
+
+/* ── Nav ── */
+.sc-sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px;
+  gap: 1px;
+}
+
+.sc-sidebar-section {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 10px 5px;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.sc-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #555555;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+
+.sc-sidebar-link svg {
+  color: #9CA3AF;
+  flex-shrink: 0;
+  transition: color 120ms;
+}
+
+.sc-sidebar-link:hover {
+  background: #F5F5F5;
+  color: #1F2937;
+}
+.sc-sidebar-link:hover svg { color: #555555; }
+
+/* Active — left red border, matches sc-page's sc-title-accent */
+.sc-sidebar-link.active {
+  background: #F5F5F5;
+  color: #C41212;
+  position: relative;
+}
+.sc-sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: 3px;
+  background: #C41212;
+  border-radius: 0 2px 2px 0;
+}
+.sc-sidebar-link.active svg { color: #C41212; }
+
+/* ── Footer ── */
+.sc-sidebar-footer {
+  padding: 12px 14px 16px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.sc-sidebar-username {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1F2937;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sign out — matches sc-register-btn outline style */
+.sc-sidebar-signout {
+  width: 100%;
+  padding: 6px 12px;
+  border: 1px solid #E5E7EB;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #555555;
+  cursor: pointer;
+  letter-spacing: 0.1px;
+  transition: border-color 150ms, color 150ms, background 150ms;
+  text-align: center;
+}
+.sc-sidebar-signout:hover {
+  border-color: #C41212;
+  color: #C41212;
+  background: #FEF2F2;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sc-sidebar { display: none; }
+}
   /* ── Topbar ── */
   .topbar {
     @apply flex items-center justify-between sticky top-0 z-30;
@@ -794,19 +960,19 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   STUDENT COURSES PAGE — IIT Delhi Design System
+   STUDENT COURSES PAGE — Minimal Professional Design
    Scoped to .sc-page so it never bleeds into other pages.
 ══════════════════════════════════════════════════════════════════════════ */
 .sc-page {
-  --sc-red:        #C41212;
-  --sc-red-dark:   #9A0F0F;
-  --sc-text-dark:  #1F2937;
-  --sc-text-body:  #4B5563;
-  --sc-text-muted: #9CA3AF;
-  --sc-bg:         #F5F5F5;
-  --sc-white:      #FFFFFF;
-  --sc-border:     #E5E7EB;
-  --sc-font:       'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sc-primary:      #C41212;
+  --sc-primary-dark: #9A0F0F;
+  --sc-text-heading: #1F2937;
+  --sc-text-body:    #555555;
+  --sc-text-muted:   #9CA3AF;
+  --sc-bg:           #F5F5F5;
+  --sc-bg-card:      #FFFFFF;
+  --sc-border:       #E5E7EB;
+  --sc-font:         'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   font-family: var(--sc-font);
   background: var(--sc-bg);
@@ -814,9 +980,9 @@
   color: var(--sc-text-body);
 }
 
-/* ── Header ── */
+/* ── Page header ── */
 .sc-page .sc-header {
-  background: var(--sc-white);
+  background: var(--sc-bg-card);
   border-bottom: 1px solid var(--sc-border);
   padding: 0 32px;
 }
@@ -835,24 +1001,22 @@
 }
 .sc-page .sc-page-title {
   font-size: 24px;
-  font-weight: 900;
-  color: var(--sc-text-dark);
+  font-weight: 800;
+  color: var(--sc-text-heading);
   font-family: var(--sc-font);
-  line-height: 1.25;
-  letter-spacing: -0.2px;
+  line-height: 1.3;
+  letter-spacing: -0.1px;
 }
 .sc-page .sc-title-accent {
   width: 24px; height: 2px;
-  background: var(--sc-red);
+  background: var(--sc-primary);
   border-radius: 1px;
   margin-top: 5px;
 }
 .sc-page .sc-page-sub {
   font-size: 12px;
   color: var(--sc-text-muted);
-  font-family: var(--sc-font);
   margin-top: 2px;
-  line-height: 1.5;
 }
 
 /* ── Body ── */
@@ -868,20 +1032,20 @@
   margin-bottom: 20px;
 }
 .sc-page .sc-search {
-  background: var(--sc-white);
+  background: var(--sc-bg-card);
   border: 1px solid var(--sc-border);
   border-radius: 4px;
   padding: 7px 12px;
   font-size: 13px;
   font-family: var(--sc-font);
-  color: var(--sc-text-dark);
+  color: var(--sc-text-heading);
   outline: none;
   width: 100%;
   max-width: 320px;
   transition: border-color 150ms;
 }
 .sc-page .sc-search::placeholder { color: var(--sc-text-muted); }
-.sc-page .sc-search:focus { border-color: var(--sc-red); }
+.sc-page .sc-search:focus { border-color: var(--sc-primary); }
 
 .sc-page .sc-count-badge {
   font-size: 12px;
@@ -889,16 +1053,16 @@
   display: flex; align-items: center; gap: 4px;
 }
 .sc-page .sc-count-badge span {
-  color: var(--sc-text-dark);
+  color: var(--sc-text-heading);
   font-weight: 600;
 }
 
-/* ── Grid ── */
+/* ── Grid: flat table-style, 1px dividers ── */
 .sc-page .sc-grid {
   border: 1px solid var(--sc-border);
   border-radius: 6px;
   overflow: hidden;
-  background: var(--sc-border);
+  background: var(--sc-border); /* 1px gap color */
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 1px;
@@ -906,8 +1070,8 @@
 
 /* ── Card ── */
 .sc-page .sc-card {
-  background: var(--sc-white);
-  padding: 18px 24px;
+  background: var(--sc-bg-card);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   transition: background 120ms ease;
@@ -923,12 +1087,12 @@
 }
 .sc-page .sc-card-info { flex: 1; min-width: 0; }
 
-/* Course code */
+/* Course code — plain red text, no background */
 .sc-page .sc-code {
   display: block;
   font-size: 10px;
   font-weight: 700;
-  color: var(--sc-red);
+  color: var(--sc-primary);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 4px;
@@ -939,13 +1103,13 @@
 .sc-page .sc-name {
   font-size: 14px;
   font-weight: 700;
-  color: var(--sc-text-dark);
+  color: var(--sc-text-heading);
   font-family: var(--sc-font);
   line-height: 1.35;
   margin-bottom: 6px;
 }
 
-/* Meta row */
+/* Meta row — plain text */
 .sc-page .sc-meta {
   display: flex;
   flex-wrap: wrap;
@@ -957,13 +1121,15 @@
 }
 .sc-page .sc-meta-item { color: var(--sc-text-body); }
 .sc-page .sc-meta-sep  { color: #D1D5DB; font-size: 10px; }
+
+/* Credits — plain colored text, no pill */
 .sc-page .sc-credits-pill {
   font-size: 11.5px;
   font-weight: 600;
   color: #92400E;
 }
 
-/* ── Status ── */
+/* ── Status area ── */
 .sc-page .sc-status {
   display: flex;
   flex-direction: column;
@@ -973,6 +1139,7 @@
   padding-top: 2px;
 }
 
+/* Status — text only, no pill backgrounds or borders */
 .sc-page .sc-status-pill {
   display: inline-flex;
   align-items: center;
@@ -985,7 +1152,7 @@
 }
 .sc-page .sc-status-pill.pending  { color: var(--sc-text-muted); }
 .sc-page .sc-status-pill.approved { color: #374151; }
-.sc-page .sc-status-pill.rejected { color: var(--sc-red); }
+.sc-page .sc-status-pill.rejected { color: var(--sc-primary); }
 
 .sc-page .sc-grade-tag {
   font-size: 11px;
@@ -993,11 +1160,11 @@
   font-family: var(--sc-font);
 }
 .sc-page .sc-grade-tag strong {
-  color: var(--sc-text-dark);
+  color: var(--sc-text-heading);
   font-weight: 700;
 }
 
-/* ── Register button ── */
+/* Register button — site red only, flat */
 .sc-page .sc-register-btn {
   display: inline-flex;
   align-items: center;
@@ -1007,7 +1174,7 @@
   font-weight: 700;
   font-family: var(--sc-font);
   color: #fff;
-  background: var(--sc-red);
+  background: var(--sc-primary);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -1016,10 +1183,10 @@
   min-width: 76px;
   white-space: nowrap;
 }
-.sc-page .sc-register-btn:hover:not(:disabled) { background: var(--sc-red-dark); }
+.sc-page .sc-register-btn:hover:not(:disabled) { background: var(--sc-primary-dark); }
 .sc-page .sc-register-btn:disabled { opacity: 0.50; cursor: not-allowed; }
 
-/* ── Description ── */
+/* Description */
 .sc-page .sc-desc {
   font-size: 12px;
   color: var(--sc-text-muted);
@@ -1030,11 +1197,11 @@
   padding-top: 12px;
 }
 
-/* ── Empty state ── */
+/* Empty state */
 .sc-page .sc-empty {
   text-align: center;
   padding: 60px 24px;
-  background: var(--sc-white);
+  background: var(--sc-bg-card);
   border: 1px solid var(--sc-border);
   border-radius: 6px;
   font-family: var(--sc-font);
@@ -1047,7 +1214,7 @@
 }
 .sc-page .sc-empty p { font-size: 13px; color: var(--sc-text-muted); margin: 0; }
 
-/* ── Loading ── */
+/* Loading */
 .sc-page .sc-loading {
   display: flex;
   align-items: center;
@@ -1056,18 +1223,16 @@
 }
 .sc-page .spinner {
   border-color: #E5E7EB;
-  border-top-color: var(--sc-red);
+  border-top-color: var(--sc-primary);
 }
 
-/* ── Animation ── */
-@keyframes scCardIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* ══════════════════════════════════════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════════════════════════════════════ */
+@keyframes spin         { to { transform: rotate(360deg); } }
+@keyframes iit-btn-spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp       { from { opacity: 0; transform: translateY(8px); }  to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn      { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes loginCardIn  { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes scCardIn     { from { opacity: 0; transform: translateY(8px); }  to { opacity: 1; transform: translateY(0); } }
 
-/* ── Responsive ── */
-@media (max-width: 768px) {
-  .sc-page .sc-body   { padding: 16px; }
-  .sc-page .sc-header { padding: 0 16px; }
-  .sc-page .sc-grid   { grid-template-columns: 1fr; }
-}
