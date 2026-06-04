@@ -72,81 +72,73 @@ export default function StudentCourses() {
   );
 
   if (loading) return (
-    <div className="sc-page">
-      <div className="sc-loading">
-        <Spinner size="lg" />
-      </div>
+    <div className="flex items-center justify-center min-h-[300px] bg-[#F5F5F5]">
+      <Spinner size="lg" />
     </div>
   );
 
   return (
-    <div className="sc-page">
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
 
       {/* ── Page Header ── */}
-      <div className="sc-header">
-        <div className="sc-header-inner">
-          <div className="sc-title-group">
-            {/* <div className="sc-icon-wrap">
-              <BookOpen size={20} color="#C41212" />
-            </div> */}
-
-            <div className="sc-icon-wrap">
+      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8">
+        <div className="py-5 flex items-center gap-3">
+          <div className="flex-shrink-0">
             <img
               src="/image.png"
               alt="CSE Icon"
-               width={64}
-               height={64}
-              className="w-5 h-5 object-contain"
+              width={64}
+              height={64}
+              className="w-20 h-20 object-contain"
             />
           </div>
-            <div>
-              <div className="sc-page-title">Minor Course Registration</div>
-              <div className="sc-page-sub">Browse and register for open minor-eligible courses</div>
+          <div>
+            <div className="text-[24px] font-extrabold text-[#1F2937] leading-tight tracking-tight">
+              Minor Course Registration
+            </div>
+            <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
+            <div className="text-[12px] text-[#9CA3AF] mt-0.5">
+              Browse and register for open minor-eligible courses
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Body ── */}
-      <div className="sc-body">
+      <div className="px-4 md:px-8 py-6">
 
         {/* Search + count */}
-        <div className="sc-search-wrap">
-          <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+        <div className="flex items-center gap-4 mb-5">
+          <div className="relative flex-1 max-w-[320px]">
             <Search
               size={16}
-              style={{
-                position: 'absolute', left: 11, top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--sc-text-muted)', pointerEvents: 'none',
-              }}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
             />
             <input
               id="course-search"
               type="text"
-              className="sc-search"
+              className="w-full bg-white border border-[#E5E7EB] rounded px-3 py-2 pl-9 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors"
               placeholder="Search by name, code, or department…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ paddingLeft: 34 }}
             />
           </div>
-          <div className="sc-count-badge">
-            <span>{filtered.length}</span>
+          <div className="text-[12px] text-[#9CA3AF] flex items-center gap-1">
+            <span className="text-[#1F2937] font-semibold">{filtered.length}</span>
             {filtered.length !== 1 ? 'courses' : 'course'} available
           </div>
         </div>
 
         {/* Empty state */}
         {filtered.length === 0 ? (
-          <div className="sc-empty">
-            <div className="sc-empty-icon">
+          <div className="text-center py-16 px-6 bg-white border border-[#E5E7EB] rounded-md">
+            <div className="flex items-center justify-center w-11 h-11 mx-auto mb-2 text-[#9CA3AF]">
               <BookOpen size={24} />
             </div>
-            <p>No courses available for registration right now.</p>
+            <p className="text-[13px] text-[#9CA3AF] m-0">No courses available for registration right now.</p>
           </div>
         ) : (
-          <div className="sc-grid">
+          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(360px,1fr))] gap-px bg-[#E5E7EB] border border-[#E5E7EB] rounded-md overflow-hidden">
             {filtered.map((course, idx) => {
               const reg = getRegStatus(course.id);
               const isRegistering = registering === course.id;
@@ -156,39 +148,37 @@ export default function StudentCourses() {
               return (
                 <div
                   key={course.id}
-                  className="sc-card"
-                  style={{ animationDelay: `${idx * 40}ms` }}
+                  className="bg-white p-5 flex flex-col hover:bg-[#FAFAFA] transition-colors duration-150"
+                  style={{ animation: 'fadeUp 0.25s ease both', animationDelay: `${idx * 40}ms` }}
                 >
-                  <div className="sc-card-top">
-                    <div className="sc-card-info">
-                      <div className="sc-code">{course.id}</div>
-                      <div className="sc-name">{course.name}</div>
-                      <div className="sc-meta">
-                        <span className="sc-meta-item">{course.department}</span>
-                        <span className="sc-meta-sep">·</span>
-                        {/* <span className="sc-credits-pill">★ {course.credits} credit</span> */}
-                        <span className="sc-meta-sep">·</span>
-                        <span className="sc-meta-item">{course.professor_name}</span>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mb-1">{course.id}</div>
+                      <div className="text-[14px] font-bold text-[#1F2937] leading-snug mb-1.5">{course.name}</div>
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-[#9CA3AF]">
+                        <span className="text-[#555555]">{course.department}</span>
+                        <span className="text-[#D1D5DB] text-[10px]">·</span>
+                        <span className="text-[#555555]">{course.professor_name}</span>
                       </div>
                     </div>
 
-                    <div className="sc-status">
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0 pt-0.5">
                       {reg ? (
                         <>
-                          <div className={`sc-status-pill ${statusInfo?.pill}`}>
+                          <div className={`inline-flex items-center gap-1 text-[11.5px] font-semibold whitespace-nowrap tracking-wide ${statusInfo?.pill === 'pending' ? 'text-[#9CA3AF]' : statusInfo?.pill === 'approved' ? 'text-[#374151]' : 'text-[#C41212]'}`}>
                             {StatusIcon && <StatusIcon size={12} />}
                             {statusInfo?.label}
                           </div>
                           {reg.grade && (
-                            <span className="sc-grade-tag">
-                              Grade: <strong>{reg.grade}</strong>
+                            <span className="text-[11px] text-[#9CA3AF]">
+                              Grade: <strong className="text-[#1F2937] font-bold">{reg.grade}</strong>
                             </span>
                           )}
                         </>
                       ) : (
                         <button
                           id={`register-${course.id}`}
-                          className="sc-register-btn"
+                          className="inline-flex items-center justify-center px-3.5 py-1.5 text-[12px] font-bold text-white bg-[#C41212] hover:bg-[#9A0F0F] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[76px] whitespace-nowrap"
                           onClick={() => handleRegister(course.id)}
                           disabled={isRegistering}
                         >
@@ -199,7 +189,9 @@ export default function StudentCourses() {
                   </div>
 
                   {course.description && (
-                    <div className="sc-desc">{course.description}</div>
+                    <div className="text-[12px] text-[#9CA3AF] leading-relaxed border-t border-[#E5E7EB] mt-3.5 pt-3">
+                      {course.description}
+                    </div>
                   )}
                 </div>
               );
