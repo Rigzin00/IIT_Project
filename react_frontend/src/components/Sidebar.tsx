@@ -39,7 +39,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
 
   return (
     <aside 
-      className="hidden md:flex flex-col min-h-screen w-[220px] min-w-[220px] bg-white border-r border-[#E5E7EB] text-[#4B5563] relative"
+      className="hidden md:flex flex-col sticky top-0 h-screen w-[220px] min-w-[220px] bg-white border-r border-[#E5E7EB] text-[#4B5563]"
       style={{ fontFamily: "'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif" }}
     >
 
