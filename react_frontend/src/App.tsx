@@ -38,14 +38,14 @@ function PortalApp() {
       case 'admin-students':      return <AdminStudents />;
       case 'admin-policy':        return <AdminPolicy />;
       case 'admin-export':        return <AdminExport />;
-      default:                    return <div className="page-body" style={{ color: 'var(--text-muted)', padding: '3rem', textAlign: 'center' }}>Select a section from the sidebar.</div>;
+      default:                    return <div className="p-12 text-center text-[#9CA3AF]">Select a section from the sidebar.</div>;
     }
   };
 
   return (
-    <div className="app-layout">
+    <div className="flex min-h-screen bg-[#F5F5F5]">
       <Sidebar activePage={page} onNavigate={setPage} />
-      <main className="main-content">
+      <main key={page} className="flex-1 overflow-x-hidden animate-[fadeIn_0.35s_ease-out]">
         {renderPage()}
       </main>
     </div>
