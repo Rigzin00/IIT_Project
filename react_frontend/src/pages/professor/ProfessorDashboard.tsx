@@ -32,45 +32,49 @@ export default function ProfessorDashboard() {
   }, [profUser?.id]);
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+    <div className="flex items-center justify-center min-h-[300px] bg-[#F5F5F5]">
       <Spinner size="lg" />
     </div>
   );
 
   if (error) return (
-    <div className="page-body">
-      <div className="card" style={{ color: 'var(--danger)', fontSize: 13 }}>⚠ {error}</div>
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans'] p-6">
+      <div className="bg-white border border-[#E5E7EB] rounded-md p-5 text-[#C41212] font-bold text-[13px]">⚠ {error}</div>
     </div>
   );
 
   return (
-    <div>
-      <div className="page-header">
-        <div className="page-title">Dashboard</div>
-        <div className="page-sub">Professor overview and course assignments</div>
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
+      {/* ── Page Header ── */}
+      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8 py-5">
+        <div className="text-[24px] font-extrabold text-[#1F2937] leading-tight tracking-tight">Dashboard</div>
+        <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
+        <div className="text-[12px] text-[#9CA3AF] mt-0.5">Professor overview and course assignments</div>
       </div>
-      <div className="page-body">
+      
+      {/* ── Body ── */}
+      <div className="px-4 md:px-8 py-6">
 
         {/* Profile */}
         {professor && (
-          <div className="card" style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
+          <div className="bg-white border border-[#E5E7EB] rounded-md p-5 mb-5 shadow-sm">
+            <div className="flex justify-between items-start flex-wrap gap-4">
               <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{professor.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{professor.email}</div>
-                <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                  <span className="badge badge-accent">{professor.department}</span>
-                  <span className="badge badge-neutral">Faculty</span>
+                <div className="text-[18px] font-bold text-[#1F2937] leading-tight">{professor.name}</div>
+                <div className="text-[12px] text-[#9CA3AF] mt-0.5">{professor.email}</div>
+                <div className="mt-2.5 flex items-center gap-2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#FEF08A] text-[#854D0E] uppercase tracking-wide">{professor.department}</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#F3F4F6] text-[#6B7280] uppercase tracking-wide">Faculty</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <div className="stat-card" style={{ minWidth: 120, textAlign: 'center' }}>
-                  <div className="stat-value">{courses.length}</div>
-                  <div className="stat-label">Courses Assigned</div>
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-1 bg-white border border-[#E5E7EB] rounded-md p-3 min-w-[120px] text-center shadow-sm">
+                  <div className="text-[24px] font-bold text-[#1F2937] leading-none">{courses.length}</div>
+                  <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">Courses Assigned</div>
                 </div>
-                <div className="stat-card" style={{ minWidth: 120, textAlign: 'center' }}>
-                  <div className="stat-value">{courses.filter(c => c.is_minor_eligible).length}</div>
-                  <div className="stat-label">Minor Eligible</div>
+                <div className="flex flex-col gap-1 bg-white border border-[#E5E7EB] rounded-md p-3 min-w-[120px] text-center shadow-sm">
+                  <div className="text-[24px] font-bold text-[#1F2937] leading-none">{courses.filter(c => c.is_minor_eligible).length}</div>
+                  <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider">Minor Eligible</div>
                 </div>
               </div>
             </div>
@@ -78,34 +82,37 @@ export default function ProfessorDashboard() {
         )}
 
         {/* Courses */}
-        <div className="section-title">My Courses</div>
+        <div className="text-[11px] font-bold text-[#9CA3AF] tracking-wider uppercase mb-3 px-1">My Courses</div>
         {courses.length === 0 ? (
-          <div className="empty-state">
-            <BookOpen size={36} />
-            <p>No courses assigned yet.</p>
+          <div className="flex flex-col items-center justify-center text-center py-12 px-6 bg-white border border-[#E5E7EB] rounded-md text-[#9CA3AF]">
+            <BookOpen size={36} className="mb-3 opacity-40" />
+            <p className="text-[13px] m-0 font-semibold">No courses assigned yet.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 10 }}>
+          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3">
             {courses.map(c => (
-              <div key={c.id} className="course-card">
-                <div className="course-code">{c.id}</div>
-                <div className="course-name">{c.name}</div>
-                <div className="course-meta" style={{ marginBottom: 8 }}>
-                  <span>{c.department}</span>
-                  <span>·</span>
-                  <span>{c.credits} credits</span>
+              <div key={c.id} className="bg-white border border-[#E5E7EB] rounded-md p-5 flex flex-col hover:border-[#D1D5DB] hover:shadow-sm transition-all duration-200">
+                <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mb-1">{c.id}</div>
+                <div className="text-[15px] font-bold text-[#1F2937] leading-snug mb-1.5">{c.name}</div>
+                <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-[#6B7280] mb-2">
+                  <span className="font-semibold">{c.department}</span>
+                  <span className="text-[#D1D5DB] text-[10px]">·</span>
+                  <span className="font-semibold">{c.credits} cr</span>
                   {c.is_minor_eligible ? (
-                    <span className="badge badge-approved" style={{ fontSize: 10 }}>Minor Eligible</span>
+                    <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#DEF7EC] text-[#03543F] uppercase tracking-wider">Minor Eligible</span>
                   ) : (
-                    <span className="badge badge-neutral" style={{ fontSize: 10 }}>Core Course</span>
+                    <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#F3F4F6] text-[#6B7280] uppercase tracking-wider">Core Course</span>
                   )}
                 </div>
                 {c.description && (
-                  <div className="course-desc">{c.description}</div>
+                  <div className="text-[12px] text-[#9CA3AF] leading-relaxed mt-1 mb-1 line-clamp-2">
+                    {c.description}
+                  </div>
                 )}
-                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', display: 'flex', gap: 16, fontSize: 12, color: 'var(--text-muted)' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Users size={12} /> Students enrolled
+                <div className="mt-auto pt-4 border-t border-[#E5E7EB] flex items-center gap-4 text-[11.5px] text-[#9CA3AF] font-semibold">
+                  <span className="flex items-center gap-1.5 hover:text-[#1F2937] transition-colors cursor-default">
+                    <Users size={13} className="text-[#6B7280]" /> 
+                    <span>Students enrolled</span>
                   </span>
                 </div>
               </div>
