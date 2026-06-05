@@ -5,16 +5,15 @@ import type { StudentRegistration } from '../../api/professor';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import type { ProfessorUser } from '../../api/auth';
-import Spinner from '../../components/Spinner';
 
 type SortKey = 'student_name' | 'cgpa' | 'year_of_study';
 type SortDir = 'asc' | 'desc';
 
 const GRADES = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'];
 
-const STATUS_CLASS: Record<string, string> = {
-  pending: 'badge-pending', approved: 'badge-approved', rejected: 'badge-rejected',
-};
+/* ── tiny reusable style strings ── */
+const ghost = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] rounded hover:bg-[#F5F5F5] hover:border-[#D1D5DB] transition-colors duration-100 cursor-pointer whitespace-nowrap';
+const selectCls = 'bg-white border border-[#E5E7EB] rounded px-2.5 py-1.5 text-[12.5px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer';
 
 export default function ProfessorRegistrations() {
   const { user } = useAuth();
@@ -26,7 +25,6 @@ export default function ProfessorRegistrations() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [gradeInputs, setGradeInputs] = useState<Record<string, string>>({});
 
-  // Filters
   const [yearFilter, setYearFilter] = useState('all');
   const [deptFilter, setDeptFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -42,7 +40,7 @@ export default function ProfessorRegistrations() {
     getProfessorRegistrations(profUser.id)
       .then(res => {
         if (res.success) setRegs(res.registrations);
-        else showToast('error', res.message || 'Failed to load registrations.');
+        else showToast('error', res.message || 'Failed to load.');
       })
       .catch(() => showToast('error', 'Cannot reach server.'))
       .finally(() => setLoading(false));
@@ -50,12 +48,10 @@ export default function ProfessorRegistrations() {
 
   useEffect(fetchData, [profUser?.id]);
 
-  // Derived filter options
   const departments = useMemo(() => [...new Set(regs.map(r => r.student_department))].sort(), [regs]);
-  const courses     = useMemo(() => [...new Set(regs.map(r => r.course_id))].sort(), [regs]);
+  const courses = useMemo(() => [...new Set(regs.map(r => r.course_id))].sort(), [regs]);
   const doneCourses = useMemo(() => [...new Set(regs.flatMap(r => r.completed_courses_ids))].sort(), [regs]);
 
-  // Filter + Sort
   const filtered = useMemo(() => {
     let out = [...regs];
     if (yearFilter !== 'all') out = out.filter(r => r.year_of_study === Number(yearFilter));
@@ -78,11 +74,10 @@ export default function ProfessorRegistrations() {
     else { setSortKey(key); setSortDir('asc'); }
   };
 
-  const SortIcon = ({ k }: { k: SortKey }) => (
+  const SortIcon = ({ k }: { k: SortKey }) =>
     sortKey === k
-      ? (sortDir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)
-      : <ChevronUp size={12} style={{ opacity: 0.2 }} />
-  );
+      ? (sortDir === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)
+      : <ChevronUp size={11} className="opacity-20" />;
 
   const handleAction = async (regId: string, status: 'approved' | 'rejected') => {
     setActionLoading(regId + status);
@@ -111,7 +106,6 @@ export default function ProfessorRegistrations() {
     finally { setActionLoading(null); }
   };
 
-  // Export handler
   const handleExport = (fmt: 'csv' | 'xlsx') => {
     const params = new URLSearchParams({ role: 'professor', professor_id: profUser.id, format: fmt });
     if (yearFilter !== 'all') params.set('year', yearFilter);
@@ -128,151 +122,145 @@ export default function ProfessorRegistrations() {
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[300px] bg-[#F5F5F5]">
-      <Spinner size="lg" />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, background: '#F5F5F5' }}>
+      <div style={{ width: 28, height: 28, borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: '#C41212', animation: 'spin 0.6s linear infinite' }} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
-      {/* ── Page Header ── */}
-      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8">
-        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <div className="text-[24px] font-extrabold text-[#1F2937] leading-tight tracking-tight">Student Registrations</div>
-            <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
-            <div className="text-[12px] text-[#9CA3AF] mt-0.5">{filtered.length} of {regs.length} students shown</div>
+    <div style={{ minHeight: '100vh', background: '#F5F5F5', fontFamily: "'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif", color: '#555555' }}>
+
+      <div style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '0 32px' }}>
+        <div style={{ padding: '20px 0 18px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 4, height: 36, background: '#C41212', borderRadius: 2, flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#1F2937', letterSpacing: '-0.1px', lineHeight: 1.3 }}>
+                Student Registrations
+              </div>
+              <div style={{ width: 24, height: 2, background: '#C41212', borderRadius: 1, marginTop: 4 }} />
+              <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 3 }}>
+                {filtered.length} of {regs.length} students shown
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button 
-              className="inline-flex items-center justify-center px-3.5 py-1.5 text-[12px] font-bold text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937] rounded transition-colors whitespace-nowrap" 
-              onClick={fetchData} 
-              id="refresh-regs"
-            >
-              <RefreshCw size={13} className="mr-1.5" /> Refresh
+
+          <div style={{ display: 'flex', gap: 8, paddingTop: 2 }}>
+            <button id="refresh-regs" onClick={fetchData} className={ghost}>
+              <RefreshCw size={12} /> Refresh
             </button>
-            <button 
-              className="inline-flex items-center justify-center px-3.5 py-1.5 text-[12px] font-bold text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937] rounded transition-colors whitespace-nowrap" 
-              onClick={() => handleExport('csv')} 
-              id="export-csv"
-            >
-              <Download size={13} className="mr-1.5" /> CSV
+            <button id="export-csv" onClick={() => handleExport('csv')} className={ghost}>
+              <Download size={12} /> CSV
             </button>
-            <button 
-              className="inline-flex items-center justify-center px-3.5 py-1.5 text-[12px] font-bold text-white bg-[#C41212] hover:bg-[#9A0F0F] rounded transition-colors whitespace-nowrap" 
-              onClick={() => handleExport('xlsx')} 
+            <button
               id="export-xlsx"
+              onClick={() => handleExport('xlsx')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: '#fff', background: '#C41212', border: 'none', borderRadius: 4, cursor: 'pointer', transition: 'background 150ms' }}
+              onMouseOver={e => (e.currentTarget.style.background = '#9A0F0F')}
+              onMouseOut={e => (e.currentTarget.style.background = '#C41212')}
             >
-              <Download size={13} className="mr-1.5" /> XLSX
+              <Download size={12} /> XLSX
             </button>
           </div>
         </div>
       </div>
 
-      {/* ── Body ── */}
-      <div className="px-4 md:px-8 py-6">
+      <div style={{ padding: '24px 32px 40px' }}>
 
-        {/* Filter Bar */}
-        <div className="flex flex-wrap gap-2 items-center bg-white border border-[#E5E7EB] rounded-md mb-4 p-3 pr-4">
-          <select 
-            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
-            value={yearFilter} 
-            onChange={e => setYearFilter(e.target.value)} 
-            id="filter-year"
-          >
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, padding: '10px 14px', marginBottom: 16 }}>
+          <select id="filter-year" className={selectCls} value={yearFilter} onChange={e => setYearFilter(e.target.value)}>
             <option value="all">All Years</option>
             {[1, 2, 3, 4].map(y => <option key={y} value={y}>Year {y}</option>)}
           </select>
-          <select 
-            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
-            value={deptFilter} 
-            onChange={e => setDeptFilter(e.target.value)} 
-            id="filter-dept"
-          >
+          <select id="filter-dept" className={selectCls} value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
             <option value="all">All Departments</option>
             {departments.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
-          <select 
-            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
-            value={statusFilter} 
-            onChange={e => setStatusFilter(e.target.value)} 
-            id="filter-status"
-          >
+          <select id="filter-status" className={selectCls} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          <select 
-            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
-            value={courseFilter} 
-            onChange={e => setCourseFilter(e.target.value)} 
-            id="filter-course"
-          >
+          <select id="filter-course" className={selectCls} value={courseFilter} onChange={e => setCourseFilter(e.target.value)}>
             <option value="all">All Courses</option>
             {courses.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select 
-            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
-            value={doneCourseFilter} 
-            onChange={e => setDoneCourseFilter(e.target.value)} 
-            id="filter-done-course"
-          >
+          <select id="filter-done-course" className={selectCls} value={doneCourseFilter} onChange={e => setDoneCourseFilter(e.target.value)}>
             <option value="all">Has Done: Any</option>
             {doneCourses.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <input
+            id="filter-cgpa"
             type="number" min="0" max="10" step="0.1"
-            className="w-[100px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors"
             placeholder="Min CGPA"
             value={cgpaCutoff}
             onChange={e => setCgpaCutoff(e.target.value)}
-            id="filter-cgpa"
+            style={{ width: 90, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 4, padding: '6px 10px', fontSize: 12.5, color: '#1F2937', outline: 'none' }}
+            onFocus={e => (e.currentTarget.style.borderColor = '#C41212')}
+            onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
           />
-          <button 
-            className="inline-flex items-center justify-center px-2.5 py-1.5 text-[11px] font-bold text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937] rounded transition-colors whitespace-nowrap ml-auto" 
-            onClick={resetFilters} 
+          <button
             id="clear-filters"
+            onClick={resetFilters}
+            style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', transition: 'color 150ms' }}
+            onMouseOver={e => (e.currentTarget.style.color = '#C41212')}
+            onMouseOut={e => (e.currentTarget.style.color = '#9CA3AF')}
           >
-            Clear
+            Clear filters
           </button>
         </div>
 
-        {/* Sort by */}
-        <div className="flex items-center gap-2 mb-4 mt-2">
-          <span className="text-[11px] text-[#9CA3AF] font-bold tracking-wider mr-1">SORT BY</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.9px' }}>Sort by</span>
           {(['student_name', 'cgpa', 'year_of_study'] as SortKey[]).map(k => (
-            <button 
-              key={k} 
-              className={`inline-flex items-center justify-center px-2 py-1 text-[11px] font-bold rounded transition-colors whitespace-nowrap ${sortKey === k ? 'text-white bg-[#C41212]' : 'text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937]'}`} 
+            <button
+              key={k}
               onClick={() => toggleSort(k)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '3px 10px', fontSize: 11, fontWeight: 700, borderRadius: 4,
+                border: sortKey === k ? 'none' : '1px solid #E5E7EB',
+                background: sortKey === k ? '#C41212' : '#fff',
+                color: sortKey === k ? '#fff' : '#555555',
+                cursor: 'pointer', transition: 'all 150ms',
+              }}
             >
-              {k === 'student_name' ? 'Name' : k === 'cgpa' ? 'CGPA' : 'Year'} <span className="ml-1"><SortIcon k={k} /></span>
+              {k === 'student_name' ? 'Name' : k === 'cgpa' ? 'CGPA' : 'Year'}
+              <SortIcon k={k} />
             </button>
           ))}
         </div>
 
-        {/* Table */}
-        <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden shadow-sm">
+        <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, overflow: 'hidden' }}>
           {filtered.length === 0 ? (
-            <div className="text-center py-12 px-4 text-[#9CA3AF]">
-              <p className="text-[13px] m-0">No registrations match current filters.</p>
+            <div style={{ textAlign: 'center', padding: '48px 24px', fontSize: 13, color: '#9CA3AF' }}>
+              No registrations match current filters.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[13px] text-[#1F2937] font-['Open_Sans'] whitespace-nowrap">
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'Open Sans',sans-serif", fontSize: 13, whiteSpace: 'nowrap' }}>
                 <thead>
-                  <tr className="bg-[#FAFAFA]">
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Student</th>
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Course</th>
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Year / Dept</th>
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB] cursor-pointer hover:text-[#1F2937] transition-colors" onClick={() => toggleSort('cgpa')}>
-                      <div className="flex items-center gap-1">CGPA <SortIcon k="cgpa" /></div>
-                    </th>
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Done Courses</th>
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Status</th>
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Grade</th>
-                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Actions</th>
+                  <tr style={{ background: '#FAFAFA' }}>
+                    {['Student', 'Course', 'Year / Dept', 'CGPA', 'Done Courses', 'Status', 'Grade', 'Actions'].map(h => (
+                      <th
+                        key={h}
+                        onClick={h === 'CGPA' ? () => toggleSort('cgpa') : undefined}
+                        style={{
+                          textAlign: 'left', padding: '10px 16px',
+                          fontSize: 10, fontWeight: 700, color: '#9CA3AF',
+                          textTransform: 'uppercase', letterSpacing: '0.7px',
+                          borderBottom: '1px solid #E5E7EB',
+                          cursor: h === 'CGPA' ? 'pointer' : 'default',
+                        }}
+                      >
+                        {h === 'CGPA'
+                          ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>CGPA <SortIcon k="cgpa" /></span>
+                          : h
+                        }
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
@@ -280,95 +268,117 @@ export default function ProfessorRegistrations() {
                     const isActing = actionLoading === r.registration_id + 'approved' || actionLoading === r.registration_id + 'rejected';
                     const isGrading = actionLoading === r.registration_id + 'grade';
                     return (
-                      <tr key={r.registration_id} className="hover:bg-[#F9FAFB] transition-colors duration-150 border-b border-[#E5E7EB] last:border-0">
-                        <td className="p-3 align-middle">
-                          <div className="font-bold text-[#1F2937] text-[13px] leading-tight mb-0.5">{r.student_name}</div>
-                          <div className="text-[11px] text-[#6B7280]">{r.roll_number}</div>
-                          <div className="text-[11px] text-[#9CA3AF]">{r.student_email}</div>
+                      <tr
+                        key={r.registration_id}
+                        style={{ borderBottom: '1px solid #E5E7EB' }}
+                        onMouseOver={e => (e.currentTarget.style.background = '#FAFAFA')}
+                        onMouseOut={e => (e.currentTarget.style.background = '#fff')}
+                      >
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1F2937', lineHeight: 1.3 }}>{r.student_name}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{r.roll_number}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>{r.student_email}</div>
                         </td>
-                        <td className="p-3 align-middle">
-                          <div className="font-bold text-[#1F2937] text-[13px] leading-tight mb-0.5">{r.course_name}</div>
-                          <div className="text-[11px] text-[#6B7280]">{r.course_id} · <span className="font-semibold">{r.credits} cr</span></div>
-                        </td>
-                        <td className="p-3 align-middle">
-                          <div className="flex flex-col items-start gap-1">
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F3F4F6] text-[#4B5563]">Yr {r.year_of_study}</span>
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF08A] text-[#854D0E]">{r.student_department}</span>
+
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1F2937' }}>{r.course_name}</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#C41212', textTransform: 'uppercase', letterSpacing: '0.8px', marginTop: 2 }}>
+                            {r.course_id} · {r.credits} cr
                           </div>
                         </td>
-                        <td className="p-3 align-middle">
-                          <span className={`font-bold ${r.cgpa >= 8.5 ? 'text-[#15803d]' : r.cgpa >= 6 ? 'text-[#b45309]' : 'text-[#C41212]'}`}>
-                            {r.cgpa.toFixed(2)}
-                          </span>
+
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                          <div className="flex flex-col items-start gap-1">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F9FAFB] border border-[#E5E7EB] text-[#4B5563]">Yr {r.year_of_study}</span>
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F9FAFB] border border-[#E5E7EB] text-[#4B5563]">{r.student_department}</span>
+                          </div>
                         </td>
-                        <td className="p-3 align-middle">
+
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937' }}>{r.cgpa.toFixed(2)}</span>
+                        </td>
+
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           {r.completed_courses_list.length === 0 ? (
-                            <span className="text-[#9CA3AF] text-[11px] italic">None</span>
+                            <span style={{ fontSize: 11, color: '#9CA3AF' }}>—</span>
                           ) : (
-                            <div className="flex flex-wrap gap-1 max-w-[140px]">
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 160 }}>
                               {r.completed_courses_list.map((c, i) => (
-                                <span key={i} className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold border border-[#E5E7EB] bg-[#F9FAFB] text-[#6B7280]">{c}</span>
+                                <span key={i} style={{ fontSize: 10, fontWeight: 600, color: '#555555', background: '#F5F5F5', border: '1px solid #E5E7EB', borderRadius: 3, padding: '1px 6px' }}>
+                                  {c}
+                                </span>
                               ))}
                             </div>
                           )}
                         </td>
+
                         <td className="p-3 align-middle">
-                          <span className={`inline-flex items-center gap-1 text-[11px] font-bold tracking-wide px-2 py-0.5 rounded-full ${r.status === 'pending' ? 'bg-[#F3F4F6] text-[#6B7280]' : r.status === 'approved' ? 'bg-[#DEF7EC] text-[#03543F]' : 'bg-[#FDE8E8] text-[#C41212]'}`}>
-                            {r.status}
+                          <span className="text-[12px] font-semibold text-[#4B5563]">
+                            {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
                           </span>
                         </td>
-                        <td className="p-3 align-middle">
+
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           {r.grade ? (
-                            <span className="font-bold text-[#C41212] text-[13px]">{r.grade}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937' }}>{r.grade}</span>
                           ) : r.status === 'approved' ? (
-                            <div className="flex gap-1.5 items-center">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <select
-                                className="w-[60px] bg-white border border-[#E5E7EB] rounded px-1.5 py-1 text-[12px] font-semibold text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer"
+                                id={`grade-select-${r.registration_id}`}
                                 value={gradeInputs[r.registration_id] || ''}
                                 onChange={e => setGradeInputs(prev => ({ ...prev, [r.registration_id]: e.target.value }))}
-                                id={`grade-select-${r.registration_id}`}
+                                style={{ width: 58, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 4, padding: '4px 6px', fontSize: 12, fontWeight: 600, color: '#1F2937', outline: 'none', cursor: 'pointer', appearance: 'none' }}
+                                onFocus={e => (e.currentTarget.style.borderColor = '#C41212')}
+                                onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
                               >
                                 <option value="">—</option>
                                 {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
                               </select>
                               <button
-                                className="inline-flex items-center justify-center w-[26px] h-[26px] text-[#9CA3AF] bg-white border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#C41212] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                onClick={() => handleGrade(r.registration_id)}
-                                disabled={isGrading}
                                 id={`grade-save-${r.registration_id}`}
                                 title="Save Grade"
+                                onClick={() => handleGrade(r.registration_id)}
+                                disabled={isGrading}
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, border: '1px solid #E5E7EB', borderRadius: 4, background: '#fff', color: '#9CA3AF', cursor: 'pointer', transition: 'all 150ms' }}
+                                onMouseOver={e => { e.currentTarget.style.borderColor = '#C41212'; e.currentTarget.style.color = '#C41212'; }}
+                                onMouseOut={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#9CA3AF'; }}
                               >
-                                {isGrading ? <Spinner /> : <Star size={13} />}
+                                {isGrading
+                                  ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #E5E7EB', borderTopColor: '#C41212', animation: 'spin 0.6s linear infinite' }} />
+                                  : <Star size={12} />
+                                }
                               </button>
                             </div>
                           ) : (
-                            <span className="text-[#9CA3AF] text-[11px]">—</span>
+                            <span style={{ fontSize: 12, color: '#9CA3AF' }}>—</span>
                           )}
                         </td>
+
                         <td className="p-3 align-middle">
                           {r.status === 'pending' ? (
                             <div className="flex gap-1.5 items-center">
                               <button
-                                className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-bold text-white bg-[#15803d] hover:bg-[#166534] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold text-[#1F2937] bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] hover:border-[#D1D5DB] rounded shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => handleAction(r.registration_id, 'approved')}
                                 disabled={!!isActing}
                                 id={`approve-${r.registration_id}`}
                               >
-                                {isActing ? <Spinner /> : <><CheckCircle size={12} className="mr-1" /> Approve</>}
+                                {isActing ? <div className="mr-1" style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #E5E7EB', borderTopColor: '#9CA3AF', animation: 'spin 0.6s linear infinite' }} /> : <><CheckCircle size={12} className="mr-1 opacity-60" /> Approve</>}
                               </button>
                               <button
-                                className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-bold text-[#C41212] bg-[#FDE8E8] hover:bg-[#FEE2E2] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold text-[#6B7280] bg-transparent hover:bg-[#F3F4F6] hover:text-[#1F2937] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => handleAction(r.registration_id, 'rejected')}
                                 disabled={!!isActing}
                                 id={`reject-${r.registration_id}`}
                               >
-                                <XCircle size={12} className="mr-1" /> Reject
+                                <XCircle size={12} className="mr-1 opacity-60" /> Reject
                               </button>
                             </div>
                           ) : (
                             <span className="text-[#9CA3AF] text-[11px]">—</span>
                           )}
                         </td>
+
                       </tr>
                     );
                   })}
@@ -378,6 +388,9 @@ export default function ProfessorRegistrations() {
           )}
         </div>
       </div>
+
+      {/* spin keyframe injected once */}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
