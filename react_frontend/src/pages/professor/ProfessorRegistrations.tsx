@@ -128,99 +128,151 @@ export default function ProfessorRegistrations() {
   };
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+    <div className="flex items-center justify-center min-h-[300px] bg-[#F5F5F5]">
       <Spinner size="lg" />
     </div>
   );
 
   return (
-    <div>
-      <div className="page-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
+      {/* ── Page Header ── */}
+      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8">
+        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <div className="page-title">Student Registrations</div>
-            <div className="page-sub">{filtered.length} of {regs.length} students shown</div>
+            <div className="text-[24px] font-extrabold text-[#1F2937] leading-tight tracking-tight">Student Registrations</div>
+            <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
+            <div className="text-[12px] text-[#9CA3AF] mt-0.5">{filtered.length} of {regs.length} students shown</div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-ghost btn-sm" onClick={fetchData} id="refresh-regs">
-              <RefreshCw size={13} /> Refresh
+          <div className="flex gap-2">
+            <button 
+              className="inline-flex items-center justify-center px-3.5 py-1.5 text-[12px] font-bold text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937] rounded transition-colors whitespace-nowrap" 
+              onClick={fetchData} 
+              id="refresh-regs"
+            >
+              <RefreshCw size={13} className="mr-1.5" /> Refresh
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => handleExport('csv')} id="export-csv">
-              <Download size={13} /> CSV
+            <button 
+              className="inline-flex items-center justify-center px-3.5 py-1.5 text-[12px] font-bold text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937] rounded transition-colors whitespace-nowrap" 
+              onClick={() => handleExport('csv')} 
+              id="export-csv"
+            >
+              <Download size={13} className="mr-1.5" /> CSV
             </button>
-            <button className="btn btn-primary btn-sm" onClick={() => handleExport('xlsx')} id="export-xlsx">
-              <Download size={13} /> XLSX
+            <button 
+              className="inline-flex items-center justify-center px-3.5 py-1.5 text-[12px] font-bold text-white bg-[#C41212] hover:bg-[#9A0F0F] rounded transition-colors whitespace-nowrap" 
+              onClick={() => handleExport('xlsx')} 
+              id="export-xlsx"
+            >
+              <Download size={13} className="mr-1.5" /> XLSX
             </button>
           </div>
         </div>
       </div>
-      <div className="page-body">
+
+      {/* ── Body ── */}
+      <div className="px-4 md:px-8 py-6">
 
         {/* Filter Bar */}
-        <div className="filter-bar">
-          <select className="form-input form-select" value={yearFilter} onChange={e => setYearFilter(e.target.value)} id="filter-year">
+        <div className="flex flex-wrap gap-2 items-center bg-white border border-[#E5E7EB] rounded-md mb-4 p-3 pr-4">
+          <select 
+            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
+            value={yearFilter} 
+            onChange={e => setYearFilter(e.target.value)} 
+            id="filter-year"
+          >
             <option value="all">All Years</option>
             {[1, 2, 3, 4].map(y => <option key={y} value={y}>Year {y}</option>)}
           </select>
-          <select className="form-input form-select" value={deptFilter} onChange={e => setDeptFilter(e.target.value)} id="filter-dept">
+          <select 
+            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
+            value={deptFilter} 
+            onChange={e => setDeptFilter(e.target.value)} 
+            id="filter-dept"
+          >
             <option value="all">All Departments</option>
             {departments.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
-          <select className="form-input form-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} id="filter-status">
+          <select 
+            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
+            value={statusFilter} 
+            onChange={e => setStatusFilter(e.target.value)} 
+            id="filter-status"
+          >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          <select className="form-input form-select" value={courseFilter} onChange={e => setCourseFilter(e.target.value)} id="filter-course">
+          <select 
+            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
+            value={courseFilter} 
+            onChange={e => setCourseFilter(e.target.value)} 
+            id="filter-course"
+          >
             <option value="all">All Courses</option>
             {courses.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select className="form-input form-select" value={doneCourseFilter} onChange={e => setDoneCourseFilter(e.target.value)} id="filter-done-course">
+          <select 
+            className="w-auto min-w-[140px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer" 
+            value={doneCourseFilter} 
+            onChange={e => setDoneCourseFilter(e.target.value)} 
+            id="filter-done-course"
+          >
             <option value="all">Has Done: Any</option>
             {doneCourses.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <input
             type="number" min="0" max="10" step="0.1"
-            className="form-input"
+            className="w-[100px] bg-white border border-[#E5E7EB] rounded px-3 py-1.5 text-[13px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors"
             placeholder="Min CGPA"
             value={cgpaCutoff}
             onChange={e => setCgpaCutoff(e.target.value)}
-            style={{ width: 100 }}
             id="filter-cgpa"
           />
-          <button className="btn btn-ghost btn-xs" onClick={resetFilters} id="clear-filters">Clear</button>
+          <button 
+            className="inline-flex items-center justify-center px-2.5 py-1.5 text-[11px] font-bold text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937] rounded transition-colors whitespace-nowrap ml-auto" 
+            onClick={resetFilters} 
+            id="clear-filters"
+          >
+            Clear
+          </button>
         </div>
 
         {/* Sort by */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 10, alignItems: 'center' }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>SORT BY</span>
+        <div className="flex items-center gap-2 mb-4 mt-2">
+          <span className="text-[11px] text-[#9CA3AF] font-bold tracking-wider mr-1">SORT BY</span>
           {(['student_name', 'cgpa', 'year_of_study'] as SortKey[]).map(k => (
-            <button key={k} className={`btn btn-xs ${sortKey === k ? 'btn-primary' : 'btn-ghost'}`} onClick={() => toggleSort(k)}>
-              {k === 'student_name' ? 'Name' : k === 'cgpa' ? 'CGPA' : 'Year'} <SortIcon k={k} />
+            <button 
+              key={k} 
+              className={`inline-flex items-center justify-center px-2 py-1 text-[11px] font-bold rounded transition-colors whitespace-nowrap ${sortKey === k ? 'text-white bg-[#C41212]' : 'text-[#9CA3AF] bg-transparent border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#1F2937]'}`} 
+              onClick={() => toggleSort(k)}
+            >
+              {k === 'student_name' ? 'Name' : k === 'cgpa' ? 'CGPA' : 'Year'} <span className="ml-1"><SortIcon k={k} /></span>
             </button>
           ))}
         </div>
 
         {/* Table */}
-        <div className="card card-sm" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
-            <div className="empty-state"><p>No registrations match current filters.</p></div>
+            <div className="text-center py-12 px-4 text-[#9CA3AF]">
+              <p className="text-[13px] m-0">No registrations match current filters.</p>
+            </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="data-table">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px] text-[#1F2937] font-['Open_Sans'] whitespace-nowrap">
                 <thead>
-                  <tr>
-                    <th>Student</th>
-                    <th>Course</th>
-                    <th>Year / Dept</th>
-                    <th style={{ cursor: 'pointer' }} onClick={() => toggleSort('cgpa')}>
-                      CGPA <SortIcon k="cgpa" />
+                  <tr className="bg-[#FAFAFA]">
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Student</th>
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Course</th>
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Year / Dept</th>
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB] cursor-pointer hover:text-[#1F2937] transition-colors" onClick={() => toggleSort('cgpa')}>
+                      <div className="flex items-center gap-1">CGPA <SortIcon k="cgpa" /></div>
                     </th>
-                    <th>Done Courses</th>
-                    <th>Status</th>
-                    <th>Grade</th>
-                    <th>Actions</th>
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Done Courses</th>
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Status</th>
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Grade</th>
+                    <th className="text-left uppercase p-3 text-[10px] font-bold tracking-wider text-[#9CA3AF] border-b border-[#E5E7EB]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -228,47 +280,50 @@ export default function ProfessorRegistrations() {
                     const isActing = actionLoading === r.registration_id + 'approved' || actionLoading === r.registration_id + 'rejected';
                     const isGrading = actionLoading === r.registration_id + 'grade';
                     return (
-                      <tr key={r.registration_id}>
-                        <td>
-                          <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 13 }}>{r.student_name}</div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{r.roll_number}</div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{r.student_email}</div>
+                      <tr key={r.registration_id} className="hover:bg-[#F9FAFB] transition-colors duration-150 border-b border-[#E5E7EB] last:border-0">
+                        <td className="p-3 align-middle">
+                          <div className="font-bold text-[#1F2937] text-[13px] leading-tight mb-0.5">{r.student_name}</div>
+                          <div className="text-[11px] text-[#6B7280]">{r.roll_number}</div>
+                          <div className="text-[11px] text-[#9CA3AF]">{r.student_email}</div>
                         </td>
-                        <td>
-                          <div style={{ fontWeight: 500, fontSize: 13 }}>{r.course_name}</div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{r.course_id} · {r.credits} cr</div>
+                        <td className="p-3 align-middle">
+                          <div className="font-bold text-[#1F2937] text-[13px] leading-tight mb-0.5">{r.course_name}</div>
+                          <div className="text-[11px] text-[#6B7280]">{r.course_id} · <span className="font-semibold">{r.credits} cr</span></div>
                         </td>
-                        <td>
-                          <span className="badge badge-neutral">Yr {r.year_of_study}</span>
-                          <span className="badge badge-accent" style={{ marginLeft: 4 }}>{r.student_department}</span>
+                        <td className="p-3 align-middle">
+                          <div className="flex flex-col items-start gap-1">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F3F4F6] text-[#4B5563]">Yr {r.year_of_study}</span>
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF08A] text-[#854D0E]">{r.student_department}</span>
+                          </div>
                         </td>
-                        <td>
-                          <span style={{ fontWeight: 700, color: r.cgpa >= 8.5 ? 'var(--success)' : r.cgpa >= 6 ? 'var(--warning)' : 'var(--danger)' }}>
+                        <td className="p-3 align-middle">
+                          <span className={`font-bold ${r.cgpa >= 8.5 ? 'text-[#15803d]' : r.cgpa >= 6 ? 'text-[#b45309]' : 'text-[#C41212]'}`}>
                             {r.cgpa.toFixed(2)}
                           </span>
                         </td>
-                        <td style={{ maxWidth: 160 }}>
+                        <td className="p-3 align-middle">
                           {r.completed_courses_list.length === 0 ? (
-                            <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>None</span>
+                            <span className="text-[#9CA3AF] text-[11px] italic">None</span>
                           ) : (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                            <div className="flex flex-wrap gap-1 max-w-[140px]">
                               {r.completed_courses_list.map((c, i) => (
-                                <span key={i} className="badge badge-neutral" style={{ fontSize: 10 }}>{c}</span>
+                                <span key={i} className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold border border-[#E5E7EB] bg-[#F9FAFB] text-[#6B7280]">{c}</span>
                               ))}
                             </div>
                           )}
                         </td>
-                        <td>
-                          <span className={`badge ${STATUS_CLASS[r.status] || 'badge-neutral'}`}>{r.status}</span>
+                        <td className="p-3 align-middle">
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-bold tracking-wide px-2 py-0.5 rounded-full ${r.status === 'pending' ? 'bg-[#F3F4F6] text-[#6B7280]' : r.status === 'approved' ? 'bg-[#DEF7EC] text-[#03543F]' : 'bg-[#FDE8E8] text-[#C41212]'}`}>
+                            {r.status}
+                          </span>
                         </td>
-                        <td>
+                        <td className="p-3 align-middle">
                           {r.grade ? (
-                            <span style={{ fontWeight: 700, color: 'var(--accent-light)', fontSize: 13 }}>{r.grade}</span>
+                            <span className="font-bold text-[#C41212] text-[13px]">{r.grade}</span>
                           ) : r.status === 'approved' ? (
-                            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                            <div className="flex gap-1.5 items-center">
                               <select
-                                className="form-input form-select"
-                                style={{ padding: '3px 6px', fontSize: 12, width: 70 }}
+                                className="w-[60px] bg-white border border-[#E5E7EB] rounded px-1.5 py-1 text-[12px] font-semibold text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer"
                                 value={gradeInputs[r.registration_id] || ''}
                                 onChange={e => setGradeInputs(prev => ({ ...prev, [r.registration_id]: e.target.value }))}
                                 id={`grade-select-${r.registration_id}`}
@@ -277,40 +332,41 @@ export default function ProfessorRegistrations() {
                                 {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
                               </select>
                               <button
-                                className="btn btn-primary btn-xs"
+                                className="inline-flex items-center justify-center w-[26px] h-[26px] text-[#9CA3AF] bg-white border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:text-[#C41212] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => handleGrade(r.registration_id)}
                                 disabled={isGrading}
                                 id={`grade-save-${r.registration_id}`}
+                                title="Save Grade"
                               >
-                                {isGrading ? <Spinner /> : <Star size={11} />}
+                                {isGrading ? <Spinner /> : <Star size={13} />}
                               </button>
                             </div>
                           ) : (
-                            <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>—</span>
+                            <span className="text-[#9CA3AF] text-[11px]">—</span>
                           )}
                         </td>
-                        <td>
+                        <td className="p-3 align-middle">
                           {r.status === 'pending' ? (
-                            <div className="actions">
+                            <div className="flex gap-1.5 items-center">
                               <button
-                                className="btn btn-success btn-xs"
+                                className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-bold text-white bg-[#15803d] hover:bg-[#166534] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => handleAction(r.registration_id, 'approved')}
                                 disabled={!!isActing}
                                 id={`approve-${r.registration_id}`}
                               >
-                                {isActing ? <Spinner /> : <><CheckCircle size={11} /> Approve</>}
+                                {isActing ? <Spinner /> : <><CheckCircle size={12} className="mr-1" /> Approve</>}
                               </button>
                               <button
-                                className="btn btn-danger btn-xs"
+                                className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-bold text-[#C41212] bg-[#FDE8E8] hover:bg-[#FEE2E2] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => handleAction(r.registration_id, 'rejected')}
                                 disabled={!!isActing}
                                 id={`reject-${r.registration_id}`}
                               >
-                                <XCircle size={11} /> Reject
+                                <XCircle size={12} className="mr-1" /> Reject
                               </button>
                             </div>
                           ) : (
-                            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>—</span>
+                            <span className="text-[#9CA3AF] text-[11px]">—</span>
                           )}
                         </td>
                       </tr>

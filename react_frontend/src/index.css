@@ -320,10 +320,6 @@
     background: var(--bg-hover);
   }
 
-  .data-table .actions {
-    @apply flex gap-1.5 items-center;
-  }
-
   /* ── Modal ── */
   .modal-overlay {
     @apply fixed inset-0 z-50 flex items-center justify-center p-4;
@@ -482,21 +478,6 @@
 
   .page-body {
     padding: 16px 24px 24px;
-  }
-
-  /* ── Filter bar ── */
-  .filter-bar {
-    @apply flex flex-wrap gap-2 items-center;
-    padding: 10px 12px;
-    background: var(--bg-card2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    margin-bottom: 14px;
-  }
-
-  .filter-bar .form-input {
-    @apply w-auto;
-    min-width: 140px;
   }
 
   /* ── Spinner ── */
