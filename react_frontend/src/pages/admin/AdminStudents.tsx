@@ -95,7 +95,7 @@ export default function AdminStudents() {
   const F = (k: keyof typeof form, v: string) => setForm(prev => ({ ...prev, [k]: v }));
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans'] animate-fade-in">
       <div className="bg-white border-b border-[#E5E7EB] px-8">
         <div className="py-5 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
@@ -110,13 +110,13 @@ export default function AdminStudents() {
               </div>
             </div>
           </div>
-          <button className="flex items-center gap-1.5 bg-[#C41212] hover:bg-[#a01313] text-white px-3 py-1.5 rounded text-[13px] font-semibold transition-colors" onClick={() => setShowAdd(true)} id="add-student-btn">
+          <button className="flex items-center gap-1.5 bg-[#C41212] hover:bg-[#a01313] text-white px-3 py-1.5 rounded text-[13px] font-semibold transition-all duration-200 active:scale-95 shadow-sm hover:shadow" onClick={() => setShowAdd(true)} id="add-student-btn">
             <UserPlus size={14} /> Add Student
           </button>
         </div>
       </div>
       
-      <div className="px-8 py-6 space-y-5">
+      <div className="px-8 py-6 space-y-5 animate-fade-up">
         {/* Search */}
         <div className="flex gap-3 items-center">
           <div className="relative flex-1 max-w-[380px]">
@@ -134,7 +134,7 @@ export default function AdminStudents() {
         </div>
 
         {/* Table */}
-        <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden">
+        <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md">
           {loading ? (
             <div className="flex items-center justify-center p-12">
               <Spinner size="lg" />
@@ -157,7 +157,7 @@ export default function AdminStudents() {
                 </thead>
                 <tbody>
                   {filtered.map(s => (
-                    <tr key={s.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
+                    <tr key={s.id} className="hover:bg-[#FAFAFA] transition-colors duration-200">
                       <td className="px-4 py-3 border-b border-[#E5E7EB]">
                         <div className="text-[13px] font-semibold text-[#1F2937]">{s.name}</div>
                         <div className="text-[11px] text-[#9CA3AF] mt-0.5">{s.email}</div>
@@ -243,8 +243,8 @@ export default function AdminStudents() {
           </div>
           {formError && <div className="text-[13px] text-[#C41212] mb-3">{formError}</div>}
           <div className="flex gap-2 justify-end">
-            <button type="button" className="px-4 py-2 text-[13px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] rounded-md transition-colors" onClick={() => { setShowAdd(false); setFormError(''); }}>Cancel</button>
-            <button type="submit" id="form-submit" className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-colors disabled:opacity-50" disabled={adding}>
+            <button type="button" className="px-4 py-2 text-[13px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] rounded-md transition-all duration-200 active:scale-95" onClick={() => { setShowAdd(false); setFormError(''); }}>Cancel</button>
+            <button type="submit" id="form-submit" className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:active:scale-100" disabled={adding}>
               {adding ? <><Spinner /> Creating…</> : 'Create Student'}
             </button>
           </div>
@@ -263,8 +263,8 @@ export default function AdminStudents() {
           </div>
         </div>
         <div className="flex gap-2 justify-end font-['Open_Sans']">
-          <button className="px-4 py-2 text-[13px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] rounded-md transition-colors" onClick={() => setDeleteTarget(null)}>Cancel</button>
-          <button id="confirm-delete" className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-colors disabled:opacity-50" onClick={handleDelete} disabled={deleting}>
+          <button className="px-4 py-2 text-[13px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] rounded-md transition-all duration-200 active:scale-95" onClick={() => setDeleteTarget(null)}>Cancel</button>
+          <button id="confirm-delete" className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:active:scale-100" onClick={handleDelete} disabled={deleting}>
             {deleting ? <><Spinner /> Deleting…</> : 'Delete Student'}
           </button>
         </div>

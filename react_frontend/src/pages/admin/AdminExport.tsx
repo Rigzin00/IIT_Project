@@ -45,7 +45,7 @@ export default function AdminExport() {
   ].filter(f => f.active);
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans'] animate-fade-in">
       <div className="bg-white border-b border-[#E5E7EB] px-8">
         <div className="py-5 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
@@ -63,7 +63,7 @@ export default function AdminExport() {
         </div>
       </div>
       
-      <div className="px-8 py-6 space-y-5">
+      <div className="px-8 py-6 space-y-5 animate-fade-up">
         <div className="max-w-[540px]">
 
           {/* Format selector */}
@@ -73,10 +73,10 @@ export default function AdminExport() {
               <button
                 key={f}
                 id={`format-${f}`}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-[13px] font-semibold transition-colors ${
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-[13px] font-semibold transition-all duration-200 active:scale-95 ${
                   format === f 
-                    ? 'bg-[#C41212] text-white border border-[#C41212]' 
-                    : 'bg-white text-[#555555] border border-[#E5E7EB] hover:bg-[#F9FAFB]'
+                    ? 'bg-[#C41212] text-white border border-[#C41212] shadow-sm' 
+                    : 'bg-white text-[#555555] border border-[#E5E7EB] hover:bg-[#F9FAFB] hover:shadow-sm'
                 }`}
                 onClick={() => setFormat(f)}
               >
@@ -142,7 +142,7 @@ export default function AdminExport() {
           {/* Download button */}
           <button
             id="download-export"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[14px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[14px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow"
             onClick={handleDownload}
           >
             <Download size={16} />

@@ -48,53 +48,66 @@ export default function AdminPolicy() {
   };
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+    <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center font-['Open_Sans']">
       <Spinner size="lg" />
     </div>
   );
 
   return (
-    <div>
-      <div className="page-header">
-        <div className="page-title">Registration Policy</div>
-        <div className="page-sub">Control which year groups can log in and register for courses</div>
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans'] animate-fade-in">
+      <div className="bg-white border-b border-[#E5E7EB] px-8">
+        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-9 bg-[#C41212] rounded-sm flex-shrink-0" />
+            <div>
+              <div className="text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
+                Registration Policy
+              </div>
+              <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
+              <div className="text-[12px] text-[#9CA3AF] mt-0.5">
+                Control which year groups can log in and register for courses
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="page-body">
-
+      
+      <div className="px-8 py-6 space-y-5 animate-fade-up">
+        
         {/* Current policy display */}
-        <div className="card" style={{ marginBottom: 14, maxWidth: 500 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--accent-dim)', border: '1px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Shield size={18} color="var(--accent-light)" />
+        <div className="bg-white border border-[#E5E7EB] rounded-md px-5 py-4 max-w-[500px] shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-md bg-[#FEF2F2] border border-[#C41212]/25 flex items-center justify-center flex-shrink-0">
+              <Shield size={18} className="text-[#C41212]" />
             </div>
             <div>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Current Eligibility Window</div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Students outside this window are denied access</div>
+              <div className="font-bold text-[#1F2937] text-[15px]">Current Eligibility Window</div>
+              <div className="text-[12px] text-[#9CA3AF]">Students outside this window are denied access</div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-            <div className="stat-card" style={{ flex: 1, textAlign: 'center' }}>
-              <div className="stat-value">Year {minYear}</div>
-              <div className="stat-label">Minimum Eligible Year</div>
+          <div className="flex gap-3 mb-5">
+            <div className="flex-1 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md py-3 text-center">
+              <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">Year {minYear}</div>
+              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Minimum Eligible Year</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', fontSize: 18 }}>→</div>
-            <div className="stat-card" style={{ flex: 1, textAlign: 'center' }}>
-              <div className="stat-value">Year {maxYear}</div>
-              <div className="stat-label">Maximum Eligible Year</div>
+            <div className="flex items-center text-[#9CA3AF] text-[18px]">→</div>
+            <div className="flex-1 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md py-3 text-center">
+              <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">Year {maxYear}</div>
+              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Maximum Eligible Year</div>
             </div>
           </div>
 
-          <div className="divider" />
+          <div className="h-px bg-[#E5E7EB] my-4" />
 
           <form onSubmit={handleSave}>
-            <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', marginBottom: 12 }}>Update Policy</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+            <div className="font-bold text-[13px] text-[#1F2937] mb-3">Update Policy</div>
+            <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="form-label" htmlFor="policy-min">Min Eligible Year</label>
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-min">Min Eligible Year</label>
                 <select
                   id="policy-min"
-                  className="form-input form-select"
+                  className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all cursor-pointer"
                   value={editMin}
                   onChange={e => setEditMin(e.target.value)}
                 >
@@ -102,10 +115,10 @@ export default function AdminPolicy() {
                 </select>
               </div>
               <div>
-                <label className="form-label" htmlFor="policy-max">Max Eligible Year</label>
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-max">Max Eligible Year</label>
                 <select
                   id="policy-max"
-                  className="form-input form-select"
+                  className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all cursor-pointer"
                   value={editMax}
                   onChange={e => setEditMax(e.target.value)}
                 >
@@ -113,14 +126,14 @@ export default function AdminPolicy() {
                 </select>
               </div>
             </div>
-            <button type="submit" id="save-policy" className="btn btn-primary btn-sm" disabled={saving} style={{ width: '100%', justifyContent: 'center' }}>
+            <button type="submit" id="save-policy" className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:active:scale-100" disabled={saving}>
               {saving ? <><Spinner /> Saving…</> : <><Save size={13} /> Save Policy</>}
             </button>
           </form>
         </div>
 
         {/* Info box */}
-        <div style={{ maxWidth: 500, padding: '10px 14px', background: 'var(--info-dim)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: 8, fontSize: 12, color: 'var(--info)' }}>
+        <div className="max-w-[500px] p-3 bg-[#E0F2FE] border border-[#bae6fd] rounded-md text-[12px] text-[#0284c7] leading-relaxed animate-fade-in delay-100">
           <strong>ℹ How this works:</strong> Students whose year of study falls outside the min–max window will receive an <em>"Access Denied"</em> error when attempting to log in or register for courses. Changes take effect immediately.
         </div>
       </div>
