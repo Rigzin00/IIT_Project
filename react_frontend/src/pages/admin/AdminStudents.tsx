@@ -95,86 +95,108 @@ export default function AdminStudents() {
   const F = (k: keyof typeof form, v: string) => setForm(prev => ({ ...prev, [k]: v }));
 
   return (
-    <div>
-      <div className="page-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
-          <div>
-            <div className="page-title">Students</div>
-            <div className="page-sub">{students.length} total students registered</div>
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
+      <div className="bg-white border-b border-[#E5E7EB] px-8">
+        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-9 bg-[#C41212] rounded-sm flex-shrink-0" />
+            <div>
+              <div className="text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
+                Students
+              </div>
+              <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
+              <div className="text-[12px] text-[#9CA3AF] mt-0.5">
+                {students.length} total students registered
+              </div>
+            </div>
           </div>
-          <button className="btn btn-primary btn-sm" onClick={() => setShowAdd(true)} id="add-student-btn">
+          <button className="flex items-center gap-1.5 bg-[#C41212] hover:bg-[#a01313] text-white px-3 py-1.5 rounded text-[13px] font-semibold transition-colors" onClick={() => setShowAdd(true)} id="add-student-btn">
             <UserPlus size={14} /> Add Student
           </button>
         </div>
       </div>
-      <div className="page-body">
-
+      
+      <div className="px-8 py-6 space-y-5">
         {/* Search */}
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14 }}>
-          <div style={{ position: 'relative', flex: 1, maxWidth: 380 }}>
-            <Search size={14} style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+        <div className="flex gap-3 items-center">
+          <div className="relative flex-1 max-w-[380px]">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
             <input
               id="admin-search"
               type="text"
-              className="form-input"
+              className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 pl-9 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all"
               placeholder="Search by name, roll, email, dept…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ paddingLeft: 30 }}
             />
           </div>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{filtered.length} shown</span>
+          <span className="text-[12px] text-[#9CA3AF]">{filtered.length} shown</span>
         </div>
 
         {/* Table */}
-        <div className="card card-sm" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden">
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem' }}>
+            <div className="flex items-center justify-center p-12">
               <Spinner size="lg" />
             </div>
           ) : filtered.length === 0 ? (
-            <div className="empty-state"><p>No students found.</p></div>
+            <div className="text-center py-10 text-[13px] text-[#9CA3AF]">
+              No students found.
+            </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="data-table">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr>
-                    <th>Student</th>
-                    <th>Roll No.</th>
-                    <th>Department</th>
-                    <th>Year</th>
-                    <th>CGPA</th>
-                    <th>Login</th>
-                    <th></th>
+                  <tr className="bg-[#FAFAFA]">
+                    {['Student', 'Roll No.', 'Department', 'Year', 'CGPA', 'Login', ''].map((h, i) => (
+                      <th key={i} className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]">
+                        {h}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(s => (
-                    <tr key={s.id}>
-                      <td>
-                        <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 13 }}>{s.name}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.email}</div>
+                    <tr key={s.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
+                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                        <div className="text-[13px] font-semibold text-[#1F2937]">{s.name}</div>
+                        <div className="text-[11px] text-[#9CA3AF] mt-0.5">{s.email}</div>
                       </td>
-                      <td><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{s.roll_number}</span></td>
-                      <td><span className="badge badge-accent">{s.department}</span></td>
-                      <td><span className="badge badge-neutral">Year {s.year_of_study}</span></td>
-                      <td>
-                        <span style={{ fontWeight: 700, color: s.cgpa >= 8.5 ? 'var(--success)' : s.cgpa >= 6 ? 'var(--warning)' : 'var(--danger)', fontSize: 13 }}>
+                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                        <span className="font-mono text-[12px] text-[#555555]">{s.roll_number}</span>
+                      </td>
+                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                        <span className="text-[11px] font-semibold text-[#C41212] bg-[#FEF2F2] border border-[#C41212]/25 rounded px-2 py-0.5">
+                          {s.department}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                        <span className="text-[11px] font-semibold text-[#555555] bg-[#F5F5F5] border border-[#E5E7EB] rounded px-2 py-0.5">
+                          Year {s.year_of_study}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                        <span className={`text-[13px] font-bold ${s.cgpa >= 8.5 ? 'text-[#16a34a]' : s.cgpa >= 6 ? 'text-[#d97706]' : 'text-[#ea580c]'}`}>
                           {s.cgpa.toFixed(2)}
                         </span>
                       </td>
-                      <td>
-                        <span className={`badge ${s.is_approved_for_login ? 'badge-approved' : 'badge-rejected'}`}>
+                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                        <span className={`text-[11px] font-semibold rounded px-2 py-0.5 border ${
+                          s.is_approved_for_login
+                            ? 'text-[#374151] border-[#D1D5DB] bg-[#F9FAFB]'
+                            : 'text-[#C41212] border-[#C41212]/25 bg-[#FEF2F2]'
+                        }`}>
                           {s.is_approved_for_login ? 'Enabled' : 'Disabled'}
                         </span>
                       </td>
-                      <td>
+                      <td className="px-4 py-3 border-b border-[#E5E7EB] text-right">
                         <button
-                          className="btn btn-danger btn-xs"
+                          className="flex items-center justify-center p-1.5 text-[#C41212] hover:bg-[#FEF2F2] rounded transition-colors ml-auto"
                           onClick={() => setDeleteTarget(s)}
                           id={`delete-${s.id}`}
+                          title="Delete Student"
                         >
-                          <Trash2 size={11} />
+                          <Trash2 size={14} />
                         </button>
                       </td>
                     </tr>
@@ -188,41 +210,41 @@ export default function AdminStudents() {
 
       {/* Add Student Modal */}
       <Modal open={showAdd} onClose={() => { setShowAdd(false); setFormError(''); }} title="Add New Student">
-        <form onSubmit={handleAdd}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-            <div style={{ gridColumn: '1/-1' }}>
-              <label className="form-label">Full Name *</label>
-              <input id="form-name" required className="form-input" placeholder="e.g. Rahul Sharma" value={form.name} onChange={e => F('name', e.target.value)} />
+        <form onSubmit={handleAdd} className="font-['Open_Sans']">
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="col-span-2">
+              <label className="block text-[12px] font-bold text-[#555555] mb-1">Full Name *</label>
+              <input id="form-name" required className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="e.g. Rahul Sharma" value={form.name} onChange={e => F('name', e.target.value)} />
             </div>
             <div>
-              <label className="form-label">Roll Number *</label>
-              <input id="form-roll" required className="form-input" placeholder="e.g. 2024CSE1050" value={form.roll_number} onChange={e => F('roll_number', e.target.value)} />
+              <label className="block text-[12px] font-bold text-[#555555] mb-1">Roll Number *</label>
+              <input id="form-roll" required className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="e.g. 2024CSE1050" value={form.roll_number} onChange={e => F('roll_number', e.target.value)} />
             </div>
             <div>
-              <label className="form-label">Department *</label>
-              <select id="form-dept" className="form-input form-select" value={form.department} onChange={e => F('department', e.target.value)}>
+              <label className="block text-[12px] font-bold text-[#555555] mb-1">Department *</label>
+              <select id="form-dept" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" value={form.department} onChange={e => F('department', e.target.value)}>
                 {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
-            <div style={{ gridColumn: '1/-1' }}>
-              <label className="form-label">Email *</label>
-              <input id="form-email" required type="email" className="form-input" placeholder="e.g. rahul.sharma@institute.edu" value={form.email} onChange={e => F('email', e.target.value)} />
+            <div className="col-span-2">
+              <label className="block text-[12px] font-bold text-[#555555] mb-1">Email *</label>
+              <input id="form-email" required type="email" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="e.g. rahul.sharma@institute.edu" value={form.email} onChange={e => F('email', e.target.value)} />
             </div>
             <div>
-              <label className="form-label">Year of Study *</label>
-              <select id="form-year" className="form-input form-select" value={form.year_of_study} onChange={e => F('year_of_study', e.target.value)}>
+              <label className="block text-[12px] font-bold text-[#555555] mb-1">Year of Study *</label>
+              <select id="form-year" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" value={form.year_of_study} onChange={e => F('year_of_study', e.target.value)}>
                 {[1, 2, 3, 4].map(y => <option key={y} value={y}>Year {y}</option>)}
               </select>
             </div>
             <div>
-              <label className="form-label">CGPA (optional)</label>
-              <input id="form-cgpa" type="number" min="0" max="10" step="0.01" className="form-input" placeholder="0.0" value={form.cgpa} onChange={e => F('cgpa', e.target.value)} />
+              <label className="block text-[12px] font-bold text-[#555555] mb-1">CGPA (optional)</label>
+              <input id="form-cgpa" type="number" min="0" max="10" step="0.01" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="0.0" value={form.cgpa} onChange={e => F('cgpa', e.target.value)} />
             </div>
           </div>
-          {formError && <div className="form-error" style={{ marginBottom: 10 }}>{formError}</div>}
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setShowAdd(false); setFormError(''); }}>Cancel</button>
-            <button type="submit" id="form-submit" className="btn btn-primary btn-sm" disabled={adding}>
+          {formError && <div className="text-[13px] text-[#C41212] mb-3">{formError}</div>}
+          <div className="flex gap-2 justify-end">
+            <button type="button" className="px-4 py-2 text-[13px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] rounded-md transition-colors" onClick={() => { setShowAdd(false); setFormError(''); }}>Cancel</button>
+            <button type="submit" id="form-submit" className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-colors disabled:opacity-50" disabled={adding}>
               {adding ? <><Spinner /> Creating…</> : 'Create Student'}
             </button>
           </div>
@@ -231,18 +253,18 @@ export default function AdminStudents() {
 
       {/* Delete Confirm Modal */}
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Confirm Deletion">
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-          <AlertTriangle size={20} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2 }} />
+        <div className="flex gap-3 items-start mb-5 font-['Open_Sans']">
+          <AlertTriangle size={20} className="text-[#C41212] flex-shrink-0 mt-0.5" />
           <div>
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>Delete {deleteTarget?.name}?</div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            <div className="font-bold text-[#1F2937] mb-1">Delete {deleteTarget?.name}?</div>
+            <div className="text-[13px] text-[#555555] leading-relaxed">
               This will permanently delete the student and all their registration and course records. This action cannot be undone.
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button className="btn btn-ghost btn-sm" onClick={() => setDeleteTarget(null)}>Cancel</button>
-          <button id="confirm-delete" className="btn btn-danger btn-sm" onClick={handleDelete} disabled={deleting}>
+        <div className="flex gap-2 justify-end font-['Open_Sans']">
+          <button className="px-4 py-2 text-[13px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] rounded-md transition-colors" onClick={() => setDeleteTarget(null)}>Cancel</button>
+          <button id="confirm-delete" className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-colors disabled:opacity-50" onClick={handleDelete} disabled={deleting}>
             {deleting ? <><Spinner /> Deleting…</> : 'Delete Student'}
           </button>
         </div>
