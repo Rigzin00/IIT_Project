@@ -45,85 +45,104 @@ export default function AdminExport() {
   ].filter(f => f.active);
 
   return (
-    <div>
-      <div className="page-header">
-        <div className="page-title">Export Student Data</div>
-        <div className="page-sub">Download filtered student records as CSV or Excel</div>
+    <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
+      <div className="bg-white border-b border-[#E5E7EB] px-8">
+        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-9 bg-[#C41212] rounded-sm flex-shrink-0" />
+            <div>
+              <div className="text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
+                Export Student Data
+              </div>
+              <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
+              <div className="text-[12px] text-[#9CA3AF] mt-0.5">
+                Download filtered student records as CSV or Excel
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="page-body">
-        <div style={{ maxWidth: 540 }}>
+      
+      <div className="px-8 py-6 space-y-5">
+        <div className="max-w-[540px]">
 
           {/* Format selector */}
-          <div className="section-title" style={{ marginBottom: 10 }}>Output Format</div>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+          <div className="font-bold text-[13px] text-[#1F2937] mb-3">Output Format</div>
+          <div className="flex gap-3 mb-5">
             {(['xlsx', 'csv'] as const).map(f => (
               <button
                 key={f}
                 id={`format-${f}`}
-                className={`btn ${format === f ? 'btn-primary' : 'btn-ghost'}`}
-                style={{ gap: 8, flex: 1, justifyContent: 'center' }}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-[13px] font-semibold transition-colors ${
+                  format === f 
+                    ? 'bg-[#C41212] text-white border border-[#C41212]' 
+                    : 'bg-white text-[#555555] border border-[#E5E7EB] hover:bg-[#F9FAFB]'
+                }`}
                 onClick={() => setFormat(f)}
               >
-                {f === 'xlsx' ? <FileSpreadsheet size={15} /> : <FileText size={15} />}
+                {f === 'xlsx' ? <FileSpreadsheet size={16} /> : <FileText size={16} />}
                 {f.toUpperCase()}
-                {f === 'xlsx' && <span style={{ fontSize: 10, opacity: 0.7 }}>· Recommended</span>}
+                {f === 'xlsx' && <span className="text-[10px] opacity-80 font-bold ml-1 tracking-wide">· RECOMMENDED</span>}
               </button>
             ))}
           </div>
 
           {/* Filters */}
-          <div className="section-title" style={{ marginBottom: 10 }}>Filters <span style={{ color: 'var(--text-muted)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(all optional)</span></div>
-          <div className="card card-sm" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div className="font-bold text-[13px] text-[#1F2937] mb-3">
+            Filters <span className="text-[#9CA3AF] font-normal text-[12px]">(all optional)</span>
+          </div>
+          <div className="bg-white border border-[#E5E7EB] rounded-md p-4 mb-5">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="form-label" htmlFor="exp-year">Year of Study</label>
-                <select id="exp-year" className="form-input form-select" value={year} onChange={e => setYear(e.target.value)}>
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="exp-year">Year of Study</label>
+                <select id="exp-year" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all cursor-pointer" value={year} onChange={e => setYear(e.target.value)}>
                   <option value="all">All Years</option>
                   {[1, 2, 3, 4].map(y => <option key={y} value={y}>Year {y}</option>)}
                 </select>
               </div>
               <div>
-                <label className="form-label" htmlFor="exp-dept">Department</label>
-                <select id="exp-dept" className="form-input form-select" value={department} onChange={e => setDepartment(e.target.value)}>
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="exp-dept">Department</label>
+                <select id="exp-dept" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all cursor-pointer" value={department} onChange={e => setDepartment(e.target.value)}>
                   {DEPTS.map(d => <option key={d} value={d}>{d === 'all' ? 'All Departments' : d}</option>)}
                 </select>
               </div>
               <div>
-                <label className="form-label" htmlFor="exp-cgpa">Minimum CGPA</label>
-                <input id="exp-cgpa" type="number" min="0" max="10" step="0.1" className="form-input" placeholder="e.g. 7.5" value={cgpaCutoff} onChange={e => setCgpaCutoff(e.target.value)} />
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="exp-cgpa">Minimum CGPA</label>
+                <input id="exp-cgpa" type="number" min="0" max="10" step="0.1" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="e.g. 7.5" value={cgpaCutoff} onChange={e => setCgpaCutoff(e.target.value)} />
               </div>
               <div>
-                <label className="form-label" htmlFor="exp-wants">Wants Course (ID)</label>
-                <input id="exp-wants" className="form-input" placeholder="e.g. CS301" value={wantsCourse} onChange={e => setWantsCourse(e.target.value)} />
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="exp-wants">Wants Course (ID)</label>
+                <input id="exp-wants" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="e.g. CS301" value={wantsCourse} onChange={e => setWantsCourse(e.target.value)} />
               </div>
-              <div style={{ gridColumn: '1/-1' }}>
-                <label className="form-label" htmlFor="exp-done">Has Completed Course (ID)</label>
-                <input id="exp-done" className="form-input" placeholder="e.g. CS101" value={hasDoneCourse} onChange={e => setHasDoneCourse(e.target.value)} />
+              <div className="col-span-2">
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="exp-done">Has Completed Course (ID)</label>
+                <input id="exp-done" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="e.g. CS101" value={hasDoneCourse} onChange={e => setHasDoneCourse(e.target.value)} />
               </div>
             </div>
           </div>
 
           {/* Active filters preview */}
           {filters.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16, alignItems: 'center' }}>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Active filters:</span>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="text-[11px] text-[#9CA3AF] mr-1">Active filters:</span>
               {filters.map(f => (
-                <span key={f.label} className="badge badge-accent">{f.label}: {f.value}</span>
+                <span key={f.label} className="text-[11px] font-semibold text-[#C41212] bg-[#FEF2F2] border border-[#C41212]/25 rounded px-2 py-0.5">
+                  {f.label}: {f.value}
+                </span>
               ))}
             </div>
           )}
 
           {/* Columns info */}
-          <div style={{ padding: '10px 14px', background: 'var(--bg-card2)', border: '1px solid var(--border)', borderRadius: 8, marginBottom: 20, fontSize: 12, color: 'var(--text-secondary)' }}>
-            <strong style={{ color: 'var(--text-primary)' }}>Output columns:</strong>{' '}
+          <div className="p-3 bg-white border border-[#E5E7EB] rounded-md mb-5 text-[12px] text-[#555555] leading-relaxed">
+            <strong className="text-[#1F2937]">Output columns:</strong>{' '}
             Roll Number, Student Name, Email, Department, Year of Study, CGPA, Completed Courses, Pre-registered Courses
           </div>
 
           {/* Download button */}
           <button
             id="download-export"
-            className="btn btn-primary"
-            style={{ width: '100%', justifyContent: 'center', padding: '10px 14px', fontSize: 14, gap: 8 }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[14px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-colors"
             onClick={handleDownload}
           >
             <Download size={16} />
