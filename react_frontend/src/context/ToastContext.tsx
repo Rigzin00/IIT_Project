@@ -18,19 +18,25 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const remove = (id: number) => setToasts(prev => prev.filter(t => t.id !== id));
 
   const icons = { success: CheckCircle, error: XCircle, info: Info };
+  
+  const colors = {
+    success: 'bg-[#F0FDF4] border-[#86EFAC] text-[#166534]',
+    error: 'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]',
+    info: 'bg-[#F0F9FF] border-[#BAE6FD] text-[#075985]'
+  };
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="toast-container">
+      <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-2 font-['Open_Sans']">
         {toasts.map(t => {
           const Icon = icons[t.type];
           return (
-            <div key={t.id} className={`toast toast-${t.type}`}>
-              <Icon size={15} style={{ flexShrink: 0 }} />
-              <span style={{ flex: 1 }}>{t.message}</span>
-              <button onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: 0, display: 'flex' }}>
-                <X size={13} />
+            <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-md border shadow-lg text-[13px] font-semibold min-w-[280px] max-w-[380px] animate-[slideIn_0.2s_ease-out_forwards] ${colors[t.type]}`}>
+              <Icon size={16} className="flex-shrink-0" />
+              <span className="flex-1">{t.message}</span>
+              <button onClick={() => remove(t.id)} className="text-current opacity-70 hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-black/5 flex">
+                <X size={14} />
               </button>
             </div>
           );
