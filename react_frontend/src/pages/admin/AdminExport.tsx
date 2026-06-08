@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import type { ProfessorUser } from '../../api/auth';
 
 const DEPTS = ['all', 'CSE', 'ECE', 'ME', 'EE', 'CE', 'CHE', 'AE'];
 
 export default function AdminExport() {
   const { user, role } = useAuth();
+  const { showToast } = useToast();
   const profUser = user as ProfessorUser;
 
   const [year, setYear] = useState('all');
@@ -15,6 +17,7 @@ export default function AdminExport() {
   const [wantsCourse, setWantsCourse] = useState('');
   const [hasDoneCourse, setHasDoneCourse] = useState('');
   const [format, setFormat] = useState<'csv' | 'xlsx'>('xlsx');
+  const [exportLoading, setExportLoading] = useState(false);
 
   const buildUrl = (fmt: 'csv' | 'xlsx') => {
     const params = new URLSearchParams({ format: fmt });
@@ -39,6 +42,8 @@ export default function AdminExport() {
   console.log("URL:", buildUrl(format));
 
   const handleDownload = async () => {
+    if (exportLoading) return;
+    setExportLoading(true);
     try {
       const response = await fetch(buildUrl(format));
 
@@ -78,9 +83,12 @@ export default function AdminExport() {
       // Clean up
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
+      showToast('success', `Export generated successfully!`);
     } catch (error: any) {
       console.error("Export download error:", error);
-      alert(error.message || "An error occurred while downloading the export file.");
+      showToast('error', error.message || "An error occurred while downloading the export file.");
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -121,7 +129,10 @@ export default function AdminExport() {
               <button
                 key={f}
                 id={`format-${f}`}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-[13px] font-semibold transition-all duration-200 active:scale-95 ${format === f
+                disabled={exportLoading}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-[13px] font-semibold transition-all duration-200 ${
+                  exportLoading ? 'opacity-60 cursor-not-allowed hidden-active' : 'active:scale-95'
+                } ${format === f
                     ? 'bg-[#C41212] text-white border border-[#C41212] shadow-sm'
                     : 'bg-white text-[#555555] border border-[#E5E7EB] hover:bg-[#F9FAFB] hover:shadow-sm'
                   }`}
@@ -189,12 +200,24 @@ export default function AdminExport() {
           {/* Download button */}
           <button
             id="download-export"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[14px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow"
+            disabled={exportLoading}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[14px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 shadow-sm hover:shadow ${
+              exportLoading ? 'opacity-60 cursor-not-allowed' : 'active:scale-95'
+            }`}
             onClick={handleDownload}
           >
-            <Download size={16} />
-            Download {format.toUpperCase()}
-            {filters.length > 0 && ` (${filters.length} filter${filters.length > 1 ? 's' : ''})`}
+            {exportLoading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Preparing {format.toUpperCase()}...
+              </>
+            ) : (
+              <>
+                <Download size={16} />
+                Download {format.toUpperCase()}
+                {filters.length > 0 && ` (${filters.length} filter${filters.length > 1 ? 's' : ''})`}
+              </>
+            )}
           </button>
         </div>
       </div>

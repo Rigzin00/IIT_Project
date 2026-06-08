@@ -24,6 +24,7 @@ export default function ProfessorRegistrations() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [gradeInputs, setGradeInputs] = useState<Record<string, string>>({});
+  const [exportLoading, setExportLoading] = useState<'csv' | 'xlsx' | null>(null);
 
   const [yearFilter, setYearFilter] = useState('all');
   const [deptFilter, setDeptFilter] = useState('all');
@@ -106,16 +107,55 @@ export default function ProfessorRegistrations() {
     finally { setActionLoading(null); }
   };
 
-  const handleExport = (fmt: 'csv' | 'xlsx') => {
-    const params = new URLSearchParams({ role: 'professor', professor_id: profUser.id, format: fmt });
-    if (user?.email) params.set('email', user.email);
-    
-    if (yearFilter !== 'all') params.set('year', yearFilter);
-    if (deptFilter !== 'all') params.set('department', deptFilter);
-    if (cgpaCutoff) params.set('cgpa_cutoff', cgpaCutoff);
-    if (courseFilter !== 'all') params.set('wants_course', courseFilter);
-    if (doneCourseFilter !== 'all') params.set('has_done_course', doneCourseFilter);
-    window.open(`http://127.0.0.1:5000/api/export?${params.toString()}`, '_blank');
+  const handleExport = async (fmt: 'csv' | 'xlsx') => {
+    if (exportLoading) return;
+    setExportLoading(fmt);
+    try {
+      const params = new URLSearchParams({ role: 'professor', professor_id: profUser.id, format: fmt });
+      if (user?.email) params.set('email', user.email);
+      
+      if (yearFilter !== 'all') params.set('year', yearFilter);
+      if (deptFilter !== 'all') params.set('department', deptFilter);
+      if (cgpaCutoff) params.set('cgpa_cutoff', cgpaCutoff);
+      if (courseFilter !== 'all') params.set('wants_course', courseFilter);
+      if (doneCourseFilter !== 'all') params.set('has_done_course', doneCourseFilter);
+      
+      const response = await fetch(`http://127.0.0.1:5000/api/export?${params.toString()}`);
+      if (!response.ok) {
+        let errMsg = 'Failed to download data';
+        try {
+          const errData = await response.json();
+          if (errData.message) errMsg = errData.message;
+        } catch (e) {
+          errMsg = `Export failed: ${response.statusText}`;
+        }
+        throw new Error(errMsg);
+      }
+
+      const blob = await response.blob();
+      let filename = `academic_portal_students.${fmt}`;
+      const contentDisposition = response.headers.get('Content-Disposition');
+      if (contentDisposition && contentDisposition.includes('filename=')) {
+        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+      showToast('success', `Export generated successfully!`);
+    } catch (err: any) {
+      showToast('error', err.message || 'An error occurred during export.');
+    } finally {
+      setExportLoading(null);
+    }
   };
 
   const resetFilters = () => {
@@ -152,17 +192,20 @@ export default function ProfessorRegistrations() {
             <button id="refresh-regs" onClick={fetchData} className={ghost}>
               <RefreshCw size={12} /> Refresh
             </button>
-            <button id="export-csv" onClick={() => handleExport('csv')} className={ghost}>
-              <Download size={12} /> CSV
+            <button id="export-csv" onClick={() => handleExport('csv')} className={ghost} disabled={!!exportLoading} style={{ opacity: exportLoading ? 0.6 : 1, cursor: exportLoading ? 'not-allowed' : 'pointer' }}>
+              {exportLoading === 'csv' ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #E5E7EB', borderTopColor: '#9CA3AF', animation: 'spin 0.6s linear infinite' }} /> : <Download size={12} />} 
+              {exportLoading === 'csv' ? 'Preparing CSV...' : 'CSV'}
             </button>
             <button
               id="export-xlsx"
               onClick={() => handleExport('xlsx')}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: '#fff', background: '#C41212', border: 'none', borderRadius: 4, cursor: 'pointer', transition: 'background 150ms' }}
-              onMouseOver={e => (e.currentTarget.style.background = '#9A0F0F')}
-              onMouseOut={e => (e.currentTarget.style.background = '#C41212')}
+              disabled={!!exportLoading}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: '#fff', background: '#C41212', border: 'none', borderRadius: 4, cursor: exportLoading ? 'not-allowed' : 'pointer', transition: 'background 150ms', opacity: exportLoading ? 0.6 : 1 }}
+              onMouseOver={e => !exportLoading && (e.currentTarget.style.background = '#9A0F0F')}
+              onMouseOut={e => !exportLoading && (e.currentTarget.style.background = '#C41212')}
             >
-              <Download size={12} /> XLSX
+              {exportLoading === 'xlsx' ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.6s linear infinite' }} /> : <Download size={12} />}
+              {exportLoading === 'xlsx' ? 'Preparing XLSX...' : 'XLSX'}
             </button>
           </div>
         </div>
