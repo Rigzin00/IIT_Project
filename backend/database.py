@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
@@ -304,5 +305,19 @@ class SupabaseAdapter:
             return []
         res = self.client.table("registrations").select("student_id, course_id, status").in_("student_id", student_ids).execute()
         return res.data
+
+    def log_export(self, user_email, user_role, export_format, filters_used, rows_exported):
+        try:
+            self.client.table("export_logs").insert({
+                "user_email": user_email,
+                "user_role": user_role,
+                "export_format": export_format,
+                "filters_used": filters_used,
+                "rows_exported": rows_exported
+            }).execute()
+        except Exception as e:
+            # Silently fail so that logging errors NEVER block the export download
+            print(f"Audit log failed: {e}")
+            pass
 
 db = SupabaseAdapter(supabase_client)

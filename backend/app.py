@@ -397,6 +397,20 @@ def export_students():
         if df.empty:
             df = pd.DataFrame(columns=["Roll Number", "Student Name", "Email", "Department", "Year of Study", "CGPA", "Completed Courses", "Pre-registered Courses"])
 
+    # Audit Logging setup
+    try:
+        filters_used = {
+            "year": year_filter,
+            "department": dept_filter,
+            "cgpa_cutoff": cgpa_cutoff,
+            "wants_course": wants_course,
+            "has_done_course": has_done_course
+        }
+        db.log_export(email, role, export_format, filters_used, len(df))
+    except Exception as e:
+        # Failsafe wrapper so exporting never breaks
+        print(f"Audit log wrapper failed: {e}")
+
     # Render File and Send
     if export_format == "xlsx":
         # Render Excel
