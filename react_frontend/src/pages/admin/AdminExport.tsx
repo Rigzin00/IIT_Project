@@ -34,9 +34,54 @@ export default function AdminExport() {
     if (hasDoneCourse.trim()) params.set('has_done_course', hasDoneCourse.trim().toUpperCase());
     return `http://127.0.0.1:5000/api/export?${params.toString()}`;
   };
+  console.log("USER:", user);
+  console.log("EMAIL:", user?.email);
+  console.log("URL:", buildUrl(format));
 
-  const handleDownload = () => {
-    window.open(buildUrl(format), '_blank');
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(buildUrl(format));
+
+      if (!response.ok) {
+        // Handle server errors gracefully without exposing a raw JSON page to user
+        let errMsg = 'Failed to download data';
+        try {
+          const errData = await response.json();
+          if (errData.message) errMsg = errData.message;
+        } catch (e) {
+          errMsg = `Export failed: ${response.statusText}`;
+        }
+        throw new Error(errMsg);
+      }
+
+      const blob = await response.blob();
+
+      // Extract original filename provided by backend in Content-Disposition if available
+      let filename = `academic_portal_students.${format}`;
+      const contentDisposition = response.headers.get('Content-Disposition');
+      if (contentDisposition && contentDisposition.includes('filename=')) {
+        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      }
+
+      // Programmatically trigger download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error: any) {
+      console.error("Export download error:", error);
+      alert(error.message || "An error occurred while downloading the export file.");
+    }
   };
 
   const filters = [
@@ -65,7 +110,7 @@ export default function AdminExport() {
           </div>
         </div>
       </div>
-      
+
       <div className="px-8 py-6 space-y-5 animate-fade-up">
         <div className="max-w-[540px]">
 
@@ -76,11 +121,10 @@ export default function AdminExport() {
               <button
                 key={f}
                 id={`format-${f}`}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-[13px] font-semibold transition-all duration-200 active:scale-95 ${
-                  format === f 
-                    ? 'bg-[#C41212] text-white border border-[#C41212] shadow-sm' 
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-[13px] font-semibold transition-all duration-200 active:scale-95 ${format === f
+                    ? 'bg-[#C41212] text-white border border-[#C41212] shadow-sm'
                     : 'bg-white text-[#555555] border border-[#E5E7EB] hover:bg-[#F9FAFB] hover:shadow-sm'
-                }`}
+                  }`}
                 onClick={() => setFormat(f)}
               >
                 {f === 'xlsx' ? <FileSpreadsheet size={16} /> : <FileText size={16} />}

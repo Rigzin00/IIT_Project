@@ -108,6 +108,8 @@ export default function ProfessorRegistrations() {
 
   const handleExport = (fmt: 'csv' | 'xlsx') => {
     const params = new URLSearchParams({ role: 'professor', professor_id: profUser.id, format: fmt });
+    if (user?.email) params.set('email', user.email);
+    
     if (yearFilter !== 'all') params.set('year', yearFilter);
     if (deptFilter !== 'all') params.set('department', deptFilter);
     if (cgpaCutoff) params.set('cgpa_cutoff', cgpaCutoff);
