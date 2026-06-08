@@ -24,6 +24,16 @@ def is_student_eligible(student_year, settings):
     except ValueError:
         return True # Default to True if configuration error
 
+# Helper to verify Admin credentials
+def verify_admin(email):
+    if email == "admin@institute.edu":
+        return {
+            "name": "Institute Administrator",
+            "email": "admin@institute.edu",
+            "department": "Administration"
+        }
+    return None
+
 # --- AUTHENTICATION ENDPOINT ---
 @app.route("/api/auth/login", methods=["POST"])
 def auth_login():
@@ -36,15 +46,12 @@ def auth_login():
 
     # Admin Login Simulation
     if role == "admin":
-        if email == "admin@institute.edu":
+        admin_user = verify_admin(email)
+        if admin_user:
             return jsonify({
                 "success": True,
                 "role": "admin",
-                "user": {
-                    "name": "Institute Administrator",
-                    "email": "admin@institute.edu",
-                    "department": "Administration"
-                }
+                "user": admin_user
             })
         else:
             return jsonify({"success": False, "message": "Invalid Administrator credentials!"}), 401
@@ -292,7 +299,18 @@ def admin_policy():
 def export_students():
     # Accessible by Professors and Administrators
     role = request.args.get("role", "admin").lower()
-    prof_id = request.args.get("professor_id")
+    email = request.args.get("email", "").strip().lower()
+
+    if role == "admin":
+        if not verify_admin(email):
+            return jsonify({"success": False, "message": "Unauthorized access. Invalid admin credentials."}), 401
+    elif role == "professor":
+        prof = db.get_professor_by_email(email)
+        if not prof:
+            return jsonify({"success": False, "message": "Unauthorized access. Invalid professor credentials."}), 401
+        prof_id = prof["id"] # Override requested prof_id for security
+    else:
+        return jsonify({"success": False, "message": "Unauthorized access."}), 401
 
     # Filters
     year_filter = request.args.get("year")

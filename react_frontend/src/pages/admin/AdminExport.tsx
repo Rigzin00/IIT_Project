@@ -18,6 +18,9 @@ export default function AdminExport() {
 
   const buildUrl = (fmt: 'csv' | 'xlsx') => {
     const params = new URLSearchParams({ format: fmt });
+    if (user?.email) {
+      params.set('email', user.email);
+    }
     if (role === 'professor' && profUser?.id) {
       params.set('role', 'professor');
       params.set('professor_id', profUser.id);
