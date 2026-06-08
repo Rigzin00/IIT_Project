@@ -214,4 +214,95 @@ class SupabaseAdapter:
         res = self.client.table("students").delete().eq("id", student_id).execute()
         return len(res.data) > 0 or True
 
+    # --- Export Filtering Helpers ---
+    
+    def get_student_ids_by_wanted_course(self, course_id):
+        res = self.client.table("registrations").select("student_id").eq("course_id", course_id).execute()
+        return list(set(row["student_id"] for row in res.data))
+
+    def get_student_ids_by_completed_course(self, course_id):
+        res = self.client.table("completed_courses").select("student_id").eq("course_id", course_id).execute()
+        return list(set(row["student_id"] for row in res.data))
+
+    def get_filtered_students(self, year, dept, cgpa, student_ids):
+        query = self.client.table("students").select("*")
+        if year and year != "all":
+            query = query.eq("year_of_study", int(year))
+        if dept and dept != "all":
+            # the frontend passes raw department strings, match exactly but case insensitive ideally.
+            # but previously it was exact match df[df["Department"].str.upper() == dept_filter.upper()]
+            # So I will use ilike for robustness if upper casing differs.
+            query = query.ilike("department", dept)
+        if cgpa:
+            query = query.gte("cgpa", float(cgpa))
+        if student_ids is not None:
+            if not student_ids:
+                return [] # empty intersection
+            # Supabase in_ query takes max string list.
+            query = query.in_("id", student_ids)
+            
+        res = query.order("name", desc=False).execute()
+        return res.data
+
+    def get_filtered_professor_registrations(self, prof_id, year, dept, cgpa, student_ids):
+        query = self.client.table("registrations").select(
+            "id, status, grade, course_id, courses!inner(name, credits, professor_id), students!inner(id, name, roll_number, email, department, year_of_study, cgpa)"
+        ).eq("courses.professor_id", prof_id)
+        
+        if year and year != "all":
+            query = query.eq("students.year_of_study", int(year))
+        if dept and dept != "all":
+            query = query.ilike("students.department", dept)
+        if cgpa:
+            query = query.gte("students.cgpa", float(cgpa))
+        if student_ids is not None:
+            if not student_ids:
+                return []
+            query = query.in_("students.id", student_ids)
+            
+        res = query.execute()
+        
+        flat_list = []
+        for row in res.data:
+            student = row.get("students") or {}
+            course = row.get("courses") or {}
+            flat_list.append({
+                "registration_id": row["id"],
+                "status": row["status"],
+                "grade": row["grade"],
+                "course_id": row["course_id"],
+                "course_name": course.get("name"),
+                "credits": course.get("credits"),
+                "student_id": student.get("id"),
+                "student_name": student.get("name"),
+                "roll_number": student.get("roll_number"),
+                "student_email": student.get("email"),
+                "student_department": student.get("department"),
+                "year_of_study": student.get("year_of_study"),
+                "cgpa": student.get("cgpa")
+            })
+        return flat_list
+
+    def get_completed_courses_for_students(self, student_ids):
+        if not student_ids:
+            return []
+        res = self.client.table("completed_courses").select("student_id, course_id, grade, semester, courses(name)").in_("student_id", student_ids).execute()
+        flat_list = []
+        for row in res.data:
+            course = row.get("courses") or {}
+            flat_list.append({
+                "student_id": row["student_id"],
+                "course_id": row["course_id"],
+                "course_name": course.get("name"),
+                "grade": row["grade"],
+                "semester": row["semester"]
+            })
+        return flat_list
+
+    def get_registrations_for_students(self, student_ids):
+        if not student_ids:
+            return []
+        res = self.client.table("registrations").select("student_id, course_id, status").in_("student_id", student_ids).execute()
+        return res.data
+
 db = SupabaseAdapter(supabase_client)

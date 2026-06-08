@@ -321,106 +321,81 @@ def export_students():
     export_format = request.args.get("format", "csv").lower() # csv or xlsx
 
     # Get data pool
-    if role == "professor" and prof_id:
-        # Fetch registrations of this professor
-        raw_data = db.get_professor_registrations(prof_id)
-        all_completions = db.get_all_completed_courses_grouped()
-        
-        # Build records
-        students_pool = []
-        seen_students = set()
-        for r in raw_data:
-            s_id = r["student_id"]
-            if s_id in seen_students:
-                continue
-            seen_students.add(s_id)
-            
-            # completed course IDs
-            completed = [c["course_id"] for c in all_completions if c["student_id"] == s_id]
-            completed_str = ", ".join([f"{c['course_id']}({c['grade']})" for c in all_completions if c["student_id"] == s_id])
-            
-            # registrations under this prof
-            registered_under_prof = [reg["course_id"] for reg in raw_data if reg["student_id"] == s_id]
-            registered_str = ", ".join(registered_under_prof)
-            
-            students_pool.append({
-                "Student ID": r["student_id"],
-                "Roll Number": r["roll_number"],
-                "Student Name": r["student_name"],
-                "Email": r["student_email"],
-                "Department": r["student_department"],
-                "Year of Study": r["year_of_study"],
-                "CGPA": r["cgpa"],
-                "Completed Courses": completed_str,
-                "Pre-registered Courses": registered_str,
-                "_completed_list": completed,
-                "_registered_list": registered_under_prof
-            })
-    else:
-        # Administrator: Get all students
-        students = db.get_all_students()
-        all_completions = db.get_all_completed_courses_grouped()
-        
-        students_pool = []
-        for s in students:
-            # Completed
-            completed_str = ", ".join([f"{c['course_id']}({c['grade']})" for c in all_completions if c["student_id"] == s["id"]])
-            completed_list = [c["course_id"] for c in all_completions if c["student_id"] == s["id"]]
-            
-            # Registrations status
-            regs = db.get_student_registrations(s["id"])
-            registered_str = ", ".join([f"{r['course_id']}({r['status']})" for r in regs])
-            registered_list = [r["course_id"] for r in regs]
-            
-            students_pool.append({
-                "Student ID": s["id"],
-                "Roll Number": s["roll_number"],
-                "Student Name": s["name"],
-                "Email": s["email"],
-                "Department": s["department"],
-                "Year of Study": s["year_of_study"],
-                "CGPA": s["cgpa"],
-                "Completed Courses": completed_str,
-                "Pre-registered Courses": registered_str,
-                "_completed_list": completed_list,
-                "_registered_list": registered_list
-            })
+    valid_student_ids = None
 
-    # Apply Filters in Pandas Dataframe
-    df = pd.DataFrame(students_pool)
-    if df.empty:
-        # Create empty template
+    # Evaluate explicit course restrictions first
+    if has_done_course and has_done_course != "all":
+        valid_student_ids = db.get_student_ids_by_completed_course(has_done_course)
+
+    if wants_course and wants_course != "all":
+        wanted_ids = db.get_student_ids_by_wanted_course(wants_course)
+        if valid_student_ids is not None:
+            valid_student_ids = list(set(valid_student_ids) & set(wanted_ids))
+        else:
+            valid_student_ids = wanted_ids
+
+    # Fast short-circuit if restricted lists yield zero matching students
+    if valid_student_ids is not None and len(valid_student_ids) == 0:
         df = pd.DataFrame(columns=["Roll Number", "Student Name", "Email", "Department", "Year of Study", "CGPA", "Completed Courses", "Pre-registered Courses"])
-    
-    # Filter Year
-    if year_filter and year_filter != "all":
-        try:
-            df = df[df["Year of Study"] == int(year_filter)]
-        except ValueError:
-            pass
+    else:
+        students_pool = []
+        if role == "professor" and prof_id:
+            # Fetch strictly matching registrations for this professor
+            raw_data = db.get_filtered_professor_registrations(prof_id, year_filter, dept_filter, cgpa_cutoff, valid_student_ids)
+            filtered_student_ids = list(set(r["student_id"] for r in raw_data))
+            all_completions = db.get_completed_courses_for_students(filtered_student_ids)
+            
+            seen_students = set()
+            for r in raw_data:
+                s_id = r["student_id"]
+                if s_id in seen_students:
+                    continue
+                seen_students.add(s_id)
+                
+                c_data = [c for c in all_completions if c["student_id"] == s_id]
+                completed_str = ", ".join([f"{c['course_id']}({c['grade']})" for c in c_data])
+                
+                registered_under_prof = [reg["course_id"] for reg in raw_data if reg["student_id"] == s_id]
+                registered_str = ", ".join(registered_under_prof)
+                
+                students_pool.append({
+                    "Roll Number": r["roll_number"],
+                    "Student Name": r["student_name"],
+                    "Email": r["student_email"],
+                    "Department": r["student_department"],
+                    "Year of Study": r["year_of_study"],
+                    "CGPA": r["cgpa"],
+                    "Completed Courses": completed_str,
+                    "Pre-registered Courses": registered_str
+                })
+        else:
+            # Administrator: Get directly filtered students
+            students = db.get_filtered_students(year_filter, dept_filter, cgpa_cutoff, valid_student_ids)
+            filtered_student_ids = [s["id"] for s in students]
+            all_completions = db.get_completed_courses_for_students(filtered_student_ids)
+            all_regs = db.get_registrations_for_students(filtered_student_ids)
+            
+            for s in students:
+                c_data = [c for c in all_completions if c["student_id"] == s["id"]]
+                completed_str = ", ".join([f"{c['course_id']}({c['grade']})" for c in c_data])
+                
+                r_data = [r for r in all_regs if r["student_id"] == s["id"]]
+                registered_str = ", ".join([f"{r['course_id']}({r['status']})" for r in r_data])
+                
+                students_pool.append({
+                    "Roll Number": s["roll_number"],
+                    "Student Name": s["name"],
+                    "Email": s["email"],
+                    "Department": s["department"],
+                    "Year of Study": s["year_of_study"],
+                    "CGPA": s["cgpa"],
+                    "Completed Courses": completed_str,
+                    "Pre-registered Courses": registered_str
+                })
 
-    # Filter Department
-    if dept_filter and dept_filter != "all":
-        df = df[df["Department"].str.upper() == dept_filter.upper()]
-
-    # Filter CGPA Cutoff
-    if cgpa_cutoff:
-        try:
-            df = df[df["CGPA"] >= float(cgpa_cutoff)]
-        except ValueError:
-            pass
-
-    # Filter wants to do Course C
-    if wants_course and wants_course != "all" and "_registered_list" in df.columns:
-        df = df[df["_registered_list"].apply(lambda lst: wants_course in lst if isinstance(lst, list) else False)]
-
-    # Filter has completed Course C
-    if has_done_course and has_done_course != "all" and "_completed_list" in df.columns:
-        df = df[df["_completed_list"].apply(lambda lst: has_done_course in lst if isinstance(lst, list) else False)]
-
-    # Drop hidden columns used for filtering
-    cols_to_drop = [c for c in ["_completed_list", "_registered_list", "Student ID"] if c in df.columns]
-    df = df.drop(columns=cols_to_drop, errors="ignore")
+        df = pd.DataFrame(students_pool)
+        if df.empty:
+            df = pd.DataFrame(columns=["Roll Number", "Student Name", "Email", "Department", "Year of Study", "CGPA", "Completed Courses", "Pre-registered Courses"])
 
     # Render File and Send
     if export_format == "xlsx":
