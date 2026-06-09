@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from database import db
 from utils.helpers import verify_admin, is_student_eligible
+from utils.limiter import limiter
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route("/login", methods=["POST"])
+@limiter.limit("10 per minute")
 def auth_login():
     data = request.get_json() or {}
     email = data.get("email", "").strip().lower()
