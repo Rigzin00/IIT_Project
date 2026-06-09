@@ -116,7 +116,7 @@ def run_tests():
 
     # 13. Test CSV Data Export endpoint
     print("\n13. Testing dynamic CSV export for Year=3, Department=CSE...")
-    res = requests.get(f"{BASE_URL}/api/export?role=admin&year=3&department=CSE&format=csv")
+    res = requests.get(f"{BASE_URL}/api/export?role=admin&email=admin@institute.edu&year=3&department=CSE&format=csv")
     print(f"Status: {res.status_code}, Content Length: {len(res.content)} bytes")
     print(f"Output Head:\n{res.content.decode('utf-8')[:200]}")
     assert res.status_code == 200
