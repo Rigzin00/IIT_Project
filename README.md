@@ -1,112 +1,112 @@
-# 🎓 Integrated Academic Portal
+# Academic Minor Course Registration System
 
-A secure, premium, and multi-role Single Page Application (SPA) designed to streamline course pre-registration and academic administration. Engineered with a robust Python backend and a beautiful, modern React frontend featuring smooth micro-interactions and Tailwind CSS.
-
-The application is built to work **100% out of the box in Local Demo Mode** using an embedded SQLite database pre-populated with realistic academic datasets. For production environments, it effortlessly transitions to a **live cloud Supabase PostgreSQL instance**.
-
----
+A robust, full-stack web application designed to streamline the administration, teaching, and student enrollment processes for Minor academic programs. Built with a modern architecture ensuring scalability, security, and a seamless user experience.
 
 ## 🚀 Tech Stack
 
 ### Frontend
-- **Framework**: React 19 + TypeScript + Vite
-- **Styling**: Tailwind CSS v4
-- **Routing**: React Router DOM v7
-- **Icons**: Lucide React
-- **Design System**: Responsive layouts, custom UI components, smooth hover/active micro-interactions, and fade-in animations using standard `Open Sans` and `Titillium Web` typography.
+* **Framework:** React 18 with TypeScript
+* **Build Tool:** Vite
+* **Styling:** Tailwind CSS (with Lucide React icons)
+* **Routing:** React Router DOM
+* **State Management:** React Context API (Auth Context, Toast Context)
+* **Session Persistence:** `sessionStorage` (Ensures secure auto-logout on tab close)
 
 ### Backend
-- **Server**: Python 3 + Flask
-- **Database (Local)**: SQLite3
-- **Database (Cloud Production)**: Supabase PostgreSQL
-- **Data Engineering**: Pandas & OpenPyXL for advanced Excel (`.xlsx`) and CSV spreadsheet exports.
+* **Framework:** Flask (Python)
+* **Database:** Supabase (PostgreSQL) via `supabase-py`
+* **Security:** `Flask-Limiter` for Rate Limiting (Memory Storage), Global Error Handlers
+* **Architecture:** Modular Blueprint routing (`routes/admin.py`, `routes/auth.py`, etc.)
 
 ---
 
-## 🌟 Core Features & Roles
+## ✨ Key Features & Portals
 
-### 👨‍🎓 Student Portal
-- **Smart SSO Login**: Login portal evaluates if the student's academic year aligns with active administration policies, securely blocking out-of-band access.
-- **Academic Dashboard**: Real-time summary displaying Cumulative GPA, total completed credits, and current pre-registration approvals.
-- **Registration Desk**: Pre-register for available courses. The system automatically enforces academic constraints and prevents duplicate requests.
-- **Status Tracking**: Monitor pre-registration status (Pending, Approved, Rejected) and view graded historical courses inside a dynamic overlay.
+### 1. 🛡️ Administrator Portal
+* **Policy Management:** Dynamically configure eligible year groups (e.g., allow only Year 3 and Year 4 students to register).
+* **Student Directory:** View all registered students with full-stack **pagination, server-side search, and sorting**.
+* **Data Export:** Export student and registration records on the fly to **CSV** or **XLSX** formats.
+* **Security Oversight:** Monitor login policies and enforce secure session boundaries.
 
-### 👩‍🏫 Professor Portal
-- **Dashboard Analytics**: Quick statistical view of course enrollments and pending action items.
-- **Applicant Desk**: Interactive data table displaying incoming student pre-registration requests for the professor's assigned courses.
-- **Advanced Filtering**: Real-time filtering by department, academic year, and prerequisite checks (e.g., "show me students who have historically completed CS101").
-- **Approval Controls**: One-click actions to securely **Approve** or **Reject** student applicants.
-- **Grading Panel**: Directly input and submit end-of-semester letter grades (e.g., A, A-, B+) for approved students, instantaneously recalculating academic records.
+### 2. 👨‍🏫 Professor Portal
+* **Dashboard:** High-level metrics tracking total course capacities and pending pre-registration approvals.
+* **Pre-Registration Handling:** Accept or Reject student minor registration requests.
+* **Grading System:** Input and commit end-of-semester grades.
+* **Advanced Filtering:** View student applications with details on their current CGPA and previously completed courses.
 
-### 👮 Administrator Portal
-- **Global Policy Control**: Dynamically lock or unlock registration windows by restricting login access to specific student year groups (e.g., restricting access to Year 3 and Year 4 only).
-- **Student Registry**: Complete CRUD access to view, manually enroll, or remove student profiles from the academic system.
-- **Advanced Export Engine**: Generate customized, spreadsheet-ready reports (Excel `.xlsx` or `.csv`) of student datasets filtered by specific Departments, Years of Study, CGPA Thresholds, and Course Histories.
+### 3. 🎓 Student Portal
+* **Academic Profile:** Live tracking of completed credits, Minor GPA, and current registration statuses.
+* **Course Catalog:** Browse available minor courses with full pagination and keyword search.
+* **One-Click Registration:** Effortlessly send pre-registration requests to course professors.
 
 ---
 
-## ⚙️ Quick Start (Local Development)
+## 🛠️ System Architecture & Workflow
 
-### 1. Pre-requisites
-Ensure you have **Node.js** and **Python 3.x** installed on your machine.
+### Authentication Flow (SSO Simulation)
+1. User enters their academic email (`@institute.edu`) and selects their Role (Admin, Professor, Student).
+2. The `auth_login` endpoint intercepts the request.
+3. A strict Rate Limiter (10 requests/min) prevents brute-force abuse.
+4. The backend verifies the user in the respective Supabase tables.
+5. If eligible (based on global Admin Policies), a session is instantiated and stored securely in the frontend `sessionStorage`.
 
-### 2. Start the Backend API Server
-Open a terminal, navigate to the `backend` directory, install the Python dependencies, and launch the Flask server:
+### Pagination & Search Workflow
+To accommodate thousands of students and registrations without performance degradation:
+* **Frontend:** Components pass `page`, `limit`, `search`, `sort`, and `order` parameters via URL query strings.
+* **Backend:** Supabase `.range(start, end)` is utilized to fetch only the requested subset of data.
+* **Metadata:** The backend returns a precise `pagination` block (`total`, `total_pages`, etc.) using Supabase's `count="exact"` functionality.
+* **Search:** Handled entirely server-side utilizing complex `.or_()` clauses across relational tables.
+
+---
+
+## ⚙️ Local Development Setup
+
+### Prerequisites
+* Node.js (v18+)
+* Python (3.9+)
+* Supabase Account & Project
+
+### 1. Database Configuration
+Ensure your Supabase project contains the required schemas (`students`, `professors`, `courses`, `registrations`, `completed_courses`, `settings`). 
+
+### 2. Backend Setup
+Navigate to the `backend` directory:
 ```bash
 cd backend
+
+# Install Python dependencies
 pip install -r requirements.txt
+
+# Create environment variables file
+# Add: SUPABASE_URL=your_url, SUPABASE_KEY=your_key
+touch .env
+
+# Run the Flask development server (runs on Port 5000)
 python app.py
 ```
-*The backend API will run on `http://127.0.0.1:5000`.*
 
-### 3. Start the Frontend Development Server
-Open a second terminal, navigate to the `react_frontend` directory, install the Node modules, and launch Vite:
+### 3. Frontend Setup
+Navigate to the `react_frontend` directory:
 ```bash
 cd react_frontend
+
+# Install Node dependencies
 npm install
+
+# Start the Vite development server
 npm run dev
 ```
-*Vite will automatically open the frontend in your browser, typically at `http://localhost:5173`.*
 
 ---
 
-## 🔑 Demo Credentials
+## 🧪 Testing
 
-Use any of the following pre-seeded institute emails to log in and test the system. *(Passwords are mocked in Demo Mode—any text will work!)*
-
-### Administrator
-* **admin@institute.edu** (Full system and policy control)
-
-### Professors
-* **arpan.sen@institute.edu** (CSE Dept)
-* **sunita.sharma@institute.edu** (CSE Dept)
-* **ramesh.kumar@institute.edu** (ECE Dept)
-
-### Students
-* **rigzin.angdu@institute.edu** (CSE, Year 3, CGPA 8.75)
-* **siddharth.patel@institute.edu** (ECE, Year 3, CGPA 9.10)
-* **ananya.gupta@institute.edu** (ME, Year 4, CGPA 7.80)
-* **rahul.varma@institute.edu** (CSE, Year 2, CGPA 8.20) — *May be restricted based on active Year Policies.*
+The backend includes a comprehensive integration test suite.
+To verify core pathways (SSO constraints, database insertions, grade recalculations, pagination endpoints), run:
+```bash
+cd backend
+python test_api.py
+```
 
 ---
-
-## ☁️ Connecting Supabase (Cloud Database Mode)
-
-When you are ready to transition from the local SQLite database to a live Supabase cloud instance, follow these three steps:
-
-1. **Configure Database**:
-   * Create a new project in your [Supabase Console](https://supabase.com).
-   * Open the **SQL Editor**, click **New Query**, paste the exact contents of the `schema.sql` file located in the root of this workspace, and click **Run**. This constructs the schema, constraints, and seeds the initial academic datasets.
-
-2. **Add API Credentials**:
-   * Inside the `backend/` directory, create or locate the `.env` file.
-   * Copy your **Project URL** and **API Anon Key** from your Supabase dashboard (Project Settings > API) and paste them:
-   ```ini
-   SUPABASE_URL=https://your-project-id.supabase.co
-   SUPABASE_KEY=your-supabase-anon-public-key
-   ```
-
-3. **Restart the Server**:
-   * Restart the Flask server. You will see a success confirmation in the console:
-   `>>> Database Interface: Connected to Supabase Cloud Database! <<<`
-   * The backend will automatically switch routing, directing all authentication, registrations, and exports securely to your live cloud database!
+*Built with ❤️ for Institute Academics.*
