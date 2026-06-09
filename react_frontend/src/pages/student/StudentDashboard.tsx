@@ -5,6 +5,16 @@ import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/Spinner';
 import type { StudentUser } from '../../api/auth';
 
+export interface SelfReportedCourse {
+  id: string;
+  course_code: string;
+  course_name: string;
+  credits: number | string;
+  grade: string;
+  year: string;
+  semester: string;
+}
+
 const STATUS_STYLE: Record<string, string> = {
   pending:  'text-[#9CA3AF]',
   approved: 'text-[#374151]',
@@ -27,6 +37,41 @@ export default function StudentDashboard() {
   const [stats,         setStats]         = useState<{ completed_credits: number; minor_gpa: number } | null>(null);
   const [loading,       setLoading]       = useState(true);
   const [error,         setError]         = useState('');
+
+  const [selfReportedCourses, setSelfReportedCourses] = useState<SelfReportedCourse[]>([]);
+  const [courseForm, setCourseForm] = useState<SelfReportedCourse>({
+    id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: ''
+  });
+  const [isEditingId, setIsEditingId] = useState<string | null>(null);
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setCourseForm({ ...courseForm, [e.target.name]: e.target.value });
+  };
+
+  const handleSaveCourse = () => {
+    if (!courseForm.course_code || !courseForm.course_name || !courseForm.credits) return;
+
+    if (isEditingId) {
+      setSelfReportedCourses(prev => prev.map(c => c.id === isEditingId ? { ...courseForm, id: isEditingId } : c));
+      setIsEditingId(null);
+    } else {
+      setSelfReportedCourses(prev => [...prev, { ...courseForm, id: Date.now().toString() }]);
+    }
+    setCourseForm({ id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: '' });
+  };
+
+  const handleEditCourse = (course: SelfReportedCourse) => {
+    setCourseForm(course);
+    setIsEditingId(course.id);
+  };
+
+  const handleDeleteCourse = (id: string) => {
+    setSelfReportedCourses(prev => prev.filter(c => c.id !== id));
+    if (isEditingId === id) {
+      setIsEditingId(null);
+      setCourseForm({ id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: '' });
+    }
+  };
 
   useEffect(() => {
     if (!studentUser?.id) return;
@@ -237,6 +282,144 @@ export default function StudentDashboard() {
                   ))}
                 </tbody>
               </table>
+            )}
+          </div>
+        </div>
+
+        {/* ── Self-Reported Prior Courses ── */}
+        <div>
+          <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 flex items-center justify-between">
+            <span>Prior Completed Courses (Self-Reported)</span>
+          </div>
+          <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden p-5">
+            {/* Form */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+              <input
+                className="col-span-1 md:col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                placeholder="Code (e.g. CS101)"
+                name="course_code"
+                value={courseForm.course_code}
+                onChange={handleFormChange}
+              />
+              <input
+                className="col-span-1 md:col-span-2 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                placeholder="Course Name"
+                name="course_name"
+                value={courseForm.course_name}
+                onChange={handleFormChange}
+              />
+              <input
+                type="number"
+                className="col-span-1 md:col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                placeholder="Credits"
+                name="credits"
+                value={courseForm.credits}
+                onChange={handleFormChange}
+              />
+              <input
+                className="col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                placeholder="Grade"
+                name="grade"
+                value={courseForm.grade}
+                onChange={handleFormChange}
+              />
+              <input
+                className="col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                placeholder="Year"
+                name="year"
+                value={courseForm.year}
+                onChange={handleFormChange}
+              />
+              <div className="col-span-1 flex flex-col md:flex-row md:items-center justify-between md:col-span-6 gap-3">
+                <select
+                  className="w-full md:w-auto border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] md:min-w-[200px]"
+                  name="semester"
+                  value={courseForm.semester}
+                  onChange={handleFormChange}
+                >
+                  <option value="">Semester</option>
+                  <option value="Semester I">Semester I</option>
+                  <option value="Semester II">Semester II</option>
+                  <option value="Semester III">Semester III</option>
+                  <option value="Semester IV">Semester IV</option>
+                  <option value="Semester V">Semester V</option>
+                  <option value="Semester VI">Semester VI</option>
+                  <option value="Semester VII">Semester VII</option>
+                  <option value="Semester VIII">Semester VIII</option>
+                </select>
+                <div className="flex justify-end gap-2">
+                  {isEditingId && (
+                    <button
+                      onClick={() => {
+                        setIsEditingId(null);
+                        setCourseForm({ id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: '' });
+                      }}
+                      className="px-4 py-2 bg-[#F5F5F5] hover:bg-[#E5E7EB] text-[#374151] rounded text-[13px] font-bold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  <button
+                    onClick={handleSaveCourse}
+                    disabled={!courseForm.course_code || !courseForm.course_name || !courseForm.credits}
+                    className="px-4 py-2 bg-[#C41212] hover:bg-[#A00F0F] disabled:opacity-50 text-white rounded text-[13px] font-bold transition-colors"
+                  >
+                    {isEditingId ? 'Update Course' : 'Add Course'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* List */}
+            {selfReportedCourses.length > 0 && (
+              <div className="border border-[#E5E7EB] rounded-md overflow-hidden mt-6">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-[#FAFAFA]">
+                      {['Course', 'Credits', 'Term', 'Grade', 'Actions'].map(h => (
+                        <th key={h} className={`px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] ${h === 'Actions' ? 'text-right' : 'text-left'}`}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selfReportedCourses.map(c => (
+                      <tr key={c.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <div className="text-[13px] font-semibold text-[#1F2937]">{c.course_name}</div>
+                          <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{c.course_code}</div>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB] text-[13px] text-[#555555]">
+                          {c.credits}
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB] text-[12px] text-[#9CA3AF]">
+                          {c.semester} {c.year}
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>
+                            {c.grade}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB] text-right">
+                          <button
+                            onClick={() => handleEditCourse(c)}
+                            className="text-[#2563EB] hover:text-[#1D4ED8] text-[12px] font-bold mr-3"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCourse(c.id)}
+                            className="text-[#C41212] hover:text-[#991B1B] text-[12px] font-bold"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
