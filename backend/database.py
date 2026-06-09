@@ -79,8 +79,26 @@ class SupabaseAdapter:
             })
         return flat_list
 
-    def get_courses_for_pre_registration(self):
-        res = self.client.table("courses").select("id, name, credits, department, description, professors(name)").eq("is_minor_eligible", True).execute()
+    def get_courses_for_pre_registration(self, page=1, limit=50, search="", sort="name", order="asc"):
+        query = self.client.table("courses").select("id, name, credits, department, description, professors(name)", count="exact").eq("is_minor_eligible", True)
+        
+        if search:
+            p_res = self.client.table("professors").select("id").ilike("name", f"%{search}%").execute()
+            matched_p_ids = [r['id'] for r in p_res.data]
+            
+            or_conds = [f"name.ilike.%{search}%", f"department.ilike.%{search}%", f"description.ilike.%{search}%"]
+            if matched_p_ids:
+                or_conds.append(f"professor_id.in.({','.join(matched_p_ids)})")
+            query = query.or_(",".join(or_conds))
+            
+        desc = (order == "desc")
+        query = query.order(sort, desc=desc)
+        
+        start = (page - 1) * limit
+        end = start + limit - 1
+        query = query.range(start, end)
+        
+        res = query.execute()
         
         flat_list = []
         for row in res.data:
@@ -93,7 +111,7 @@ class SupabaseAdapter:
                 "description": row["description"],
                 "professor_name": prof_info.get("name", "TBA")
             })
-        return flat_list
+        return flat_list, res.count
 
     def register_course(self, student_id, course_id):
         try:
@@ -123,10 +141,44 @@ class SupabaseAdapter:
             "courses": courses_res.data
         }
 
-    def get_professor_registrations(self, professor_id):
-        res = self.client.table("registrations").select(
-            "id, status, grade, course_id, courses!inner(name, credits, professor_id), students(id, name, roll_number, email, department, year_of_study, cgpa)"
-        ).eq("courses.professor_id", professor_id).execute()
+    def get_professor_registrations(self, professor_id, page=1, limit=50, search="", sort="id", order="asc"):
+        query = self.client.table("registrations").select(
+            "id, status, grade, course_id, courses!inner(name, credits, professor_id), students!inner(id, name, roll_number, email, department, year_of_study, cgpa)",
+            count="exact"
+        ).eq("courses.professor_id", professor_id)
+        
+        if search:
+            s_res = self.client.table("students").select("id").or_(f"name.ilike.%{search}%,roll_number.ilike.%{search}%,department.ilike.%{search}%").execute()
+            c_res = self.client.table("courses").select("id").ilike("name", f"%{search}%").execute()
+            matched_s_ids = [r['id'] for r in s_res.data]
+            matched_c_ids = [r['id'] for r in c_res.data]
+            
+            or_conds = [f"status.ilike.%{search}%", f"course_id.ilike.%{search}%"]
+            if matched_s_ids:
+                or_conds.append(f"student_id.in.({','.join(matched_s_ids)})")
+            if matched_c_ids:
+                or_conds.append(f"course_id.in.({','.join(matched_c_ids)})")
+                
+            query = query.or_(",".join(or_conds))
+            
+        # Due to embedded resources, sorting by foreign columns in Supabase requires special handling,
+        # but for simplicity, if sort is on foreign tables we might fallback or map it.
+        # E.g., sort="name" -> "students.name" not directly supported via .order in some versions.
+        # We will map standard sorts to primary table where possible, else we will sort locally after fetch.
+        # Let's fetch all and sort locally if it's a foreign column, OR just sort by primary table fields (status, id, course_id).
+        # Actually, Supabase supports: `.order('students(name)', desc=True)`. Let's assume frontend passes local keys or we sort locally.
+        
+        start = (page - 1) * limit
+        end = start + limit - 1
+        query = query.range(start, end)
+        
+        # Primary table sorting
+        if sort in ["id", "status", "grade", "course_id"]:
+            query = query.order(sort, desc=(order == "desc"))
+        else:
+            query = query.order("id", desc=True)
+            
+        res = query.execute()
         
         flat_list = []
         for row in res.data:
@@ -147,7 +199,16 @@ class SupabaseAdapter:
                 "year_of_study": student.get("year_of_study"),
                 "cgpa": student.get("cgpa")
             })
-        return flat_list
+            
+        # If sort was foreign, do it in-memory for the current page (good enough for typical use case, or we do full local sort if limit is high)
+        if sort not in ["id", "status", "grade", "course_id"]:
+            rev = (order == "desc")
+            if sort == "name" or sort == "student_name": flat_list.sort(key=lambda x: x.get("student_name", ""), reverse=rev)
+            elif sort == "roll_number": flat_list.sort(key=lambda x: x.get("roll_number", ""), reverse=rev)
+            elif sort == "department": flat_list.sort(key=lambda x: x.get("student_department", ""), reverse=rev)
+            elif sort == "course_name": flat_list.sort(key=lambda x: x.get("course_name", ""), reverse=rev)
+            
+        return flat_list, res.count
 
     def get_all_completed_courses_grouped(self):
         res = self.client.table("completed_courses").select("student_id, course_id, grade, semester, courses(name)").execute()
@@ -192,9 +253,21 @@ class SupabaseAdapter:
                 
         return len(res.data) > 0
 
-    def get_all_students(self):
-        res = self.client.table("students").select("*").order("name", desc=False).execute()
-        return res.data
+    def get_all_students(self, page=1, limit=50, search="", sort="name", order="asc"):
+        query = self.client.table("students").select("*", count="exact")
+        
+        if search:
+            query = query.or_(f"name.ilike.%{search}%,email.ilike.%{search}%,roll_number.ilike.%{search}%,department.ilike.%{search}%")
+            
+        desc = (order == "desc")
+        query = query.order(sort, desc=desc)
+        
+        start = (page - 1) * limit
+        end = start + limit - 1
+        query = query.range(start, end)
+        
+        res = query.execute()
+        return res.data, res.count
 
     def add_student(self, roll_number, name, email, department, year_of_study, cgpa):
         try:

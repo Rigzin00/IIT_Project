@@ -1,13 +1,28 @@
 from flask import Blueprint, request, jsonify
 from database import db
+from utils.helpers import build_pagination_metadata
 
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route("/students", methods=["GET", "POST"])
 def admin_students():
     if request.method == "GET":
-        students = db.get_all_students()
-        return jsonify({"success": True, "students": students})
+        try:
+            page = max(int(request.args.get('page', 1)), 1)
+            limit = min(max(int(request.args.get('limit', 50)), 1), 100)
+        except ValueError:
+            page, limit = 1, 50
+            
+        search = request.args.get('search', '').strip()
+        sort = request.args.get('sort', 'name').strip()
+        order = request.args.get('order', 'asc').strip()
+
+        students, total = db.get_all_students(page, limit, search, sort, order)
+        return jsonify({
+            "success": True,
+            "students": students,
+            "pagination": build_pagination_metadata(total, page, limit)
+        })
 
     elif request.method == "POST":
         data = request.get_json() or {}

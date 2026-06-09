@@ -1,3 +1,4 @@
+import type { PaginationMetadata } from './types';
 const BASE = 'http://127.0.0.1:5000';
 
 export interface ProfCourse {
@@ -17,7 +18,7 @@ export interface StudentRegistration {
   cgpa: number; completed_courses_ids: string[]; completed_courses_list: string[];
 }
 export interface RegistrationsResponse {
-  success: boolean; message?: string; registrations: StudentRegistration[];
+  success: boolean; message?: string; registrations: StudentRegistration[]; pagination?: PaginationMetadata;
 }
 
 export async function getProfessorDashboard(professor_id: string): Promise<ProfDashboardResponse> {
@@ -25,8 +26,9 @@ export async function getProfessorDashboard(professor_id: string): Promise<ProfD
   return res.json();
 }
 
-export async function getProfessorRegistrations(professor_id: string): Promise<RegistrationsResponse> {
-  const res = await fetch(`${BASE}/api/professor/registrations?professor_id=${encodeURIComponent(professor_id)}`);
+export async function getProfessorRegistrations(professor_id: string, page=1, limit=50, search='', sort='id', order='desc'): Promise<RegistrationsResponse> {
+  const params = new URLSearchParams({ professor_id, page: String(page), limit: String(limit), search, sort, order });
+  const res = await fetch(`${BASE}/api/professor/registrations?${params.toString()}`);
   return res.json();
 }
 

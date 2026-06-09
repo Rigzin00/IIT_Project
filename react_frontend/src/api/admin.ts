@@ -1,3 +1,4 @@
+import type { PaginationMetadata } from './types';
 const BASE = 'http://127.0.0.1:5000';
 
 export interface Student {
@@ -5,11 +6,12 @@ export interface Student {
   department: string; year_of_study: number; cgpa: number;
   is_approved_for_login: number; created_at: string;
 }
-export interface StudentsResponse { success: boolean; students: Student[]; message?: string; }
+export interface StudentsResponse { success: boolean; students: Student[]; pagination?: PaginationMetadata; message?: string; }
 export interface PolicyResponse { success: boolean; min_eligible_year: number; max_eligible_year: number; }
 
-export async function getAdminStudents(): Promise<StudentsResponse> {
-  const res = await fetch(`${BASE}/api/admin/students`);
+export async function getAdminStudents(page=1, limit=50, search='', sort='name', order='asc'): Promise<StudentsResponse> {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit), search, sort, order });
+  const res = await fetch(`${BASE}/api/admin/students?${params.toString()}`);
   return res.json();
 }
 

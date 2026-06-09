@@ -1,19 +1,16 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronUp, ChevronDown, CheckCircle, XCircle, Star, Download, RefreshCw } from 'lucide-react';
 import { getProfessorRegistrations, profAction, profGrade } from '../../api/professor';
 import type { StudentRegistration } from '../../api/professor';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import type { ProfessorUser } from '../../api/auth';
-
-type SortKey = 'student_name' | 'cgpa' | 'year_of_study';
-type SortDir = 'asc' | 'desc';
+import Pagination from '../../components/Pagination';
 
 const GRADES = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'];
 
 /* ── tiny reusable style strings ── */
 const ghost = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold text-[#555555] bg-white border border-[#E5E7EB] rounded hover:bg-[#F5F5F5] hover:border-[#D1D5DB] transition-colors duration-100 cursor-pointer whitespace-nowrap';
-const selectCls = 'bg-white border border-[#E5E7EB] rounded px-2.5 py-1.5 text-[12.5px] text-[#1F2937] outline-none focus:border-[#C41212] transition-colors appearance-none cursor-pointer';
 
 export default function ProfessorRegistrations() {
   const { user } = useAuth();
@@ -26,59 +23,52 @@ export default function ProfessorRegistrations() {
   const [gradeInputs, setGradeInputs] = useState<Record<string, string>>({});
   const [exportLoading, setExportLoading] = useState<'csv' | 'xlsx' | null>(null);
 
-  const [yearFilter, setYearFilter] = useState('all');
-  const [deptFilter, setDeptFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [courseFilter, setCourseFilter] = useState('all');
-  const [doneCourseFilter, setDoneCourseFilter] = useState('all');
-  const [cgpaCutoff, setCgpaCutoff] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('student_name');
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(50);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortKey, setSortKey] = useState<string>('id');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const fetchData = () => {
     if (!profUser?.id) return;
     setLoading(true);
-    getProfessorRegistrations(profUser.id)
+    getProfessorRegistrations(profUser.id, page, limit, search, sortKey, sortDir)
       .then(res => {
-        if (res.success) setRegs(res.registrations);
+        if (res.success) {
+          setRegs(res.registrations);
+          if (res.pagination) {
+            setTotal(res.pagination.total);
+            setTotalPages(res.pagination.total_pages);
+            setPage(res.pagination.page);
+          }
+        }
         else showToast('error', res.message || 'Failed to load.');
       })
       .catch(() => showToast('error', 'Cannot reach server.'))
       .finally(() => setLoading(false));
   };
 
-  useEffect(fetchData, [profUser?.id]);
+  useEffect(() => {
+    const delay = setTimeout(() => fetchData(), 300);
+    return () => clearTimeout(delay);
+  }, [profUser?.id, page, limit, search, sortKey, sortDir]);
 
-  const departments = useMemo(() => [...new Set(regs.map(r => r.student_department))].sort(), [regs]);
-  const courses = useMemo(() => [...new Set(regs.map(r => r.course_id))].sort(), [regs]);
-  const doneCourses = useMemo(() => [...new Set(regs.flatMap(r => r.completed_courses_ids))].sort(), [regs]);
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    setPage(1);
+  };
 
-  const filtered = useMemo(() => {
-    let out = [...regs];
-    if (yearFilter !== 'all') out = out.filter(r => r.year_of_study === Number(yearFilter));
-    if (deptFilter !== 'all') out = out.filter(r => r.student_department === deptFilter);
-    if (statusFilter !== 'all') out = out.filter(r => r.status === statusFilter);
-    if (courseFilter !== 'all') out = out.filter(r => r.course_id === courseFilter);
-    if (doneCourseFilter !== 'all') out = out.filter(r => r.completed_courses_ids.includes(doneCourseFilter));
-    if (cgpaCutoff) out = out.filter(r => r.cgpa >= parseFloat(cgpaCutoff));
-    out.sort((a, b) => {
-      const av = sortKey === 'student_name' ? a.student_name : sortKey === 'cgpa' ? a.cgpa : a.year_of_study;
-      const bv = sortKey === 'student_name' ? b.student_name : sortKey === 'cgpa' ? b.cgpa : b.year_of_study;
-      if (typeof av === 'string') return sortDir === 'asc' ? av.localeCompare(bv as string) : (bv as string).localeCompare(av);
-      return sortDir === 'asc' ? (av as number) - (bv as number) : (bv as number) - (av as number);
-    });
-    return out;
-  }, [regs, yearFilter, deptFilter, statusFilter, courseFilter, doneCourseFilter, cgpaCutoff, sortKey, sortDir]);
-
-  const toggleSort = (key: SortKey) => {
+  const toggleSort = (key: string) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     else { setSortKey(key); setSortDir('asc'); }
   };
 
-  const SortIcon = ({ k }: { k: SortKey }) =>
+  const SortIcon = ({ k }: { k: string }) =>
     sortKey === k
-      ? (sortDir === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)
-      : <ChevronUp size={11} className="opacity-20" />;
+      ? (sortDir === 'asc' ? <ChevronUp size={11} className="inline ml-1" /> : <ChevronDown size={11} className="inline ml-1" />)
+      : <ChevronUp size={11} className="opacity-20 inline ml-1" />;
 
   const handleAction = async (regId: string, status: 'approved' | 'rejected') => {
     setActionLoading(regId + status);
@@ -114,32 +104,11 @@ export default function ProfessorRegistrations() {
       const params = new URLSearchParams({ role: 'professor', professor_id: profUser.id, format: fmt });
       if (user?.email) params.set('email', user.email);
       
-      if (yearFilter !== 'all') params.set('year', yearFilter);
-      if (deptFilter !== 'all') params.set('department', deptFilter);
-      if (cgpaCutoff) params.set('cgpa_cutoff', cgpaCutoff);
-      if (courseFilter !== 'all') params.set('wants_course', courseFilter);
-      if (doneCourseFilter !== 'all') params.set('has_done_course', doneCourseFilter);
-      
       const response = await fetch(`http://127.0.0.1:5000/api/export?${params.toString()}`);
-      if (!response.ok) {
-        let errMsg = 'Failed to download data';
-        try {
-          const errData = await response.json();
-          if (errData.message) errMsg = errData.message;
-        } catch (e) {
-          errMsg = `Export failed: ${response.statusText}`;
-        }
-        throw new Error(errMsg);
-      }
+      if (!response.ok) throw new Error('Failed to download data');
 
       const blob = await response.blob();
-      let filename = `academic_portal_students.${fmt}`;
-      const contentDisposition = response.headers.get('Content-Disposition');
-      if (contentDisposition && contentDisposition.includes('filename=')) {
-        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
-        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-      }
-
+      let filename = `registrations.${fmt}`;
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.style.display = 'none';
@@ -158,12 +127,7 @@ export default function ProfessorRegistrations() {
     }
   };
 
-  const resetFilters = () => {
-    setYearFilter('all'); setDeptFilter('all'); setStatusFilter('all');
-    setCourseFilter('all'); setDoneCourseFilter('all'); setCgpaCutoff('');
-  };
-
-  if (loading) return (
+  if (loading && regs.length === 0) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, background: '#F5F5F5' }}>
       <div style={{ width: 28, height: 28, borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: '#C41212', animation: 'spin 0.6s linear infinite' }} />
     </div>
@@ -171,10 +135,8 @@ export default function ProfessorRegistrations() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#F5F5F5', fontFamily: "'Open Sans','Helvetica Neue',Helvetica,Arial,sans-serif", color: '#555555' }}>
-
       <div style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '0 32px' }}>
         <div style={{ padding: '20px 0 18px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 4, height: 36, background: '#C41212', borderRadius: 2, flexShrink: 0 }} />
             <div>
@@ -183,258 +145,122 @@ export default function ProfessorRegistrations() {
               </div>
               <div style={{ width: 24, height: 2, background: '#C41212', borderRadius: 1, marginTop: 4 }} />
               <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 3 }}>
-                {filtered.length} of {regs.length} students shown
+                {total} total registrations
               </div>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: 8, paddingTop: 2 }}>
-            <button id="refresh-regs" onClick={fetchData} className={ghost}>
+            <div style={{ marginRight: 16 }}>
+              <input
+                type="text"
+                placeholder="Search by name, roll, course..."
+                value={search}
+                onChange={e => handleSearch(e.target.value)}
+                style={{ width: 250, padding: '6px 12px', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 4, outline: 'none' }}
+              />
+            </div>
+            <button onClick={() => fetchData()} className={ghost}>
               <RefreshCw size={12} /> Refresh
             </button>
-            <button id="export-csv" onClick={() => handleExport('csv')} className={ghost} disabled={!!exportLoading} style={{ opacity: exportLoading ? 0.6 : 1, cursor: exportLoading ? 'not-allowed' : 'pointer' }}>
-              {exportLoading === 'csv' ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #E5E7EB', borderTopColor: '#9CA3AF', animation: 'spin 0.6s linear infinite' }} /> : <Download size={12} />} 
-              {exportLoading === 'csv' ? 'Preparing CSV...' : 'CSV'}
+            <button onClick={() => handleExport('csv')} className={ghost} disabled={!!exportLoading}>
+              <Download size={12} /> CSV
             </button>
-            <button
-              id="export-xlsx"
-              onClick={() => handleExport('xlsx')}
-              disabled={!!exportLoading}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: '#fff', background: '#C41212', border: 'none', borderRadius: 4, cursor: exportLoading ? 'not-allowed' : 'pointer', transition: 'background 150ms', opacity: exportLoading ? 0.6 : 1 }}
-              onMouseOver={e => !exportLoading && (e.currentTarget.style.background = '#9A0F0F')}
-              onMouseOut={e => !exportLoading && (e.currentTarget.style.background = '#C41212')}
-            >
-              {exportLoading === 'xlsx' ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.6s linear infinite' }} /> : <Download size={12} />}
-              {exportLoading === 'xlsx' ? 'Preparing XLSX...' : 'XLSX'}
+            <button onClick={() => handleExport('xlsx')} disabled={!!exportLoading} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', fontSize: 12, fontWeight: 700, color: '#fff', background: '#C41212', border: 'none', borderRadius: 4, cursor: 'pointer' }}>
+              <Download size={12} /> XLSX
             </button>
           </div>
         </div>
       </div>
 
       <div style={{ padding: '24px 32px 40px' }}>
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, padding: '10px 14px', marginBottom: 16 }}>
-          <select id="filter-year" className={selectCls} value={yearFilter} onChange={e => setYearFilter(e.target.value)}>
-            <option value="all">All Years</option>
-            {[1, 2, 3, 4].map(y => <option key={y} value={y}>Year {y}</option>)}
-          </select>
-          <select id="filter-dept" className={selectCls} value={deptFilter} onChange={e => setDeptFilter(e.target.value)}>
-            <option value="all">All Departments</option>
-            {departments.map(d => <option key={d} value={d}>{d}</option>)}
-          </select>
-          <select id="filter-status" className={selectCls} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="all">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <select id="filter-course" className={selectCls} value={courseFilter} onChange={e => setCourseFilter(e.target.value)}>
-            <option value="all">All Courses</option>
-            {courses.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <select id="filter-done-course" className={selectCls} value={doneCourseFilter} onChange={e => setDoneCourseFilter(e.target.value)}>
-            <option value="all">Has Done: Any</option>
-            {doneCourses.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <input
-            id="filter-cgpa"
-            type="number" min="0" max="10" step="0.1"
-            placeholder="Min CGPA"
-            value={cgpaCutoff}
-            onChange={e => setCgpaCutoff(e.target.value)}
-            style={{ width: 90, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 4, padding: '6px 10px', fontSize: 12.5, color: '#1F2937', outline: 'none' }}
-            onFocus={e => (e.currentTarget.style.borderColor = '#C41212')}
-            onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-          />
-          <button
-            id="clear-filters"
-            onClick={resetFilters}
-            style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', transition: 'color 150ms' }}
-            onMouseOver={e => (e.currentTarget.style.color = '#C41212')}
-            onMouseOut={e => (e.currentTarget.style.color = '#9CA3AF')}
-          >
-            Clear filters
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.9px' }}>Sort by</span>
-          {(['student_name', 'cgpa', 'year_of_study'] as SortKey[]).map(k => (
-            <button
-              key={k}
-              onClick={() => toggleSort(k)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                padding: '3px 10px', fontSize: 11, fontWeight: 700, borderRadius: 4,
-                border: sortKey === k ? 'none' : '1px solid #E5E7EB',
-                background: sortKey === k ? '#C41212' : '#fff',
-                color: sortKey === k ? '#fff' : '#555555',
-                cursor: 'pointer', transition: 'all 150ms',
-              }}
-            >
-              {k === 'student_name' ? 'Name' : k === 'cgpa' ? 'CGPA' : 'Year'}
-              <SortIcon k={k} />
-            </button>
-          ))}
-        </div>
-
         <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, overflow: 'hidden' }}>
-          {filtered.length === 0 ? (
+          {regs.length === 0 && !loading ? (
             <div style={{ textAlign: 'center', padding: '48px 24px', fontSize: 13, color: '#9CA3AF' }}>
-              No registrations match current filters.
+              No registrations found.
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'Open Sans',sans-serif", fontSize: 13, whiteSpace: 'nowrap' }}>
                 <thead>
                   <tr style={{ background: '#FAFAFA' }}>
-                    {['Student', 'Course', 'Year / Dept', 'CGPA', 'Done Courses', 'Status', 'Grade', 'Actions'].map(h => (
-                      <th
-                        key={h}
-                        onClick={h === 'CGPA' ? () => toggleSort('cgpa') : undefined}
-                        style={{
-                          textAlign: 'left', padding: '10px 16px',
-                          fontSize: 10, fontWeight: 700, color: '#9CA3AF',
-                          textTransform: 'uppercase', letterSpacing: '0.7px',
-                          borderBottom: '1px solid #E5E7EB',
-                          cursor: h === 'CGPA' ? 'pointer' : 'default',
-                        }}
-                      >
-                        {h === 'CGPA'
-                          ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>CGPA <SortIcon k="cgpa" /></span>
-                          : h
-                        }
-                      </th>
-                    ))}
+                    <th onClick={() => toggleSort('student_name')} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid #E5E7EB' }}>Student <SortIcon k="student_name" /></th>
+                    <th onClick={() => toggleSort('course_id')} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid #E5E7EB' }}>Course <SortIcon k="course_id" /></th>
+                    <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', borderBottom: '1px solid #E5E7EB' }}>Year / Dept</th>
+                    <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', borderBottom: '1px solid #E5E7EB' }}>CGPA</th>
+                    <th onClick={() => toggleSort('status')} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid #E5E7EB' }}>Status <SortIcon k="status" /></th>
+                    <th onClick={() => toggleSort('grade')} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid #E5E7EB' }}>Grade <SortIcon k="grade" /></th>
+                    <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', borderBottom: '1px solid #E5E7EB' }}>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filtered.map(r => {
+                <tbody className={loading ? 'opacity-50 pointer-events-none' : ''}>
+                  {regs.map(r => {
                     const isActing = actionLoading === r.registration_id + 'approved' || actionLoading === r.registration_id + 'rejected';
                     const isGrading = actionLoading === r.registration_id + 'grade';
                     return (
-                      <tr
-                        key={r.registration_id}
-                        style={{ borderBottom: '1px solid #E5E7EB' }}
-                        onMouseOver={e => (e.currentTarget.style.background = '#FAFAFA')}
-                        onMouseOut={e => (e.currentTarget.style.background = '#fff')}
-                      >
+                      <tr key={r.registration_id} style={{ borderBottom: '1px solid #E5E7EB' }} onMouseOver={e => (e.currentTarget.style.background = '#FAFAFA')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1F2937', lineHeight: 1.3 }}>{r.student_name}</div>
-                          <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{r.roll_number}</div>
-                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>{r.student_email}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1F2937' }}>{r.student_name}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>{r.roll_number}</div>
                         </td>
-
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           <div style={{ fontSize: 13, fontWeight: 600, color: '#1F2937' }}>{r.course_name}</div>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#C41212', textTransform: 'uppercase', letterSpacing: '0.8px', marginTop: 2 }}>
-                            {r.course_id} · {r.credits} cr
-                          </div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#C41212' }}>{r.course_id}</div>
                         </td>
-
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
-                          <div className="flex flex-col items-start gap-1">
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F9FAFB] border border-[#E5E7EB] text-[#4B5563]">Yr {r.year_of_study}</span>
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F9FAFB] border border-[#E5E7EB] text-[#4B5563]">{r.student_department}</span>
-                          </div>
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F9FAFB] border border-[#E5E7EB] text-[#4B5563]">Yr {r.year_of_study} · {r.student_department}</span>
                         </td>
-
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937' }}>{r.cgpa.toFixed(2)}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937' }}>{r.cgpa?.toFixed(2)}</span>
                         </td>
-
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
-                          {r.completed_courses_list.length === 0 ? (
-                            <span style={{ fontSize: 11, color: '#9CA3AF' }}>—</span>
-                          ) : (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 160 }}>
-                              {r.completed_courses_list.map((c, i) => (
-                                <span key={i} style={{ fontSize: 10, fontWeight: 600, color: '#555555', background: '#F5F5F5', border: '1px solid #E5E7EB', borderRadius: 3, padding: '1px 6px' }}>
-                                  {c}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                          <span style={{ fontSize: 12, fontWeight: 600, color: '#4B5563' }}>{r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span>
                         </td>
-
-                        <td className="p-3 align-middle">
-                          <span className="text-[12px] font-semibold text-[#4B5563]">
-                            {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                          </span>
-                        </td>
-
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           {r.grade ? (
                             <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937' }}>{r.grade}</span>
                           ) : r.status === 'approved' ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <select
-                                id={`grade-select-${r.registration_id}`}
-                                value={gradeInputs[r.registration_id] || ''}
-                                onChange={e => setGradeInputs(prev => ({ ...prev, [r.registration_id]: e.target.value }))}
-                                style={{ width: 58, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 4, padding: '4px 6px', fontSize: 12, fontWeight: 600, color: '#1F2937', outline: 'none', cursor: 'pointer', appearance: 'none' }}
-                                onFocus={e => (e.currentTarget.style.borderColor = '#C41212')}
-                                onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-                              >
+                              <select value={gradeInputs[r.registration_id] || ''} onChange={e => setGradeInputs(prev => ({ ...prev, [r.registration_id]: e.target.value }))} style={{ width: 58, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 4, padding: '4px 6px', fontSize: 12 }}>
                                 <option value="">—</option>
                                 {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
                               </select>
-                              <button
-                                id={`grade-save-${r.registration_id}`}
-                                title="Save Grade"
-                                onClick={() => handleGrade(r.registration_id)}
-                                disabled={isGrading}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, border: '1px solid #E5E7EB', borderRadius: 4, background: '#fff', color: '#9CA3AF', cursor: 'pointer', transition: 'all 150ms' }}
-                                onMouseOver={e => { e.currentTarget.style.borderColor = '#C41212'; e.currentTarget.style.color = '#C41212'; }}
-                                onMouseOut={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#9CA3AF'; }}
-                              >
-                                {isGrading
-                                  ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #E5E7EB', borderTopColor: '#C41212', animation: 'spin 0.6s linear infinite' }} />
-                                  : <Star size={12} />
-                                }
+                              <button onClick={() => handleGrade(r.registration_id)} disabled={isGrading} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, border: '1px solid #E5E7EB', borderRadius: 4 }}>
+                                {isGrading ? <div style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #E5E7EB', borderTopColor: '#C41212', animation: 'spin 0.6s linear infinite' }} /> : <Star size={12} />}
                               </button>
                             </div>
-                          ) : (
-                            <span style={{ fontSize: 12, color: '#9CA3AF' }}>—</span>
-                          )}
+                          ) : <span style={{ fontSize: 12, color: '#9CA3AF' }}>—</span>}
                         </td>
-
-                        <td className="p-3 align-middle">
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           {r.status === 'pending' ? (
                             <div className="flex gap-1.5 items-center">
-                              <button
-                                className="inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold text-[#1F2937] bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] hover:border-[#D1D5DB] rounded shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                onClick={() => handleAction(r.registration_id, 'approved')}
-                                disabled={!!isActing}
-                                id={`approve-${r.registration_id}`}
-                              >
-                                {isActing ? <div className="mr-1" style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid #E5E7EB', borderTopColor: '#9CA3AF', animation: 'spin 0.6s linear infinite' }} /> : <><CheckCircle size={12} className="mr-1 opacity-60" /> Approve</>}
+                              <button className="inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold text-[#1F2937] bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] rounded" onClick={() => handleAction(r.registration_id, 'approved')} disabled={!!isActing}>
+                                <CheckCircle size={12} className="mr-1 opacity-60" /> Approve
                               </button>
-                              <button
-                                className="inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold text-[#6B7280] bg-transparent hover:bg-[#F3F4F6] hover:text-[#1F2937] rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                onClick={() => handleAction(r.registration_id, 'rejected')}
-                                disabled={!!isActing}
-                                id={`reject-${r.registration_id}`}
-                              >
+                              <button className="inline-flex items-center justify-center px-2.5 py-1 text-[11px] font-bold text-[#6B7280] hover:bg-[#F3F4F6] rounded" onClick={() => handleAction(r.registration_id, 'rejected')} disabled={!!isActing}>
                                 <XCircle size={12} className="mr-1 opacity-60" /> Reject
                               </button>
                             </div>
-                          ) : (
-                            <span className="text-[#9CA3AF] text-[11px]">—</span>
-                          )}
+                          ) : <span className="text-[#9CA3AF] text-[11px]">—</span>}
                         </td>
-
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
+              <Pagination 
+                page={page} 
+                limit={limit} 
+                total={total} 
+                totalPages={totalPages} 
+                onPageChange={setPage} 
+                onLimitChange={setLimit} 
+                isLoading={loading} 
+              />
             </div>
           )}
         </div>
       </div>
-
-      {/* spin keyframe injected once */}
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

@@ -5,6 +5,8 @@ import type { Student } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/Modal';
 import Spinner from '../../components/Spinner';
+import Pagination from '../../components/Pagination';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 
 const DEPTS = ['CSE', 'ECE', 'ME', 'EE', 'CE', 'CHE', 'AE'];
 
@@ -13,6 +15,13 @@ export default function AdminStudents() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(50);
+  const [sort, setSort] = useState('name');
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Add modal
   const [showAdd, setShowAdd] = useState(false);
@@ -29,23 +38,45 @@ export default function AdminStudents() {
 
   const fetchStudents = () => {
     setLoading(true);
-    getAdminStudents()
+    getAdminStudents(page, limit, search, sort, order)
       .then(res => {
-        if (res.success) setStudents(res.students);
+        if (res.success) {
+          setStudents(res.students);
+          if (res.pagination) {
+            setTotal(res.pagination.total);
+            setTotalPages(res.pagination.total_pages);
+            setPage(res.pagination.page); // ensure sync
+          }
+        }
         else showToast('error', res.message || 'Failed to load students.');
       })
       .catch(() => showToast('error', 'Cannot reach server.'))
       .finally(() => setLoading(false));
   };
 
-  useEffect(fetchStudents, []);
+  useEffect(() => {
+    const delay = setTimeout(() => fetchStudents(), 300);
+    return () => clearTimeout(delay);
+  }, [page, limit, sort, order, search]);
 
-  const filtered = students.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.roll_number.toLowerCase().includes(search.toLowerCase()) ||
-    s.email.toLowerCase().includes(search.toLowerCase()) ||
-    s.department.toLowerCase().includes(search.toLowerCase())
-  );
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    setPage(1); // reset to page 1 on new search
+  };
+
+  const handleSort = (col: string) => {
+    if (sort === col) {
+      setOrder(order === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSort(col);
+      setOrder('asc');
+    }
+  };
+
+  const SortIcon = ({ col }: { col: string }) => {
+    if (sort !== col) return null;
+    return order === 'asc' ? <ArrowUp size={12} className="inline ml-1" /> : <ArrowDown size={12} className="inline ml-1" />;
+  };
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +137,7 @@ export default function AdminStudents() {
               </div>
               <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
               <div className="text-[12px] text-[#9CA3AF] mt-0.5">
-                {students.length} total students registered
+                {total} total students registered
               </div>
             </div>
           </div>
@@ -127,10 +158,9 @@ export default function AdminStudents() {
               className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 pl-9 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all"
               placeholder="Search by name, roll, email, dept…"
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => handleSearch(e.target.value)}
             />
           </div>
-          <span className="text-[12px] text-[#9CA3AF]">{filtered.length} shown</span>
         </div>
 
         {/* Table */}
@@ -139,7 +169,7 @@ export default function AdminStudents() {
             <div className="flex items-center justify-center p-12">
               <Spinner size="lg" />
             </div>
-          ) : filtered.length === 0 ? (
+          ) : students.length === 0 ? (
             <div className="text-center py-10 text-[13px] text-[#9CA3AF]">
               No students found.
             </div>
@@ -148,15 +178,29 @@ export default function AdminStudents() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-[#FAFAFA]">
-                    {['Student', 'Roll No.', 'Department', 'Year', 'CGPA', 'Login', ''].map((h, i) => (
-                      <th key={i} className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]">
-                        {h}
-                      </th>
-                    ))}
+                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('name')}>
+                      Student <SortIcon col="name" />
+                    </th>
+                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('roll_number')}>
+                      Roll No. <SortIcon col="roll_number" />
+                    </th>
+                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('department')}>
+                      Department <SortIcon col="department" />
+                    </th>
+                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('year_of_study')}>
+                      Year <SortIcon col="year_of_study" />
+                    </th>
+                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('cgpa')}>
+                      CGPA <SortIcon col="cgpa" />
+                    </th>
+                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('is_approved_for_login')}>
+                      Login <SortIcon col="is_approved_for_login" />
+                    </th>
+                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]"></th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filtered.map(s => (
+                <tbody className={loading ? 'opacity-50 pointer-events-none' : ''}>
+                  {students.map(s => (
                     <tr key={s.id} className="hover:bg-[#FAFAFA] transition-colors duration-200">
                       <td className="px-4 py-3 border-b border-[#E5E7EB]">
                         <div className="text-[13px] font-semibold text-[#1F2937]">{s.name}</div>
@@ -203,6 +247,15 @@ export default function AdminStudents() {
                   ))}
                 </tbody>
               </table>
+              <Pagination 
+                page={page} 
+                limit={limit} 
+                total={total} 
+                totalPages={totalPages} 
+                onPageChange={setPage} 
+                onLimitChange={setLimit} 
+                isLoading={loading} 
+              />
             </div>
           )}
         </div>

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from database import db
+from utils.helpers import build_pagination_metadata
 
 professor_bp = Blueprint('professor', __name__)
 
@@ -24,7 +25,17 @@ def professor_registrations():
     if not prof_id:
         return jsonify({"success": False, "message": "Professor ID is required!"}), 400
 
-    regs = db.get_professor_registrations(prof_id)
+    try:
+        page = max(int(request.args.get('page', 1)), 1)
+        limit = min(max(int(request.args.get('limit', 50)), 1), 100)
+    except ValueError:
+        page, limit = 1, 50
+        
+    search = request.args.get('search', '').strip()
+    sort = request.args.get('sort', 'id').strip()
+    order = request.args.get('order', 'asc').strip()
+
+    regs, total = db.get_professor_registrations(prof_id, page, limit, search, sort, order)
     
     # We will also pull all historical completed courses to let professor check "has done course C"
     all_completions = db.get_all_completed_courses_grouped()
@@ -42,7 +53,8 @@ def professor_registrations():
 
     return jsonify({
         "success": True,
-        "registrations": regs
+        "registrations": regs,
+        "pagination": build_pagination_metadata(total, page, limit)
     })
 
 @professor_bp.route("/action", methods=["POST"])

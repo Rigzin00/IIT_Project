@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from database import db
+from utils.helpers import build_pagination_metadata
 from utils.helpers import is_student_eligible
 
 student_bp = Blueprint('student', __name__)
@@ -34,10 +35,21 @@ def student_profile():
 
 @student_bp.route("/courses", methods=["GET"])
 def student_courses():
-    courses = db.get_courses_for_pre_registration()
+    try:
+        page = max(int(request.args.get('page', 1)), 1)
+        limit = min(max(int(request.args.get('limit', 50)), 1), 100)
+    except ValueError:
+        page, limit = 1, 50
+        
+    search = request.args.get('search', '').strip()
+    sort = request.args.get('sort', 'name').strip()
+    order = request.args.get('order', 'asc').strip()
+
+    courses, total = db.get_courses_for_pre_registration(page, limit, search, sort, order)
     return jsonify({
-        "success": True,
-        "courses": courses
+        "success": True, 
+        "courses": courses,
+        "pagination": build_pagination_metadata(total, page, limit)
     })
 
 @student_bp.route("/register", methods=["POST"])
