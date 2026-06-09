@@ -1,5 +1,6 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 
 # Import Blueprints
@@ -23,6 +24,35 @@ app.register_blueprint(export_bp, url_prefix="/api/export")
 @app.route("/")
 def serve_index():
     return app.send_static_file("index.html")
+
+# --- Error Handlers ---
+@app.errorhandler(404)
+def not_found(e):
+    if request.path.startswith("/api/"):
+        return jsonify({"success": False, "message": "API Endpoint not found!"}), 404
+    # For SPA client-side routing, fallback to index.html
+    return app.send_static_file("index.html")
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({"success": False, "message": "Bad Request!"}), 400
+
+@app.errorhandler(405)
+def method_not_allowed(e):
+    return jsonify({"success": False, "message": "Method Not Allowed!"}), 405
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return jsonify({"success": False, "message": "Internal Server Error!"}), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Pass through HTTP errors
+    if isinstance(e, HTTPException):
+        return e
+    # Now you're handling non-HTTP exceptions only
+    print(f"Unhandled Exception: {e}")
+    return jsonify({"success": False, "message": "An unexpected server error occurred."}), 500
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
