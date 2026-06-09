@@ -3,7 +3,7 @@ import { GraduationCap, ShieldCheck, UserCog, Eye, EyeOff, AlertCircle } from 'l
 import { login } from '../api/auth';
 import type { Role } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
-import Spinner from '../components/Spinner';
+
 
 const ROLES: { id: Role; label: string; icon: typeof GraduationCap; hint: string }[] = [
   { id: 'student', label: 'Student', icon: GraduationCap, hint: 'e.g. rigzin.angdu@institute.edu' },

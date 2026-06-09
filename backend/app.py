@@ -9,7 +9,7 @@ from routes.professor import professor_bp
 from routes.admin import admin_bp
 from routes.export import export_bp
 
-app = Flask(__name__, static_folder="../frontend", static_url_path="")
+app = Flask(__name__, static_folder="../react_frontend/dist", static_url_path="")
 CORS(app)  # Enable Cross-Origin Resource Sharing
 
 # Register Blueprints

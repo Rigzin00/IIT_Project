@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import type { Role, AdminUser, ProfessorUser, StudentUser } from '../api/auth';
 
 type AnyUser = AdminUser | ProfessorUser | StudentUser;
@@ -22,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('ap_session');
+      const saved = sessionStorage.getItem('ap_session');
       if (saved) {
         const { user, role } = JSON.parse(saved);
         setUser(user); setRole(role);
@@ -32,12 +33,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (u: AnyUser, r: Role) => {
     setUser(u); setRole(r);
-    localStorage.setItem('ap_session', JSON.stringify({ user: u, role: r }));
+    sessionStorage.setItem('ap_session', JSON.stringify({ user: u, role: r }));
   };
 
   const logout = () => {
     setUser(null); setRole(null);
-    localStorage.removeItem('ap_session');
+    sessionStorage.removeItem('ap_session');
   };
 
   return (
