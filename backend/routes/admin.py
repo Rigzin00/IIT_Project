@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database import db
 from utils.helpers import build_pagination_metadata
+from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -56,8 +57,8 @@ def admin_policy():
         settings = db.get_system_settings()
         return jsonify({
             "success": True,
-            "min_eligible_year": int(settings.get("min_eligible_year", 3)),
-            "max_eligible_year": int(settings.get("max_eligible_year", 4))
+            "min_eligible_year": int(settings.get("min_eligible_year", 2022)),
+            "max_eligible_year": int(settings.get("max_eligible_year", 2025))
         })
     elif request.method == "POST":
         data = request.get_json() or {}
@@ -72,8 +73,11 @@ def admin_policy():
         except (TypeError, ValueError):
             return jsonify({"success": False, "message": "Batch years must be valid numbers!"}), 400
 
-        if not (2000 <= min_y <= 2099) or not (2000 <= max_y <= 2099) or min_y > max_y:
-            return jsonify({"success": False, "message": "Invalid batch year range. Both must be between 2000–2099 and Min ≤ Max."}), 400
+        current_year = datetime.now().year
+        allowed_min = current_year - 20
+        allowed_max = current_year + 20
+        if not (allowed_min <= min_y <= allowed_max) or not (allowed_min <= max_y <= allowed_max) or min_y > max_y:
+            return jsonify({"success": False, "message": f"Invalid batch year range. Both must be between {allowed_min}–{allowed_max} and Min ≤ Max."}), 400
 
         db.update_system_settings(min_y, max_y)
         return jsonify({"success": True, "message": "Registration eligibility policy updated successfully!"})

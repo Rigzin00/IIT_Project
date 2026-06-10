@@ -4,8 +4,10 @@ import { getPolicy, setPolicy } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/Spinner';
 
-// Batch years shown in dropdowns (2019 – 2030)
-const BATCH_YEARS = Array.from({ length: 12 }, (_, i) => 2019 + i);
+// Generate batch year options dynamically: current year ± 10
+// This prevents future maintenance — no hardcoded year lists to update.
+const currentYear = new Date().getFullYear();
+const BATCH_YEARS = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
 export default function AdminPolicy() {
   const { showToast } = useToast();
@@ -92,12 +94,12 @@ export default function AdminPolicy() {
           <div className="flex gap-3 mb-5">
             <div className="flex-1 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md py-3 text-center">
               <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">{minYear}</div>
-              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Min Batch Year</div>
+              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Minimum Eligible Batch</div>
             </div>
             <div className="flex items-center text-[#9CA3AF] text-[18px]">→</div>
             <div className="flex-1 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md py-3 text-center">
               <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">{maxYear}</div>
-              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Max Batch Year</div>
+              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Maximum Eligible Batch</div>
             </div>
           </div>
 
@@ -108,7 +110,7 @@ export default function AdminPolicy() {
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
                 <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-min">
-                  Min Batch Year
+                  Minimum Eligible Batch
                 </label>
                 <select
                   id="policy-min"
@@ -121,7 +123,7 @@ export default function AdminPolicy() {
               </div>
               <div>
                 <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-max">
-                  Max Batch Year
+                  Maximum Eligible Batch
                 </label>
                 <select
                   id="policy-max"
