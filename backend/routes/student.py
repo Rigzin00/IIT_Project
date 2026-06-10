@@ -97,9 +97,15 @@ def self_reported_courses():
         course_code  = data.get("course_code", "").strip()
         course_name  = data.get("course_name", "").strip()
         credits      = data.get("credits")
-        grade        = data.get("grade", "")
-        year         = data.get("year", "")
-        semester     = data.get("semester", "")
+        grade        = data.get("grade") or ""
+        year         = data.get("year") or ""
+        semester     = data.get("semester") or ""
+        proof_url    = data.get("proof_url") or ""
+        
+        grade        = grade.strip()
+        year         = year.strip()
+        semester     = semester.strip()
+        proof_url    = proof_url.strip()
 
         if not student_id or not course_code or not course_name or credits is None:
             return jsonify({"success": False, "message": "student_id, course_code, course_name and credits are required!"}), 400
@@ -109,7 +115,7 @@ def self_reported_courses():
         except (TypeError, ValueError):
             return jsonify({"success": False, "message": "credits must be a number!"}), 400
 
-        success, result = db.add_self_reported_course(student_id, course_code, course_name, credits, grade, year, semester)
+        success, result = db.add_self_reported_course(student_id, course_code, course_name, credits, grade, year, semester, proof_url)
         if success:
             return jsonify({"success": True, "course": result})
         else:
@@ -134,9 +140,15 @@ def self_reported_course_detail(record_id):
         course_code  = data.get("course_code", "").strip()
         course_name  = data.get("course_name", "").strip()
         credits      = data.get("credits")
-        grade        = data.get("grade", "")
-        year         = data.get("year", "")
-        semester     = data.get("semester", "")
+        grade        = data.get("grade") or ""
+        year         = data.get("year") or ""
+        semester     = data.get("semester") or ""
+        proof_url    = data.get("proof_url") or ""
+
+        grade        = grade.strip()
+        year         = year.strip()
+        semester     = semester.strip()
+        proof_url    = proof_url.strip()
 
         if not course_code or not course_name or credits is None:
             return jsonify({"success": False, "message": "course_code, course_name and credits are required!"}), 400
@@ -146,7 +158,7 @@ def self_reported_course_detail(record_id):
         except (TypeError, ValueError):
             return jsonify({"success": False, "message": "credits must be a number!"}), 400
 
-        success, result = db.update_self_reported_course(record_id, student_id, course_code, course_name, credits, grade, year, semester)
+        success, result = db.update_self_reported_course(record_id, student_id, course_code, course_name, credits, grade, year, semester, proof_url)
         if success:
             return jsonify({"success": True, "course": result})
         else:

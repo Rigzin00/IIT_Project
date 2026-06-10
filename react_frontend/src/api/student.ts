@@ -37,6 +37,7 @@ export interface SelfReportedCourse {
   grade: string;
   year: string;
   semester: string;
+  proof_url?: string;
   created_at?: string;
   updated_at?: string;
 }

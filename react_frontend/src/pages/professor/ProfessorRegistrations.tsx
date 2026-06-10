@@ -282,7 +282,7 @@ export default function ProfessorRegistrations() {
                                 <table style={{ borderCollapse: 'collapse', fontSize: 12, width: '100%', maxWidth: 720, background: '#fff', borderRadius: 6, overflow: 'hidden', border: '1px solid #E5E7EB' }}>
                                   <thead>
                                     <tr style={{ background: '#F9FAFB' }}>
-                                      {['Course Code', 'Course Name', 'Credits', 'Grade', 'Semester / Year'].map(h => (
+                                      {['Course Code', 'Course Name', 'Credits', 'Grade', 'Semester / Year', 'Proof'].map(h => (
                                         <th key={h} style={{ textAlign: 'left', padding: '7px 14px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
                                       ))}
                                     </tr>
@@ -295,6 +295,15 @@ export default function ProfessorRegistrations() {
                                         <td style={{ padding: '7px 14px', color: '#555555' }}>{c.credits}</td>
                                         <td style={{ padding: '7px 14px', fontWeight: 700, color: '#1F2937' }}>{c.grade || '—'}</td>
                                         <td style={{ padding: '7px 14px', color: '#6B7280' }}>{[c.semester, c.year].filter(Boolean).join(', ')}</td>
+                                        <td style={{ padding: '7px 14px' }}>
+                                          {c.proof_url ? (
+                                            <a href={c.proof_url} target="_blank" rel="noopener noreferrer" style={{ color: '#2563EB', fontSize: 11, fontWeight: 600, textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}>
+                                              View Proof
+                                            </a>
+                                          ) : (
+                                            <span style={{ color: '#9CA3AF', fontSize: 11, fontStyle: 'italic' }}>None</span>
+                                          )}
+                                        </td>
                                       </tr>
                                     ))}
                                   </tbody>

@@ -41,7 +41,7 @@ export default function StudentDashboard() {
   const [srSaving,  setSrSaving]  = useState(false);
   const [srError,   setSrError]   = useState('');
 
-  const EMPTY_FORM = { id: '', student_id: '', course_code: '', course_name: '', credits: 0, grade: '', year: '', semester: '' };
+  const EMPTY_FORM = { id: '', student_id: '', course_code: '', course_name: '', credits: 0, grade: '', year: '', semester: '', proof_url: '' };
   const [courseForm, setCourseForm] = useState<SelfReportedCourse>(EMPTY_FORM);
   const [isEditingId, setIsEditingId] = useState<string | null>(null);
 
@@ -63,6 +63,7 @@ export default function StudentDashboard() {
           grade: courseForm.grade,
           year: courseForm.year,
           semester: courseForm.semester,
+          proof_url: courseForm.proof_url,
         });
         if (res.success && res.course) {
           setSelfReportedCourses(prev => prev.map(c => c.id === isEditingId ? res.course! : c));
@@ -79,6 +80,7 @@ export default function StudentDashboard() {
           grade: courseForm.grade,
           year: courseForm.year,
           semester: courseForm.semester,
+          proof_url: courseForm.proof_url,
         });
         if (res.success && res.course) {
           setSelfReportedCourses(prev => [...prev, res.course!]);
@@ -407,6 +409,13 @@ export default function StudentDashboard() {
                   <option value="Semester VII">Semester VII</option>
                   <option value="Semester VIII">Semester VIII</option>
                 </select>
+                <input
+                  className="w-full md:w-auto flex-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                  placeholder="Proof (Drive Link) Optional"
+                  name="proof_url"
+                  value={courseForm.proof_url || ''}
+                  onChange={handleFormChange}
+                />
                 <div className="flex justify-end gap-2">
                   {isEditingId && (
                     <button
@@ -436,7 +445,7 @@ export default function StudentDashboard() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-[#FAFAFA]">
-                      {['Course', 'Credits', 'Term', 'Grade', 'Actions'].map(h => (
+                      {['Course', 'Credits', 'Term', 'Grade', 'Proof', 'Actions'].map(h => (
                         <th key={h} className={`px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] ${h === 'Actions' ? 'text-right' : 'text-left'}`}>
                           {h}
                         </th>
@@ -460,6 +469,15 @@ export default function StudentDashboard() {
                           <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>
                             {c.grade}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          {c.proof_url ? (
+                            <a href={c.proof_url} target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline text-[12px] font-semibold">
+                              View Link
+                            </a>
+                          ) : (
+                            <span className="text-[#9CA3AF] text-[12px]">None</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 border-b border-[#E5E7EB] text-right">
                           <button

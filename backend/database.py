@@ -397,7 +397,7 @@ class SupabaseAdapter:
             grouped.setdefault(sid, []).append(row)
         return grouped
 
-    def add_self_reported_course(self, student_id, course_code, course_name, credits, grade, year, semester):
+    def add_self_reported_course(self, student_id, course_code, course_name, credits, grade, year, semester, proof_url=None):
         try:
             res = self.client.table("self_reported_courses").insert({
                 "student_id": student_id,
@@ -407,12 +407,13 @@ class SupabaseAdapter:
                 "grade": grade.strip().upper() if grade else None,
                 "year": year.strip() if year else None,
                 "semester": semester.strip() if semester else None,
+                "proof_url": proof_url.strip() if proof_url else None,
             }).execute()
             return True, res.data[0] if res.data else {}
         except Exception as e:
             return False, str(e)
 
-    def update_self_reported_course(self, record_id, student_id, course_code, course_name, credits, grade, year, semester):
+    def update_self_reported_course(self, record_id, student_id, course_code, course_name, credits, grade, year, semester, proof_url=None):
         try:
             res = self.client.table("self_reported_courses").update({
                 "course_code": course_code.strip().upper(),
@@ -421,6 +422,7 @@ class SupabaseAdapter:
                 "grade": grade.strip().upper() if grade else None,
                 "year": year.strip() if year else None,
                 "semester": semester.strip() if semester else None,
+                "proof_url": proof_url.strip() if proof_url else None,
             }).eq("id", record_id).eq("student_id", student_id).execute()
             return len(res.data) > 0, res.data[0] if res.data else {}
         except Exception as e:

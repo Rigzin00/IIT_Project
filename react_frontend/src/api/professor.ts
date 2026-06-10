@@ -14,6 +14,7 @@ export interface SelfReportedItem {
   id: string; student_id: string;
   course_code: string; course_name: string;
   credits: number; grade: string; year: string; semester: string;
+  proof_url?: string;
 }
 export interface StudentRegistration {
   registration_id: string; status: 'pending' | 'approved' | 'rejected';
