@@ -379,6 +379,50 @@ class SupabaseAdapter:
         res = self.client.table("registrations").select("student_id, course_id, status").in_("student_id", student_ids).execute()
         return res.data
 
+    # ── Self-Reported Courses ──────────────────────────────────────────────────
+
+    def get_self_reported_courses(self, student_id):
+        res = self.client.table("self_reported_courses").select("*").eq("student_id", student_id).order("created_at", desc=False).execute()
+        return res.data
+
+    def add_self_reported_course(self, student_id, course_code, course_name, credits, grade, year, semester):
+        try:
+            res = self.client.table("self_reported_courses").insert({
+                "student_id": student_id,
+                "course_code": course_code.strip().upper(),
+                "course_name": course_name.strip(),
+                "credits": float(credits),
+                "grade": grade.strip().upper() if grade else None,
+                "year": year.strip() if year else None,
+                "semester": semester.strip() if semester else None,
+            }).execute()
+            return True, res.data[0] if res.data else {}
+        except Exception as e:
+            return False, str(e)
+
+    def update_self_reported_course(self, record_id, student_id, course_code, course_name, credits, grade, year, semester):
+        try:
+            res = self.client.table("self_reported_courses").update({
+                "course_code": course_code.strip().upper(),
+                "course_name": course_name.strip(),
+                "credits": float(credits),
+                "grade": grade.strip().upper() if grade else None,
+                "year": year.strip() if year else None,
+                "semester": semester.strip() if semester else None,
+            }).eq("id", record_id).eq("student_id", student_id).execute()
+            return len(res.data) > 0, res.data[0] if res.data else {}
+        except Exception as e:
+            return False, str(e)
+
+    def delete_self_reported_course(self, record_id, student_id):
+        try:
+            res = self.client.table("self_reported_courses").delete().eq("id", record_id).eq("student_id", student_id).execute()
+            return True
+        except Exception as e:
+            return False
+
+    # ── Export / Audit ─────────────────────────────────────────────────────────
+
     def log_export(self, user_email, user_role, export_format, filters_used, rows_exported):
         try:
             self.client.table("export_logs").insert({

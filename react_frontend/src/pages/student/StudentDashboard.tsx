@@ -1,19 +1,17 @@
 import { useEffect, useState } from 'react';
-import { getStudentProfile } from '../../api/student';
-import type { StudentProfile, CompletedCourse, Registration } from '../../api/student';
+import {
+  getStudentProfile,
+  getSelfReportedCourses,
+  addSelfReportedCourse,
+  updateSelfReportedCourse,
+  deleteSelfReportedCourse,
+} from '../../api/student';
+import type { StudentProfile, CompletedCourse, Registration, SelfReportedCourse } from '../../api/student';
 import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/Spinner';
 import type { StudentUser } from '../../api/auth';
 
-export interface SelfReportedCourse {
-  id: string;
-  course_code: string;
-  course_name: string;
-  credits: number | string;
-  grade: string;
-  year: string;
-  semester: string;
-}
+// SelfReportedCourse interface is now imported from ../../api/student
 
 const STATUS_STYLE: Record<string, string> = {
   pending:  'text-[#9CA3AF]',
@@ -39,25 +37,61 @@ export default function StudentDashboard() {
   const [error,         setError]         = useState('');
 
   const [selfReportedCourses, setSelfReportedCourses] = useState<SelfReportedCourse[]>([]);
-  const [courseForm, setCourseForm] = useState<SelfReportedCourse>({
-    id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: ''
-  });
+  const [srLoading, setSrLoading] = useState(false);
+  const [srSaving,  setSrSaving]  = useState(false);
+  const [srError,   setSrError]   = useState('');
+
+  const EMPTY_FORM = { id: '', student_id: '', course_code: '', course_name: '', credits: 0, grade: '', year: '', semester: '' };
+  const [courseForm, setCourseForm] = useState<SelfReportedCourse>(EMPTY_FORM);
   const [isEditingId, setIsEditingId] = useState<string | null>(null);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCourseForm({ ...courseForm, [e.target.name]: e.target.value });
   };
 
-  const handleSaveCourse = () => {
+  const handleSaveCourse = async () => {
     if (!courseForm.course_code || !courseForm.course_name || !courseForm.credits) return;
-
-    if (isEditingId) {
-      setSelfReportedCourses(prev => prev.map(c => c.id === isEditingId ? { ...courseForm, id: isEditingId } : c));
-      setIsEditingId(null);
-    } else {
-      setSelfReportedCourses(prev => [...prev, { ...courseForm, id: Date.now().toString() }]);
+    if (!studentUser?.id) return;
+    setSrSaving(true);
+    setSrError('');
+    try {
+      if (isEditingId) {
+        const res = await updateSelfReportedCourse(isEditingId, studentUser.id, {
+          course_code: courseForm.course_code,
+          course_name: courseForm.course_name,
+          credits: Number(courseForm.credits),
+          grade: courseForm.grade,
+          year: courseForm.year,
+          semester: courseForm.semester,
+        });
+        if (res.success && res.course) {
+          setSelfReportedCourses(prev => prev.map(c => c.id === isEditingId ? res.course! : c));
+          setIsEditingId(null);
+        } else {
+          setSrError(res.message || 'Update failed.');
+        }
+      } else {
+        const res = await addSelfReportedCourse({
+          student_id: studentUser.id,
+          course_code: courseForm.course_code,
+          course_name: courseForm.course_name,
+          credits: Number(courseForm.credits),
+          grade: courseForm.grade,
+          year: courseForm.year,
+          semester: courseForm.semester,
+        });
+        if (res.success && res.course) {
+          setSelfReportedCourses(prev => [...prev, res.course!]);
+        } else {
+          setSrError(res.message || 'Add failed.');
+        }
+      }
+      setCourseForm(EMPTY_FORM);
+    } catch {
+      setSrError('Cannot reach server.');
+    } finally {
+      setSrSaving(false);
     }
-    setCourseForm({ id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: '' });
   };
 
   const handleEditCourse = (course: SelfReportedCourse) => {
@@ -65,11 +99,19 @@ export default function StudentDashboard() {
     setIsEditingId(course.id);
   };
 
-  const handleDeleteCourse = (id: string) => {
-    setSelfReportedCourses(prev => prev.filter(c => c.id !== id));
-    if (isEditingId === id) {
-      setIsEditingId(null);
-      setCourseForm({ id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: '' });
+  const handleDeleteCourse = async (id: string) => {
+    if (!studentUser?.id) return;
+    setSrError('');
+    try {
+      const res = await deleteSelfReportedCourse(id, studentUser.id);
+      if (res.success) {
+        setSelfReportedCourses(prev => prev.filter(c => c.id !== id));
+        if (isEditingId === id) { setIsEditingId(null); setCourseForm(EMPTY_FORM); }
+      } else {
+        setSrError(res.message || 'Delete failed.');
+      }
+    } catch {
+      setSrError('Cannot reach server.');
     }
   };
 
@@ -89,6 +131,18 @@ export default function StudentDashboard() {
       })
       .catch(() => setError('Cannot reach server.'))
       .finally(() => setLoading(false));
+  }, [studentUser?.id]);
+
+  // Load self-reported courses from Supabase
+  useEffect(() => {
+    if (!studentUser?.id) return;
+    setSrLoading(true);
+    getSelfReportedCourses(studentUser.id)
+      .then(res => {
+        if (res.success && res.courses) setSelfReportedCourses(res.courses);
+      })
+      .catch(() => setSrError('Could not load self-reported courses.'))
+      .finally(() => setSrLoading(false));
   }, [studentUser?.id]);
 
   if (loading) return (
@@ -290,7 +344,13 @@ export default function StudentDashboard() {
         <div>
           <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 flex items-center justify-between">
             <span>Prior Completed Courses (Self-Reported)</span>
+            {srLoading && <span className="text-[10px] text-[#9CA3AF] font-normal">Loading…</span>}
           </div>
+          {srError && (
+            <div className="text-[12px] text-[#C41212] bg-[#FEF2F2] border border-[#C41212]/20 rounded px-3 py-2 mb-3">
+              ⚠ {srError}
+            </div>
+          )}
           <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden p-5">
             {/* Form */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 mb-5">
@@ -361,10 +421,10 @@ export default function StudentDashboard() {
                   )}
                   <button
                     onClick={handleSaveCourse}
-                    disabled={!courseForm.course_code || !courseForm.course_name || !courseForm.credits}
+                    disabled={srSaving || !courseForm.course_code || !courseForm.course_name || !courseForm.credits}
                     className="px-4 py-2 bg-[#C41212] hover:bg-[#A00F0F] disabled:opacity-50 text-white rounded text-[13px] font-bold transition-colors"
                   >
-                    {isEditingId ? 'Update Course' : 'Add Course'}
+                    {srSaving ? (isEditingId ? 'Updating…' : 'Adding…') : (isEditingId ? 'Update Course' : 'Add Course')}
                   </button>
                 </div>
               </div>
