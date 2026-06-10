@@ -65,7 +65,15 @@ def admin_policy():
         max_y = data.get("max_eligible_year")
 
         if min_y is None or max_y is None:
-            return jsonify({"success": False, "message": "Min Eligible Year and Max Eligible Year are required!"}), 400
+            return jsonify({"success": False, "message": "Min and Max batch year are required!"}), 400
+
+        try:
+            min_y, max_y = int(min_y), int(max_y)
+        except (TypeError, ValueError):
+            return jsonify({"success": False, "message": "Batch years must be valid numbers!"}), 400
+
+        if not (2000 <= min_y <= 2099) or not (2000 <= max_y <= 2099) or min_y > max_y:
+            return jsonify({"success": False, "message": "Invalid batch year range. Both must be between 2000–2099 and Min ≤ Max."}), 400
 
         db.update_system_settings(min_y, max_y)
         return jsonify({"success": True, "message": "Registration eligibility policy updated successfully!"})

@@ -67,10 +67,10 @@ def student_register():
         return jsonify({"success": False, "message": "Student not found!"}), 404
 
     settings = db.get_system_settings()
-    if not is_student_eligible(student.get("year_of_study"), settings):
+    if not is_student_eligible(student.get("roll_number", ""), settings):
         return jsonify({
             "success": False,
-            "message": "Registration is locked for your academic year under current administration policies."
+            "message": "Registration is locked for your batch under current administration policies."
         }), 403
 
     success, message_or_id = db.register_course(student_id, course_id)

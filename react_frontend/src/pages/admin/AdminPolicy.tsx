@@ -4,10 +4,13 @@ import { getPolicy, setPolicy } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/Spinner';
 
+// Batch years shown in dropdowns (2019 – 2030)
+const BATCH_YEARS = Array.from({ length: 12 }, (_, i) => 2019 + i);
+
 export default function AdminPolicy() {
   const { showToast } = useToast();
-  const [minYear, setMinYear] = useState<number>(1);
-  const [maxYear, setMaxYear] = useState<number>(4);
+  const [minYear, setMinYear] = useState<number>(2022);
+  const [maxYear, setMaxYear] = useState<number>(2025);
   const [editMin, setEditMin] = useState('');
   const [editMax, setEditMax] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,8 +35,8 @@ export default function AdminPolicy() {
     e.preventDefault();
     const min = parseInt(editMin);
     const max = parseInt(editMax);
-    if (isNaN(min) || isNaN(max) || min < 1 || max > 4 || min > max) {
-      showToast('error', 'Invalid year range. Min must be ≤ Max, both between 1–4.');
+    if (isNaN(min) || isNaN(max) || min < 2000 || max > 2099 || min > max) {
+      showToast('error', 'Invalid batch year range. Min must be ≤ Max, both between 2000–2099.');
       return;
     }
     setSaving(true);
@@ -41,7 +44,7 @@ export default function AdminPolicy() {
       const res = await setPolicy(min, max);
       if (res.success) {
         setMinYear(min); setMaxYear(max);
-        showToast('success', 'Policy updated! Students outside this range cannot log in.');
+        showToast('success', `Policy updated! Only students from Batch ${min}–${max} can log in.`);
       } else { showToast('error', res.message || 'Failed to update policy.'); }
     } catch { showToast('error', 'Cannot reach server.'); }
     finally { setSaving(false); }
@@ -65,15 +68,15 @@ export default function AdminPolicy() {
               </div>
               <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
               <div className="text-[12px] text-[#9CA3AF] mt-0.5">
-                Control which year groups can log in and register for courses
+                Control which student batches can log in and register for courses
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div className="px-8 py-6 space-y-5 animate-fade-up">
-        
+
         {/* Current policy display */}
         <div className="bg-white border border-[#E5E7EB] rounded-md px-5 py-4 max-w-[500px] shadow-sm transition-all duration-300 hover:shadow-md">
           <div className="flex items-center gap-3 mb-4">
@@ -82,19 +85,19 @@ export default function AdminPolicy() {
             </div>
             <div>
               <div className="font-bold text-[#1F2937] text-[15px]">Current Eligibility Window</div>
-              <div className="text-[12px] text-[#9CA3AF]">Students outside this window are denied access</div>
+              <div className="text-[12px] text-[#9CA3AF]">Students outside this batch range are denied access</div>
             </div>
           </div>
 
           <div className="flex gap-3 mb-5">
             <div className="flex-1 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md py-3 text-center">
-              <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">Year {minYear}</div>
-              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Minimum Eligible Year</div>
+              <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">{minYear}</div>
+              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Min Batch Year</div>
             </div>
             <div className="flex items-center text-[#9CA3AF] text-[18px]">→</div>
             <div className="flex-1 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md py-3 text-center">
-              <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">Year {maxYear}</div>
-              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Maximum Eligible Year</div>
+              <div className="text-[24px] font-extrabold text-[#1F2937] leading-none mb-1">{maxYear}</div>
+              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Max Batch Year</div>
             </div>
           </div>
 
@@ -104,29 +107,38 @@ export default function AdminPolicy() {
             <div className="font-bold text-[13px] text-[#1F2937] mb-3">Update Policy</div>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-min">Min Eligible Year</label>
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-min">
+                  Min Batch Year
+                </label>
                 <select
                   id="policy-min"
                   className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all cursor-pointer"
                   value={editMin}
                   onChange={e => setEditMin(e.target.value)}
                 >
-                  {[1, 2, 3, 4].map(y => <option key={y} value={y}>Year {y}</option>)}
+                  {BATCH_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-max">Max Eligible Year</label>
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-max">
+                  Max Batch Year
+                </label>
                 <select
                   id="policy-max"
                   className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all cursor-pointer"
                   value={editMax}
                   onChange={e => setEditMax(e.target.value)}
                 >
-                  {[1, 2, 3, 4].map(y => <option key={y} value={y}>Year {y}</option>)}
+                  {BATCH_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
             </div>
-            <button type="submit" id="save-policy" className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:active:scale-100" disabled={saving}>
+            <button
+              type="submit"
+              id="save-policy"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:active:scale-100"
+              disabled={saving}
+            >
               {saving ? <><Spinner /> Saving…</> : <><Save size={13} /> Save Policy</>}
             </button>
           </form>
@@ -134,7 +146,7 @@ export default function AdminPolicy() {
 
         {/* Info box */}
         <div className="max-w-[500px] p-3 bg-[#E0F2FE] border border-[#bae6fd] rounded-md text-[12px] text-[#0284c7] leading-relaxed animate-fade-in delay-100">
-          <strong>ℹ How this works:</strong> Students whose year of study falls outside the min–max window will receive an <em>"Access Denied"</em> error when attempting to log in or register for courses. Changes take effect immediately.
+          <strong>ℹ How this works:</strong> Students whose <strong>batch year</strong> (first 4 digits of roll number, e.g. <em>2023</em>EE1012) falls outside the selected range will receive an <em>"Access Denied"</em> error when attempting to log in or register for courses. Changes take effect immediately.
         </div>
       </div>
     </div>

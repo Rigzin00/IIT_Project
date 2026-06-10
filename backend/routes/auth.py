@@ -52,15 +52,16 @@ def auth_login():
                 "message": "Access Denied: Your account login has been disabled by the Administrator."
             }), 403
 
-        # Check Year policy
+        # Check Year policy — based on batch year in roll number (e.g. 2023EE1012 → 2023)
         settings = db.get_system_settings()
-        student_year = student.get("year_of_study")
-        if not is_student_eligible(student_year, settings):
-            min_y = settings.get("min_eligible_year", "3")
-            max_y = settings.get("max_eligible_year", "4")
+        roll_number = student.get("roll_number", "")
+        if not is_student_eligible(roll_number, settings):
+            min_y = settings.get("min_eligible_year", "2020")
+            max_y = settings.get("max_eligible_year", "2030")
+            batch_year = str(roll_number)[:4] if roll_number else "Unknown"
             return jsonify({
                 "success": False,
-                "message": f"Access Denied: Registration and login is currently restricted to Years {min_y} through {max_y} (Your batch: Year {student_year})."
+                "message": f"Access Denied: Registration and login is currently restricted to Batch {min_y}–{max_y} (Your batch: {batch_year})."
             }), 403
 
         return jsonify({
