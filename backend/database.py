@@ -385,6 +385,18 @@ class SupabaseAdapter:
         res = self.client.table("self_reported_courses").select("*").eq("student_id", student_id).order("created_at", desc=False).execute()
         return res.data
 
+    def get_self_reported_courses_for_students(self, student_ids):
+        """Fetch all self-reported courses for a list of student IDs in one query."""
+        if not student_ids:
+            return {}
+        res = self.client.table("self_reported_courses").select("*").in_("student_id", student_ids).order("created_at", desc=False).execute()
+        # Group by student_id for fast lookup: { student_id: [course, ...] }
+        grouped = {}
+        for row in res.data:
+            sid = row["student_id"]
+            grouped.setdefault(sid, []).append(row)
+        return grouped
+
     def add_self_reported_course(self, student_id, course_code, course_name, credits, grade, year, semester):
         try:
             res = self.client.table("self_reported_courses").insert({

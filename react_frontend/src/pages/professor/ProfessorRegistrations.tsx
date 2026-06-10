@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronUp, ChevronDown, CheckCircle, XCircle, Star, Download, RefreshCw } from 'lucide-react';
 import { getProfessorRegistrations, profAction, profGrade } from '../../api/professor';
 import type { StudentRegistration } from '../../api/professor';
@@ -22,6 +22,7 @@ export default function ProfessorRegistrations() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [gradeInputs, setGradeInputs] = useState<Record<string, string>>({});
   const [exportLoading, setExportLoading] = useState<'csv' | 'xlsx' | null>(null);
+  const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -188,6 +189,7 @@ export default function ProfessorRegistrations() {
                     <th onClick={() => toggleSort('course_id')} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid #E5E7EB' }}>Course <SortIcon k="course_id" /></th>
                     <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', borderBottom: '1px solid #E5E7EB' }}>Year / Dept</th>
                     <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', borderBottom: '1px solid #E5E7EB' }}>CGPA</th>
+                    <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', borderBottom: '1px solid #E5E7EB' }}>Prior Courses</th>
                     <th onClick={() => toggleSort('status')} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid #E5E7EB' }}>Status <SortIcon k="status" /></th>
                     <th onClick={() => toggleSort('grade')} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid #E5E7EB' }}>Grade <SortIcon k="grade" /></th>
                     <th style={{ textAlign: 'left', padding: '10px 16px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', borderBottom: '1px solid #E5E7EB' }}>Actions</th>
@@ -198,8 +200,9 @@ export default function ProfessorRegistrations() {
                     const isActing = actionLoading === r.registration_id + 'approved' || actionLoading === r.registration_id + 'rejected';
                     const isGrading = actionLoading === r.registration_id + 'grade';
                     return (
-                      <tr key={r.registration_id} style={{ borderBottom: '1px solid #E5E7EB' }} onMouseOver={e => (e.currentTarget.style.background = '#FAFAFA')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
-                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                      <React.Fragment key={r.registration_id}>
+                      <tr style={{ borderBottom: '1px solid #E5E7EB' }} onMouseOver={e => (e.currentTarget.style.background = '#FAFAFA')} onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           <div style={{ fontSize: 13, fontWeight: 600, color: '#1F2937' }}>{r.student_name}</div>
                           <div style={{ fontSize: 11, color: '#9CA3AF' }}>{r.roll_number}</div>
                         </td>
@@ -212,6 +215,27 @@ export default function ProfessorRegistrations() {
                         </td>
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937' }}>{r.cgpa?.toFixed(2)}</span>
+                        </td>
+                        {/* ── Prior Courses pill button ── */}
+                        <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
+                          {r.self_reported_courses?.length > 0 ? (
+                            <button
+                              onClick={() => setExpandedStudentId(prev => prev === r.student_id ? null : r.student_id)}
+                              style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 5,
+                                padding: '3px 10px', fontSize: 11, fontWeight: 700,
+                                color: expandedStudentId === r.student_id ? '#fff' : '#C41212',
+                                background: expandedStudentId === r.student_id ? '#C41212' : '#FEF2F2',
+                                border: '1px solid #C41212', borderRadius: 20, cursor: 'pointer',
+                                transition: 'all 0.15s',
+                              }}
+                            >
+                              {expandedStudentId === r.student_id ? '▲' : '▼'}
+                              &nbsp;{r.self_reported_courses.length} Course{r.self_reported_courses.length !== 1 ? 's' : ''}
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: 11, color: '#D1D5DB', fontStyle: 'italic' }}>None</span>
+                          )}
                         </td>
                         <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                           <span style={{ fontSize: 12, fontWeight: 600, color: '#4B5563' }}>{r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span>
@@ -244,6 +268,43 @@ export default function ProfessorRegistrations() {
                           ) : <span className="text-[#9CA3AF] text-[11px]">—</span>}
                         </td>
                       </tr>
+                      {/* ── Expanded: Self-Reported Prior Courses panel ── */}
+                      {expandedStudentId === r.student_id && (
+                        <tr style={{ background: '#FFFBFB', borderBottom: '2px solid #FECACA' }}>
+                          <td colSpan={8} style={{ padding: '0' }}>
+                            <div style={{ borderLeft: '3px solid #C41212', margin: '12px 16px 12px 24px', paddingLeft: 16 }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: '#C41212', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+                                Prior Completed Courses (Self-Reported) — {r.student_name}
+                              </div>
+                              {!r.self_reported_courses?.length ? (
+                                <div style={{ fontSize: 12, color: '#9CA3AF', fontStyle: 'italic' }}>No self-reported courses on record.</div>
+                              ) : (
+                                <table style={{ borderCollapse: 'collapse', fontSize: 12, width: '100%', maxWidth: 720, background: '#fff', borderRadius: 6, overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+                                  <thead>
+                                    <tr style={{ background: '#F9FAFB' }}>
+                                      {['Course Code', 'Course Name', 'Credits', 'Grade', 'Semester / Year'].map(h => (
+                                        <th key={h} style={{ textAlign: 'left', padding: '7px 14px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {r.self_reported_courses.map((c, idx) => (
+                                      <tr key={c.id} style={{ borderBottom: idx < r.self_reported_courses.length - 1 ? '1px solid #F3F4F6' : 'none', background: idx % 2 === 0 ? '#fff' : '#FAFAFA' }}>
+                                        <td style={{ padding: '7px 14px', fontWeight: 700, color: '#C41212', fontSize: 11, letterSpacing: '0.03em' }}>{c.course_code}</td>
+                                        <td style={{ padding: '7px 14px', color: '#1F2937', fontWeight: 600 }}>{c.course_name}</td>
+                                        <td style={{ padding: '7px 14px', color: '#555555' }}>{c.credits}</td>
+                                        <td style={{ padding: '7px 14px', fontWeight: 700, color: '#1F2937' }}>{c.grade || '—'}</td>
+                                        <td style={{ padding: '7px 14px', color: '#6B7280' }}>{[c.semester, c.year].filter(Boolean).join(', ')}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                     );
                   })}
                 </tbody>

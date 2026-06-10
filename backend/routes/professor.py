@@ -40,6 +40,10 @@ def professor_registrations():
     # We will also pull all historical completed courses to let professor check "has done course C"
     all_completions = db.get_all_completed_courses_grouped()
     
+    # Fetch self-reported courses for all students in one batch query
+    student_ids = list({r["student_id"] for r in regs if r.get("student_id")})
+    self_reported_map = db.get_self_reported_courses_for_students(student_ids)
+    
     # Map completions to student registrations to provide high-fidelity dashboard metrics
     for reg in regs:
         student_id = reg["student_id"]
@@ -50,6 +54,9 @@ def professor_registrations():
         # Build nice text array for frontend display
         completed_full = [f"{c['course_id']} ({c['grade']})" for c in all_completions if c["student_id"] == student_id]
         reg["completed_courses_list"] = completed_full
+
+        # Attach self-reported prior courses for this student
+        reg["self_reported_courses"] = self_reported_map.get(student_id, [])
 
     return jsonify({
         "success": True,

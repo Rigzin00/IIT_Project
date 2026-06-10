@@ -10,12 +10,18 @@ export interface ProfDashboardResponse {
   professor: { id: string; name: string; email: string; department: string; created_at: string; };
   courses: ProfCourse[];
 }
+export interface SelfReportedItem {
+  id: string; student_id: string;
+  course_code: string; course_name: string;
+  credits: number; grade: string; year: string; semester: string;
+}
 export interface StudentRegistration {
   registration_id: string; status: 'pending' | 'approved' | 'rejected';
   grade: string | null; course_id: string; course_name: string; credits: number;
   student_id: string; student_name: string; roll_number: string;
   student_email: string; student_department: string; year_of_study: number;
   cgpa: number; completed_courses_ids: string[]; completed_courses_list: string[];
+  self_reported_courses: SelfReportedItem[];
 }
 export interface RegistrationsResponse {
   success: boolean; message?: string; registrations: StudentRegistration[]; pagination?: PaginationMetadata;
