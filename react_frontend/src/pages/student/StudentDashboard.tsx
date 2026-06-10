@@ -412,7 +412,7 @@ export default function StudentDashboard() {
                     <button
                       onClick={() => {
                         setIsEditingId(null);
-                        setCourseForm({ id: '', course_code: '', course_name: '', credits: '', grade: '', year: '', semester: '' });
+                        setCourseForm(EMPTY_FORM);
                       }}
                       className="px-4 py-2 bg-[#F5F5F5] hover:bg-[#E5E7EB] text-[#374151] rounded text-[13px] font-bold transition-colors"
                     >
