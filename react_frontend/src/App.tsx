@@ -45,7 +45,7 @@ function PortalApp() {
   return (
     <div className="flex min-h-screen bg-[#F5F5F5]">
       <Sidebar activePage={page} onNavigate={setPage} />
-      <main key={page} className="flex-1 overflow-x-hidden animate-[fadeIn_0.35s_ease-out]">
+      <main key={page} className="flex-1 overflow-x-hidden animate-[fadeIn_0.35s_ease-out] pt-[52px] md:pt-0">
         {renderPage()}
       </main>
     </div>
