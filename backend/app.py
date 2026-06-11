@@ -12,7 +12,12 @@ from routes.export import export_bp
 from utils.limiter import limiter
 
 app = Flask(__name__, static_folder="../react_frontend/dist", static_url_path="")
-CORS(app)  # Enable Cross-Origin Resource Sharing
+
+# Enable CORS only in development.
+# In production, Flask serves the React build on the same origin — no CORS needed.
+if os.getenv("FLASK_ENV", "development") == "development":
+    CORS(app)
+
 limiter.init_app(app)
 
 # Register Blueprints

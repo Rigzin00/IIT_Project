@@ -1,5 +1,5 @@
 import type { PaginationMetadata } from './types';
-const BASE = 'http://127.0.0.1:5000';
+import BASE from './config';
 
 export interface Student {
   id: string; roll_number: string; name: string; email: string;

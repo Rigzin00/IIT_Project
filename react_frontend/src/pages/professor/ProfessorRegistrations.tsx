@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import type { ProfessorUser } from '../../api/auth';
 import Pagination from '../../components/Pagination';
+import BASE from '../../api/config';
 
 const GRADES = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'];
 
@@ -105,7 +106,7 @@ export default function ProfessorRegistrations() {
       const params = new URLSearchParams({ role: 'professor', professor_id: profUser.id, format: fmt });
       if (user?.email) params.set('email', user.email);
       
-      const response = await fetch(`http://127.0.0.1:5000/api/export?${params.toString()}`);
+      const response = await fetch(`${BASE}/api/export?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to download data');
 
       const blob = await response.blob();
