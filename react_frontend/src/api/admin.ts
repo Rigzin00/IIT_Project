@@ -1,6 +1,16 @@
 import type { PaginationMetadata } from './types';
 import BASE from './config';
 
+// Auto-logout on 401: clears session and reloads to login page
+async function safeJson(res: Response) {
+  if (res.status === 401) {
+    localStorage.removeItem('ap_session');
+    window.location.reload();
+    return { success: false, message: 'Session expired. Please log in again.' };
+  }
+  return res.json();
+}
+
 export interface Student {
   id: string; roll_number: string; name: string; email: string;
   department: string; year_of_study: number; cgpa: number;
@@ -12,7 +22,7 @@ export interface PolicyResponse { success: boolean; min_eligible_year: number; m
 export async function getAdminStudents(page=1, limit=50, search='', sort='name', order='asc'): Promise<StudentsResponse> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit), search, sort, order });
   const res = await fetch(`${BASE}/api/admin/students?${params.toString()}`);
-  return res.json();
+  return safeJson(res);
 }
 
 export async function createStudent(data: {
@@ -24,19 +34,19 @@ export async function createStudent(data: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  return res.json();
+  return safeJson(res);
 }
 
 export async function deleteStudent(student_id: string) {
   const res = await fetch(`${BASE}/api/admin/students/${encodeURIComponent(student_id)}`, {
     method: 'DELETE',
   });
-  return res.json();
+  return safeJson(res);
 }
 
 export async function getPolicy(): Promise<PolicyResponse> {
   const res = await fetch(`${BASE}/api/admin/policy`);
-  return res.json();
+  return safeJson(res);
 }
 
 export async function setPolicy(min_eligible_year: number, max_eligible_year: number) {
@@ -45,5 +55,5 @@ export async function setPolicy(min_eligible_year: number, max_eligible_year: nu
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ min_eligible_year, max_eligible_year }),
   });
-  return res.json();
+  return safeJson(res);
 }

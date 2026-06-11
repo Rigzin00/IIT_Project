@@ -12,25 +12,25 @@ interface PaginationProps {
 
 export default function Pagination({ page, limit, total, totalPages, onPageChange, onLimitChange, isLoading }: PaginationProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 py-3 px-4 border-t border-[#E5E7EB] bg-white text-[13px] text-[#555555]">
-      <div>
-        Showing <span className="font-semibold text-[#1F2937]">{total === 0 ? 0 : (page - 1) * limit + 1}</span> to <span className="font-semibold text-[#1F2937]">{Math.min(page * limit, total)}</span> of <span className="font-semibold text-[#1F2937]">{total}</span> entries
+    <div className="flex flex-wrap items-center justify-between gap-2 py-3 px-3 md:px-4 border-t border-[#E5E7EB] bg-white text-[13px] text-[#555555]">
+      <div className="hidden sm:block text-[12px]">
+        Showing <span className="font-semibold text-[#1F2937]">{total === 0 ? 0 : (page - 1) * limit + 1}</span> to <span className="font-semibold text-[#1F2937]">{Math.min(page * limit, total)}</span> of <span className="font-semibold text-[#1F2937]">{total}</span>
       </div>
       
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span>Rows per page:</span>
+      <div className="flex items-center gap-2 md:gap-4 ml-auto">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12px]">Rows:</span>
           <select 
             value={limit} 
             onChange={e => { onLimitChange(Number(e.target.value)); onPageChange(1); }}
             disabled={isLoading}
-            className="border border-[#E5E7EB] rounded px-1 py-0.5 outline-none focus:border-[#C41212] bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border border-[#E5E7EB] rounded px-1 py-0.5 text-[12px] outline-none focus:border-[#C41212] bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {[10, 25, 50, 100].map(v => <option key={v} value={v}>{v}</option>)}
           </select>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <button onClick={() => onPageChange(1)} disabled={page <= 1 || isLoading} className="p-1 hover:bg-[#F3F4F6] rounded disabled:opacity-50 disabled:cursor-not-allowed text-[#1F2937] transition-colors" title="First Page">
             <ChevronsLeft size={16} />
           </button>
@@ -38,7 +38,7 @@ export default function Pagination({ page, limit, total, totalPages, onPageChang
             <ChevronLeft size={16} />
           </button>
           
-          <div className="px-2 font-semibold">Page {page} of {totalPages || 1}</div>
+          <div className="px-2 text-[12px] font-semibold whitespace-nowrap">{page} / {totalPages || 1}</div>
 
           <button onClick={() => onPageChange(page + 1)} disabled={page >= totalPages || isLoading} className="p-1 hover:bg-[#F3F4F6] rounded disabled:opacity-50 disabled:cursor-not-allowed text-[#1F2937] transition-colors" title="Next Page">
             <ChevronRight size={16} />

@@ -23,10 +23,10 @@ const adminLinks = [
   { id: 'admin-export', label: 'Export', icon: Download },
 ];
 
-const roleInfo: Record<string, { label: string; icon: typeof GraduationCap; color: string }> = {
-  student: { label: 'Student Portal', icon: GraduationCap, color: '#22c55e' },
-  professor: { label: 'Professor Portal', icon: UserCog, color: '#f59e0b' },
-  admin: { label: 'Admin Portal', icon: ShieldCheck, color: '#6366f1' },
+const roleInfo: Record<string, { label: string; icon: typeof GraduationCap }> = {
+  student:   { label: 'Student Portal',   icon: GraduationCap },
+  professor: { label: 'Professor Portal', icon: UserCog       },
+  admin:     { label: 'Admin Portal',     icon: ShieldCheck   },
 };
 
 export default function Sidebar({ activePage, onNavigate }: Props) {

@@ -1,6 +1,16 @@
 import type { PaginationMetadata } from './types';
 import BASE from './config';
 
+// Auto-logout on 401: clears session and reloads to login page
+async function safeJson(res: Response) {
+  if (res.status === 401) {
+    localStorage.removeItem('ap_session');
+    window.location.reload();
+    return { success: false, message: 'Session expired. Please log in again.' };
+  }
+  return res.json();
+}
+
 export interface ProfCourse {
   id: string; name: string; credits: number; department: string;
   professor_id: string; is_minor_eligible: number; description: string;
@@ -30,13 +40,13 @@ export interface RegistrationsResponse {
 
 export async function getProfessorDashboard(professor_id: string): Promise<ProfDashboardResponse> {
   const res = await fetch(`${BASE}/api/professor/dashboard?professor_id=${encodeURIComponent(professor_id)}`);
-  return res.json();
+  return safeJson(res);
 }
 
 export async function getProfessorRegistrations(professor_id: string, page=1, limit=50, search='', sort='id', order='desc'): Promise<RegistrationsResponse> {
   const params = new URLSearchParams({ professor_id, page: String(page), limit: String(limit), search, sort, order });
   const res = await fetch(`${BASE}/api/professor/registrations?${params.toString()}`);
-  return res.json();
+  return safeJson(res);
 }
 
 export async function profAction(registration_id: string, status: 'approved' | 'rejected') {
@@ -45,7 +55,7 @@ export async function profAction(registration_id: string, status: 'approved' | '
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ registration_id, status }),
   });
-  return res.json();
+  return safeJson(res);
 }
 
 export async function profGrade(registration_id: string, grade: string) {
@@ -54,5 +64,5 @@ export async function profGrade(registration_id: string, grade: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ registration_id, grade }),
   });
-  return res.json();
+  return safeJson(res);
 }

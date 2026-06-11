@@ -3,6 +3,7 @@ import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import type { ProfessorUser } from '../../api/auth';
+import BASE from '../../api/config';
 
 const DEPTS = ['all', 'CSE', 'ECE', 'ME', 'EE', 'CE', 'CHE', 'AE'];
 
@@ -35,11 +36,8 @@ export default function AdminExport() {
     if (cgpaCutoff) params.set('cgpa_cutoff', cgpaCutoff);
     if (wantsCourse.trim()) params.set('wants_course', wantsCourse.trim().toUpperCase());
     if (hasDoneCourse.trim()) params.set('has_done_course', hasDoneCourse.trim().toUpperCase());
-    return `http://127.0.0.1:5000/api/export?${params.toString()}`;
+    return `${BASE}/api/export?${params.toString()}`;
   };
-  console.log("USER:", user);
-  console.log("EMAIL:", user?.email);
-  console.log("URL:", buildUrl(format));
 
   const handleDownload = async () => {
     if (exportLoading) return;

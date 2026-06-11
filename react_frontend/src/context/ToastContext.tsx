@@ -20,9 +20,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const icons = { success: CheckCircle, error: XCircle, info: Info };
   
   const colors = {
-    success: 'bg-[#F0FDF4] border-[#86EFAC] text-[#166534]',
-    error: 'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]',
-    info: 'bg-[#F0F9FF] border-[#BAE6FD] text-[#075985]'
+    success: 'bg-[#F9FAFB] border-[#D1D5DB] text-[#1F2937]',
+    error:   'bg-[#FEF2F2] border-[#FECACA] text-[#991B1B]',
+    info:    'bg-[#F5F5F5] border-[#E5E7EB] text-[#555555]',
   };
 
   return (

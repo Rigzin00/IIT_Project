@@ -1,6 +1,16 @@
 import type { PaginationMetadata } from './types';
 import BASE from './config';
 
+// Auto-logout on 401: clears session and reloads to login page
+async function safeJson(res: Response) {
+  if (res.status === 401) {
+    localStorage.removeItem('ap_session');
+    window.location.reload();
+    return { success: false, message: 'Session expired. Please log in again.' };
+  }
+  return res.json();
+}
+
 export interface CompletedCourse {
   id: string; course_id: string; course_name: string;
   credits: number; grade: string; semester: string;
@@ -45,13 +55,13 @@ export interface SelfReportedResponse { success: boolean; courses?: SelfReported
 
 export async function getStudentProfile(student_id: string): Promise<ProfileResponse> {
   const res = await fetch(`${BASE}/api/student/profile?student_id=${encodeURIComponent(student_id)}`);
-  return res.json();
+  return safeJson(res);
 }
 
 export async function getStudentCourses(page=1, limit=50, search='', sort='name', order='asc'): Promise<CoursesResponse> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit), search, sort, order });
   const res = await fetch(`${BASE}/api/student/courses?${params.toString()}`);
-  return res.json();
+  return safeJson(res);
 }
 
 export async function registerCourse(student_id: string, course_id: string) {
@@ -60,14 +70,14 @@ export async function registerCourse(student_id: string, course_id: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ student_id, course_id }),
   });
-  return res.json();
+  return safeJson(res);
 }
 
 // ── Self-Reported Courses ──────────────────────────────────────────────────────
 
 export async function getSelfReportedCourses(student_id: string): Promise<SelfReportedResponse> {
   const res = await fetch(`${BASE}/api/student/self-reported?student_id=${encodeURIComponent(student_id)}`);
-  return res.json();
+  return safeJson(res);
 }
 
 export async function addSelfReportedCourse(data: Omit<SelfReportedCourse, 'id' | 'created_at' | 'updated_at'>): Promise<SelfReportedResponse> {
@@ -76,7 +86,7 @@ export async function addSelfReportedCourse(data: Omit<SelfReportedCourse, 'id' 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  return res.json();
+  return safeJson(res);
 }
 
 export async function updateSelfReportedCourse(id: string, student_id: string, data: Omit<SelfReportedCourse, 'id' | 'student_id' | 'created_at' | 'updated_at'>): Promise<SelfReportedResponse> {
@@ -85,7 +95,7 @@ export async function updateSelfReportedCourse(id: string, student_id: string, d
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ student_id, ...data }),
   });
-  return res.json();
+  return safeJson(res);
 }
 
 export async function deleteSelfReportedCourse(id: string, student_id: string): Promise<SelfReportedResponse> {
@@ -94,6 +104,6 @@ export async function deleteSelfReportedCourse(id: string, student_id: string): 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ student_id }),
   });
-  return res.json();
+  return safeJson(res);
 }
 

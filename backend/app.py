@@ -1,7 +1,14 @@
 import os
+import logging
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+)
+logger = logging.getLogger(__name__)
 
 # Import Blueprints
 from routes.auth import auth_bp
@@ -62,7 +69,7 @@ def handle_exception(e):
     if isinstance(e, HTTPException):
         return e
     # Now you're handling non-HTTP exceptions only
-    print(f"Unhandled Exception: {e}")
+    logger.error("Unhandled Exception: %s", e, exc_info=True)
     return jsonify({"success": False, "message": "An unexpected server error occurred."}), 500
 
 if __name__ == "__main__":

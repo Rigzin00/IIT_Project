@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem('ap_session');
+      const saved = localStorage.getItem('ap_session');
       if (saved) {
         const { user, role } = JSON.parse(saved);
         setUser(user); setRole(role);
@@ -33,12 +33,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (u: AnyUser, r: Role) => {
     setUser(u); setRole(r);
-    sessionStorage.setItem('ap_session', JSON.stringify({ user: u, role: r }));
+    localStorage.setItem('ap_session', JSON.stringify({ user: u, role: r }));
   };
 
   const logout = () => {
     setUser(null); setRole(null);
-    sessionStorage.removeItem('ap_session');
+    localStorage.removeItem('ap_session');
   };
 
   return (
