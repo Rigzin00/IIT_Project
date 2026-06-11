@@ -1,11 +1,14 @@
 from flask import Blueprint, request, jsonify
 from database import db
-from utils.helpers import build_pagination_metadata
+from utils.helpers import build_pagination_metadata, require_role
 from utils.helpers import is_student_eligible
 
 student_bp = Blueprint('student', __name__)
 
+STUDENT_SORT_COLS = {'name', 'credits', 'department', 'professor_name'}
+
 @student_bp.route("/profile", methods=["GET"])
+@require_role('student')
 def student_profile():
     student_id = request.args.get("student_id")
     if not student_id:
@@ -34,6 +37,7 @@ def student_profile():
     })
 
 @student_bp.route("/courses", methods=["GET"])
+@require_role('student')
 def student_courses():
     try:
         page = max(int(request.args.get('page', 1)), 1)
@@ -44,6 +48,8 @@ def student_courses():
     search = request.args.get('search', '').strip()
     sort = request.args.get('sort', 'name').strip()
     order = request.args.get('order', 'asc').strip()
+    sort = sort if sort in STUDENT_SORT_COLS else 'name'
+    order = 'desc' if order == 'desc' else 'asc'
 
     courses, total = db.get_courses_for_pre_registration(page, limit, search, sort, order)
     return jsonify({
@@ -53,6 +59,7 @@ def student_courses():
     })
 
 @student_bp.route("/register", methods=["POST"])
+@require_role('student')
 def student_register():
     data = request.get_json() or {}
     student_id = data.get("student_id")
@@ -83,6 +90,7 @@ def student_register():
 # ── Self-Reported Prior Courses ────────────────────────────────────────────────
 
 @student_bp.route("/self-reported", methods=["GET", "POST"])
+@require_role('student')
 def self_reported_courses():
     if request.method == "GET":
         student_id = request.args.get("student_id")
@@ -123,6 +131,7 @@ def self_reported_courses():
 
 
 @student_bp.route("/self-reported/<record_id>", methods=["PUT", "DELETE"])
+@require_role('student')
 def self_reported_course_detail(record_id):
     student_id = (request.args.get("student_id") or (request.get_json() or {}).get("student_id", "")).strip()
     if not student_id:

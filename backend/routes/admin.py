@@ -1,11 +1,15 @@
 from flask import Blueprint, request, jsonify
 from database import db
-from utils.helpers import build_pagination_metadata
+from utils.helpers import build_pagination_metadata, require_role
 from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__)
 
+# Allowed sort column whitelist — prevents SQL injection via sort param
+ADMIN_SORT_COLS = {'name', 'roll_number', 'department', 'year_of_study', 'cgpa', 'is_approved_for_login'}
+
 @admin_bp.route("/students", methods=["GET", "POST"])
+@require_role('admin')
 def admin_students():
     if request.method == "GET":
         try:
@@ -17,6 +21,9 @@ def admin_students():
         search = request.args.get('search', '').strip()
         sort = request.args.get('sort', 'name').strip()
         order = request.args.get('order', 'asc').strip()
+        # Whitelist sort/order — reject unknown values to prevent injection
+        sort = sort if sort in ADMIN_SORT_COLS else 'name'
+        order = 'desc' if order == 'desc' else 'asc'
 
         students, total = db.get_all_students(page, limit, search, sort, order)
         return jsonify({
@@ -44,6 +51,7 @@ def admin_students():
             return jsonify({"success": False, "message": message_or_id}), 400
 
 @admin_bp.route("/students/<student_id>", methods=["DELETE"])
+@require_role('admin')
 def admin_delete_student(student_id):
     success = db.delete_student(student_id)
     if success:
@@ -52,6 +60,7 @@ def admin_delete_student(student_id):
         return jsonify({"success": False, "message": "Student not found or deletion failed."}), 404
 
 @admin_bp.route("/policy", methods=["GET", "POST"])
+@require_role('admin')
 def admin_policy():
     if request.method == "GET":
         settings = db.get_system_settings()

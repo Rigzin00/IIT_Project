@@ -1,5 +1,6 @@
 import type { PaginationMetadata } from './types';
 import BASE from './config';
+import getAuthHeaders from './headers';
 
 // Auto-logout on 401: clears session and reloads to login page
 async function safeJson(res: Response) {
@@ -54,20 +55,24 @@ export interface SelfReportedCourse {
 export interface SelfReportedResponse { success: boolean; courses?: SelfReportedCourse[]; course?: SelfReportedCourse; message?: string; }
 
 export async function getStudentProfile(student_id: string): Promise<ProfileResponse> {
-  const res = await fetch(`${BASE}/api/student/profile?student_id=${encodeURIComponent(student_id)}`);
+  const res = await fetch(`${BASE}/api/student/profile?student_id=${encodeURIComponent(student_id)}`, {
+    headers: getAuthHeaders(),
+  });
   return safeJson(res);
 }
 
 export async function getStudentCourses(page=1, limit=50, search='', sort='name', order='asc'): Promise<CoursesResponse> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit), search, sort, order });
-  const res = await fetch(`${BASE}/api/student/courses?${params.toString()}`);
+  const res = await fetch(`${BASE}/api/student/courses?${params.toString()}`, {
+    headers: getAuthHeaders(),
+  });
   return safeJson(res);
 }
 
 export async function registerCourse(student_id: string, course_id: string) {
   const res = await fetch(`${BASE}/api/student/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ student_id, course_id }),
   });
   return safeJson(res);
@@ -76,14 +81,16 @@ export async function registerCourse(student_id: string, course_id: string) {
 // ── Self-Reported Courses ──────────────────────────────────────────────────────
 
 export async function getSelfReportedCourses(student_id: string): Promise<SelfReportedResponse> {
-  const res = await fetch(`${BASE}/api/student/self-reported?student_id=${encodeURIComponent(student_id)}`);
+  const res = await fetch(`${BASE}/api/student/self-reported?student_id=${encodeURIComponent(student_id)}`, {
+    headers: getAuthHeaders(),
+  });
   return safeJson(res);
 }
 
 export async function addSelfReportedCourse(data: Omit<SelfReportedCourse, 'id' | 'created_at' | 'updated_at'>): Promise<SelfReportedResponse> {
   const res = await fetch(`${BASE}/api/student/self-reported`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(data),
   });
   return safeJson(res);
@@ -92,7 +99,7 @@ export async function addSelfReportedCourse(data: Omit<SelfReportedCourse, 'id' 
 export async function updateSelfReportedCourse(id: string, student_id: string, data: Omit<SelfReportedCourse, 'id' | 'student_id' | 'created_at' | 'updated_at'>): Promise<SelfReportedResponse> {
   const res = await fetch(`${BASE}/api/student/self-reported/${encodeURIComponent(id)}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ student_id, ...data }),
   });
   return safeJson(res);
@@ -101,7 +108,7 @@ export async function updateSelfReportedCourse(id: string, student_id: string, d
 export async function deleteSelfReportedCourse(id: string, student_id: string): Promise<SelfReportedResponse> {
   const res = await fetch(`${BASE}/api/student/self-reported/${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ student_id }),
   });
   return safeJson(res);

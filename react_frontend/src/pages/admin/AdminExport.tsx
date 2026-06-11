@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -11,6 +11,7 @@ export default function AdminExport() {
   const { user, role } = useAuth();
   const { showToast } = useToast();
   const profUser = user as ProfessorUser;
+  useEffect(() => { document.title = 'Export Data — AcadPortal'; }, []);
 
   const [year, setYear] = useState('all');
   const [department, setDepartment] = useState('all');

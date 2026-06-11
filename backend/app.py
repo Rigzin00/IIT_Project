@@ -34,6 +34,14 @@ app.register_blueprint(professor_bp, url_prefix="/api/professor")
 app.register_blueprint(admin_bp, url_prefix="/api/admin")
 app.register_blueprint(export_bp, url_prefix="/api/export")
 
+# ── Security Headers ────────────────────────────────────────────────────────────
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
 # Static File Routes
 @app.route("/")
 def serve_index():

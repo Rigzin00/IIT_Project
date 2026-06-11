@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, Users } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { getProfessorDashboard } from '../../api/professor';
 import type { ProfCourse } from '../../api/professor';
 import { useAuth } from '../../context/AuthContext';
@@ -9,6 +9,7 @@ import type { ProfessorUser } from '../../api/auth';
 export default function ProfessorDashboard() {
   const { user } = useAuth();
   const profUser = user as ProfessorUser;
+  useEffect(() => { document.title = 'Dashboard — AcadPortal'; }, []);
 
   const [professor, setProfessor] = useState<ProfessorUser | null>(null);
   const [courses, setCourses] = useState<ProfCourse[]>([]);
@@ -66,8 +67,8 @@ export default function ProfessorDashboard() {
                 <div className="text-[17px] md:text-[18px] font-bold text-[#1F2937] leading-tight">{professor.name}</div>
                 <div className="text-[12px] text-[#9CA3AF] mt-0.5">{professor.email}</div>
                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#FEF08A] text-[#854D0E] uppercase tracking-wide">{professor.department}</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#F3F4F6] text-[#6B7280] uppercase tracking-wide">Faculty</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#FEF2F2] text-[#C41212] border border-[#C41212]/25 uppercase tracking-wide">{professor.department}</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-[#F5F5F5] text-[#555555] border border-[#E5E7EB] uppercase tracking-wide">Faculty</span>
                 </div>
               </div>
 
@@ -107,9 +108,12 @@ export default function ProfessorDashboard() {
                   <span className="text-[#D1D5DB] text-[10px]">·</span>
                   <span className="font-semibold">{c.credits} cr</span>
                   {c.is_minor_eligible ? (
-                    <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#DEF7EC] text-[#03543F] uppercase tracking-wider">Minor Eligible</span>
+                    <span className="ml-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#FEF2F2] text-[#C41212] border border-[#C41212]/25 uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C41212] shrink-0" />
+                      Minor Eligible
+                    </span>
                   ) : (
-                    <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#F3F4F6] text-[#6B7280] uppercase tracking-wider">Core Course</span>
+                    <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#F5F5F5] text-[#555555] border border-[#E5E7EB] uppercase tracking-wider">Core Course</span>
                   )}
                 </div>
                 {c.description && (
@@ -117,12 +121,6 @@ export default function ProfessorDashboard() {
                     {c.description}
                   </div>
                 )}
-                <div className="mt-auto pt-4 border-t border-[#E5E7EB] flex items-center gap-4 text-[11.5px] text-[#9CA3AF] font-semibold">
-                  <span className="flex items-center gap-1.5 hover:text-[#1F2937] transition-colors cursor-default">
-                    <Users size={13} className="text-[#6B7280]" />
-                    <span>Students enrolled</span>
-                  </span>
-                </div>
               </div>
             ))}
           </div>

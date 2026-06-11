@@ -1,5 +1,6 @@
 import type { PaginationMetadata } from './types';
 import BASE from './config';
+import getAuthHeaders from './headers';
 
 // Auto-logout on 401: clears session and reloads to login page
 async function safeJson(res: Response) {
@@ -39,20 +40,24 @@ export interface RegistrationsResponse {
 }
 
 export async function getProfessorDashboard(professor_id: string): Promise<ProfDashboardResponse> {
-  const res = await fetch(`${BASE}/api/professor/dashboard?professor_id=${encodeURIComponent(professor_id)}`);
+  const res = await fetch(`${BASE}/api/professor/dashboard?professor_id=${encodeURIComponent(professor_id)}`, {
+    headers: getAuthHeaders(),
+  });
   return safeJson(res);
 }
 
 export async function getProfessorRegistrations(professor_id: string, page=1, limit=50, search='', sort='id', order='desc'): Promise<RegistrationsResponse> {
   const params = new URLSearchParams({ professor_id, page: String(page), limit: String(limit), search, sort, order });
-  const res = await fetch(`${BASE}/api/professor/registrations?${params.toString()}`);
+  const res = await fetch(`${BASE}/api/professor/registrations?${params.toString()}`, {
+    headers: getAuthHeaders(),
+  });
   return safeJson(res);
 }
 
 export async function profAction(registration_id: string, status: 'approved' | 'rejected') {
   const res = await fetch(`${BASE}/api/professor/action`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ registration_id, status }),
   });
   return safeJson(res);
@@ -61,7 +66,7 @@ export async function profAction(registration_id: string, status: 'approved' | '
 export async function profGrade(registration_id: string, grade: string) {
   const res = await fetch(`${BASE}/api/professor/grade`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ registration_id, grade }),
   });
   return safeJson(res);

@@ -29,6 +29,7 @@ export default function ProfessorRegistrations() {
   const { user } = useAuth();
   const { showToast } = useToast();
   const profUser = user as ProfessorUser;
+  useEffect(() => { document.title = 'Registrations — AcadPortal'; }, []);
 
   const [regs, setRegs] = useState<StudentRegistration[]>([]);
   const [loading, setLoading] = useState(true);

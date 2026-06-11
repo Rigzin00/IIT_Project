@@ -11,6 +11,7 @@ const BATCH_YEARS = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
 export default function AdminPolicy() {
   const { showToast } = useToast();
+  useEffect(() => { document.title = 'Registration Policy — AcadPortal'; }, []);
   const [minYear, setMinYear] = useState<number>(2022);
   const [maxYear, setMaxYear] = useState<number>(2025);
   const [editMin, setEditMin] = useState('');

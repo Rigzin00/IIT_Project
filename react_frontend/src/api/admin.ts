@@ -1,5 +1,6 @@
 import type { PaginationMetadata } from './types';
 import BASE from './config';
+import getAuthHeaders from './headers';
 
 // Auto-logout on 401: clears session and reloads to login page
 async function safeJson(res: Response) {
@@ -21,7 +22,9 @@ export interface PolicyResponse { success: boolean; min_eligible_year: number; m
 
 export async function getAdminStudents(page=1, limit=50, search='', sort='name', order='asc'): Promise<StudentsResponse> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit), search, sort, order });
-  const res = await fetch(`${BASE}/api/admin/students?${params.toString()}`);
+  const res = await fetch(`${BASE}/api/admin/students?${params.toString()}`, {
+    headers: getAuthHeaders(),
+  });
   return safeJson(res);
 }
 
@@ -31,7 +34,7 @@ export async function createStudent(data: {
 }) {
   const res = await fetch(`${BASE}/api/admin/students`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(data),
   });
   return safeJson(res);
@@ -40,19 +43,22 @@ export async function createStudent(data: {
 export async function deleteStudent(student_id: string) {
   const res = await fetch(`${BASE}/api/admin/students/${encodeURIComponent(student_id)}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
   });
   return safeJson(res);
 }
 
 export async function getPolicy(): Promise<PolicyResponse> {
-  const res = await fetch(`${BASE}/api/admin/policy`);
+  const res = await fetch(`${BASE}/api/admin/policy`, {
+    headers: getAuthHeaders(),
+  });
   return safeJson(res);
 }
 
 export async function setPolicy(min_eligible_year: number, max_eligible_year: number) {
   const res = await fetch(`${BASE}/api/admin/policy`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ min_eligible_year, max_eligible_year }),
   });
   return safeJson(res);

@@ -1,10 +1,13 @@
 from flask import Blueprint, request, jsonify
 from database import db
-from utils.helpers import build_pagination_metadata
+from utils.helpers import build_pagination_metadata, require_role
 
 professor_bp = Blueprint('professor', __name__)
 
+PROF_SORT_COLS = {'id', 'student_name', 'roll_number', 'course_name', 'status'}
+
 @professor_bp.route("/dashboard", methods=["GET"])
+@require_role('professor')
 def professor_dashboard():
     prof_id = request.args.get("professor_id")
     if not prof_id:
@@ -20,6 +23,7 @@ def professor_dashboard():
     })
 
 @professor_bp.route("/registrations", methods=["GET"])
+@require_role('professor')
 def professor_registrations():
     prof_id = request.args.get("professor_id")
     if not prof_id:
@@ -34,6 +38,8 @@ def professor_registrations():
     search = request.args.get('search', '').strip()
     sort = request.args.get('sort', 'id').strip()
     order = request.args.get('order', 'asc').strip()
+    sort = sort if sort in PROF_SORT_COLS else 'id'
+    order = 'desc' if order == 'desc' else 'asc'
 
     regs, total = db.get_professor_registrations(prof_id, page, limit, search, sort, order)
     
@@ -65,6 +71,7 @@ def professor_registrations():
     })
 
 @professor_bp.route("/action", methods=["POST"])
+@require_role('professor')
 def professor_action():
     data = request.get_json() or {}
     reg_id = data.get("registration_id")
@@ -80,6 +87,7 @@ def professor_action():
         return jsonify({"success": False, "message": "Failed to update registration or registration not found."}), 404
 
 @professor_bp.route("/grade", methods=["POST"])
+@require_role('professor')
 def professor_grade():
     data = request.get_json() or {}
     reg_id = data.get("registration_id")

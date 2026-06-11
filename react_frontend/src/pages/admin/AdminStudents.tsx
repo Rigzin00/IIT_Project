@@ -15,6 +15,9 @@ export default function AdminStudents() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
+  // Update page title
+  useEffect(() => { document.title = 'Students — AcadPortal'; }, []);
   
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(50);
@@ -170,8 +173,14 @@ export default function AdminStudents() {
               <Spinner size="lg" />
             </div>
           ) : students.length === 0 ? (
-            <div className="text-center py-10 text-[13px] text-[#9CA3AF]">
-              No students found.
+            <div className="flex flex-col items-center justify-center text-center py-12 px-6 text-[#9CA3AF]">
+              <Search size={32} className="mb-3 opacity-40" />
+              <div className="text-[13px] font-semibold text-[#555555] mb-1">
+                {search ? 'No students match your search' : 'No students found'}
+              </div>
+              {search && (
+                <div className="text-[12px]">Try a different name, roll number, or department.</div>
+              )}
             </div>
           ) : (
             <>
@@ -263,7 +272,7 @@ export default function AdminStudents() {
                           </span>
                         </td>
                         <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                          <span className={`text-[13px] font-bold ${s.cgpa >= 8.5 ? 'text-[#16a34a]' : s.cgpa >= 6 ? 'text-[#d97706]' : 'text-[#ea580c]'}`}>
+                          <span className="text-[13px] font-bold text-[#1F2937]">
                             {s.cgpa.toFixed(2)}
                           </span>
                         </td>
@@ -310,7 +319,7 @@ export default function AdminStudents() {
       {/* Add Student Modal */}
       <Modal open={showAdd} onClose={() => { setShowAdd(false); setFormError(''); }} title="Add New Student">
         <form onSubmit={handleAdd} className="font-['Open_Sans']">
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div className="col-span-2">
               <label className="block text-[12px] font-bold text-[#555555] mb-1">Full Name *</label>
               <input id="form-name" required className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all" placeholder="e.g. Rahul Sharma" value={form.name} onChange={e => F('name', e.target.value)} />

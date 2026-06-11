@@ -136,9 +136,9 @@ export default function Login() {
               className="w-full flex items-center justify-center gap-2 bg-[#C41212] hover:bg-[#9A0F0F] text-white font-bold text-[14px] py-2.5 rounded transition-colors disabled:opacity-60 disabled:cursor-not-allowed outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#C41212]"
               disabled={loading}
             >
-              {loading 
-                ? <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.6s linear infinite' }} /> 
-                : `Sign in via SSO`
+              {loading
+                ? <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                : 'Sign in via SSO'
               }
             </button>
           </form>
@@ -165,7 +165,6 @@ export default function Login() {
           Managed by NIC • Govt of India
         </div>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

@@ -19,6 +19,8 @@ export default function StudentCourses() {
   const { showToast } = useToast();
   const studentUser = user as StudentUser;
 
+  useEffect(() => { document.title = 'Courses — AcadPortal'; }, []);
+
   const [courses, setCourses] = useState<Course[]>([]);
   const [myRegs, setMyRegs] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);

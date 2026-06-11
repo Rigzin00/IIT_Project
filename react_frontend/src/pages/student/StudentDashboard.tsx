@@ -29,6 +29,8 @@ const GRADE_COLOR: Record<string, string> = {
 export default function StudentDashboard() {
   const { user } = useAuth();
   const studentUser = user as StudentUser;
+
+  useEffect(() => { document.title = 'My Profile — AcadPortal'; }, []);
   const [profile,       setProfile]       = useState<StudentProfile | null>(null);
   const [completed,     setCompleted]     = useState<CompletedCourse[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);

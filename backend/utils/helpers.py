@@ -1,4 +1,6 @@
 import math
+from functools import wraps
+from flask import request, jsonify
 from database import db
 
 # Extract the batch year from a student's roll number.
@@ -48,3 +50,19 @@ def verify_admin(email):
             "department": "Administration"
         }
     return None
+
+# ── Simple role-based access control ──────────────────────────────────────────
+# Reads the X-Role header sent by the frontend and rejects requests whose
+# declared role is not in the allowed list.  This is a lightweight guard;
+# the export route additionally re-validates the email against the database.
+def require_role(*roles):
+    """Decorator: only allow requests whose X-Role header is in `roles`."""
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            role = request.headers.get('X-Role', '').lower()
+            if role not in [r.lower() for r in roles]:
+                return jsonify({"success": False, "message": "Unauthorized."}), 401
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator

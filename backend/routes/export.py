@@ -1,12 +1,16 @@
 import io
+import logging
 import pandas as pd
 from flask import Blueprint, request, jsonify, send_file
 from database import db
 from utils.helpers import verify_admin
+from utils.limiter import limiter
 
 export_bp = Blueprint('export', __name__)
+logger = logging.getLogger(__name__)
 
 @export_bp.route("/", methods=["GET"])
+@limiter.limit("10 per minute")
 def export_students():
     # Accessible by Professors and Administrators
     role = request.args.get("role", "admin").lower()
@@ -120,7 +124,7 @@ def export_students():
         db.log_export(email, role, export_format, filters_used, len(df))
     except Exception as e:
         # Failsafe wrapper so exporting never breaks
-        print(f"Audit log wrapper failed: {e}")
+        logger.error("Audit log wrapper failed: %s", e, exc_info=True)
 
     # Render File and Send
     if export_format == "xlsx":
