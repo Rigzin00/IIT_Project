@@ -102,12 +102,12 @@ export default function AdminExport() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans'] animate-fade-in">
-      <div className="bg-white border-b border-[#E5E7EB] px-8">
-        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8">
+        <div className="py-4 md:py-5 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div className="w-1 h-9 bg-[#C41212] rounded-sm flex-shrink-0" />
             <div>
-              <div className="text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
+              <div className="text-[16px] md:text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
                 Export Student Data
               </div>
               <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
@@ -119,8 +119,8 @@ export default function AdminExport() {
         </div>
       </div>
 
-      <div className="px-8 py-6 space-y-5 animate-fade-up">
-        <div className="max-w-[540px]">
+      <div className="px-4 md:px-8 py-4 md:py-6 space-y-4 md:space-y-5 animate-fade-up">
+        <div className="w-full max-w-[540px]">
 
           {/* Format selector */}
           <div className="font-bold text-[13px] text-[#1F2937] mb-3">Output Format</div>
@@ -150,7 +150,7 @@ export default function AdminExport() {
             Filters <span className="text-[#9CA3AF] font-normal text-[12px]">(all optional)</span>
           </div>
           <div className="bg-white border border-[#E5E7EB] rounded-md p-4 mb-5">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="exp-year">Year of Study</label>
                 <select id="exp-year" className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all cursor-pointer" value={year} onChange={e => setYear(e.target.value)}>

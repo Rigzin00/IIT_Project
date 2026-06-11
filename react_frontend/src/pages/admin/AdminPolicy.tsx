@@ -60,12 +60,12 @@ export default function AdminPolicy() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans'] animate-fade-in">
-      <div className="bg-white border-b border-[#E5E7EB] px-8">
-        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8">
+        <div className="py-4 md:py-5 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div className="w-1 h-9 bg-[#C41212] rounded-sm flex-shrink-0" />
             <div>
-              <div className="text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
+              <div className="text-[16px] md:text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
                 Registration Policy
               </div>
               <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
@@ -77,10 +77,10 @@ export default function AdminPolicy() {
         </div>
       </div>
 
-      <div className="px-8 py-6 space-y-5 animate-fade-up">
+      <div className="px-4 md:px-8 py-4 md:py-6 space-y-4 md:space-y-5 animate-fade-up">
 
         {/* Current policy display */}
-        <div className="bg-white border border-[#E5E7EB] rounded-md px-5 py-4 max-w-[500px] shadow-sm transition-all duration-300 hover:shadow-md">
+        <div className="bg-white border border-[#E5E7EB] rounded-md px-4 md:px-5 py-4 w-full max-w-[500px] shadow-sm transition-all duration-300 hover:shadow-md">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 rounded-md bg-[#FEF2F2] border border-[#C41212]/25 flex items-center justify-center flex-shrink-0">
               <Shield size={18} className="text-[#C41212]" />
@@ -147,8 +147,8 @@ export default function AdminPolicy() {
         </div>
 
         {/* Info box */}
-        <div className="max-w-[500px] p-3 bg-[#E0F2FE] border border-[#bae6fd] rounded-md text-[12px] text-[#0284c7] leading-relaxed animate-fade-in delay-100">
-          <strong>ℹ How this works:</strong> Students whose <strong>batch year</strong> (first 4 digits of roll number, e.g. <em>2023</em>EE1012) falls outside the selected range will receive an <em>"Access Denied"</em> error when attempting to log in or register for courses. Changes take effect immediately.
+        <div className="w-full max-w-[500px] p-3 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md text-[12px] text-[#555555] leading-relaxed animate-fade-in delay-100">
+          <strong className="text-[#1F2937]">ℹ How this works:</strong> Students whose <strong>batch year</strong> (first 4 digits of roll number, e.g. <em>2023</em>EE1012) falls outside the selected range will receive an <em>"Access Denied"</em> error when attempting to log in or register for courses. Changes take effect immediately.
         </div>
       </div>
     </div>

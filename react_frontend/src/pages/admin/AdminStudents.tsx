@@ -127,12 +127,12 @@ export default function AdminStudents() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans'] animate-fade-in">
-      <div className="bg-white border-b border-[#E5E7EB] px-8">
-        <div className="py-5 flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8">
+        <div className="py-4 md:py-5 flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <div className="w-1 h-9 bg-[#C41212] rounded-sm flex-shrink-0" />
             <div>
-              <div className="text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
+              <div className="text-[16px] md:text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
                 Students
               </div>
               <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
@@ -147,10 +147,10 @@ export default function AdminStudents() {
         </div>
       </div>
       
-      <div className="px-8 py-6 space-y-5 animate-fade-up">
+      <div className="px-4 md:px-8 py-4 md:py-6 space-y-4 md:space-y-5 animate-fade-up">
         {/* Search */}
         <div className="flex gap-3 items-center">
-          <div className="relative flex-1 max-w-[380px]">
+          <div className="relative flex-1 md:max-w-[380px]">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
             <input
               id="admin-search"
@@ -163,7 +163,7 @@ export default function AdminStudents() {
           </div>
         </div>
 
-        {/* Table */}
+        {/* Students list */}
         <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md">
           {loading ? (
             <div className="flex items-center justify-center p-12">
@@ -174,79 +174,125 @@ export default function AdminStudents() {
               No students found.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#FAFAFA]">
-                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('name')}>
-                      Student <SortIcon col="name" />
-                    </th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('roll_number')}>
-                      Roll No. <SortIcon col="roll_number" />
-                    </th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('department')}>
-                      Department <SortIcon col="department" />
-                    </th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('year_of_study')}>
-                      Year <SortIcon col="year_of_study" />
-                    </th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('cgpa')}>
-                      CGPA <SortIcon col="cgpa" />
-                    </th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('is_approved_for_login')}>
-                      Login <SortIcon col="is_approved_for_login" />
-                    </th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]"></th>
-                  </tr>
-                </thead>
-                <tbody className={loading ? 'opacity-50 pointer-events-none' : ''}>
-                  {students.map(s => (
-                    <tr key={s.id} className="hover:bg-[#FAFAFA] transition-colors duration-200">
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <div className="text-[13px] font-semibold text-[#1F2937]">{s.name}</div>
-                        <div className="text-[11px] text-[#9CA3AF] mt-0.5">{s.email}</div>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <span className="font-mono text-[12px] text-[#555555]">{s.roll_number}</span>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <span className="text-[11px] font-semibold text-[#C41212] bg-[#FEF2F2] border border-[#C41212]/25 rounded px-2 py-0.5">
-                          {s.department}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <span className="text-[11px] font-semibold text-[#555555] bg-[#F5F5F5] border border-[#E5E7EB] rounded px-2 py-0.5">
-                          Year {s.year_of_study}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <span className={`text-[13px] font-bold ${s.cgpa >= 8.5 ? 'text-[#16a34a]' : s.cgpa >= 6 ? 'text-[#d97706]' : 'text-[#ea580c]'}`}>
-                          {s.cgpa.toFixed(2)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <span className={`text-[11px] font-semibold rounded px-2 py-0.5 border ${
-                          s.is_approved_for_login
-                            ? 'text-[#374151] border-[#D1D5DB] bg-[#F9FAFB]'
-                            : 'text-[#C41212] border-[#C41212]/25 bg-[#FEF2F2]'
-                        }`}>
-                          {s.is_approved_for_login ? 'Enabled' : 'Disabled'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB] text-right">
-                        <button
-                          className="flex items-center justify-center p-1.5 text-[#C41212] hover:bg-[#FEF2F2] rounded transition-colors ml-auto"
-                          onClick={() => setDeleteTarget(s)}
-                          id={`delete-${s.id}`}
-                          title="Delete Student"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </td>
+            <>
+              {/* ════ MOBILE — Card list ════ */}
+              <div className="md:hidden divide-y divide-[#F3F4F6]">
+                {students.map(s => (
+                  <div key={s.id} className="p-4 hover:bg-[#FAFAFA] transition-colors duration-150">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="min-w-0">
+                        <div className="text-[13px] font-bold text-[#1F2937] truncate">{s.name}</div>
+                        <div className="text-[11px] text-[#9CA3AF] mt-0.5 truncate">{s.email}</div>
+                      </div>
+                      <button
+                        className="shrink-0 flex items-center justify-center p-1.5 text-[#C41212] hover:bg-[#FEF2F2] rounded transition-colors"
+                        onClick={() => setDeleteTarget(s)}
+                        id={`delete-${s.id}`}
+                        title="Delete Student"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <div className="font-mono text-[11px] text-[#555555] mb-2">{s.roll_number}</div>
+                    <div className="flex flex-wrap gap-2 text-[11px]">
+                      <span className="font-semibold text-[#C41212] bg-[#FEF2F2] border border-[#C41212]/25 rounded px-2 py-0.5">
+                        {s.department}
+                      </span>
+                      <span className="font-semibold text-[#555555] bg-[#F5F5F5] border border-[#E5E7EB] rounded px-2 py-0.5">
+                        Year {s.year_of_study}
+                      </span>
+                      <span className="font-bold text-[#1F2937] bg-[#F5F5F5] border border-[#E5E7EB] rounded px-2 py-0.5">
+                        CGPA {s.cgpa.toFixed(2)}
+                      </span>
+                      <span className={`font-semibold rounded px-2 py-0.5 border ${
+                        s.is_approved_for_login
+                          ? 'text-[#374151] border-[#D1D5DB] bg-[#F9FAFB]'
+                          : 'text-[#C41212] border-[#C41212]/25 bg-[#FEF2F2]'
+                      }`}>
+                        {s.is_approved_for_login ? 'Login On' : 'Login Off'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ════ DESKTOP — Table ════ */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-[#FAFAFA]">
+                      <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('name')}>
+                        Student <SortIcon col="name" />
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('roll_number')}>
+                        Roll No. <SortIcon col="roll_number" />
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('department')}>
+                        Department <SortIcon col="department" />
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('year_of_study')}>
+                        Year <SortIcon col="year_of_study" />
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('cgpa')}>
+                        CGPA <SortIcon col="cgpa" />
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] cursor-pointer hover:bg-[#F3F4F6]" onClick={() => handleSort('is_approved_for_login')}>
+                        Login <SortIcon col="is_approved_for_login" />
+                      </th>
+                      <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className={loading ? 'opacity-50 pointer-events-none' : ''}>
+                    {students.map(s => (
+                      <tr key={s.id} className="hover:bg-[#FAFAFA] transition-colors duration-200">
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <div className="text-[13px] font-semibold text-[#1F2937]">{s.name}</div>
+                          <div className="text-[11px] text-[#9CA3AF] mt-0.5">{s.email}</div>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <span className="font-mono text-[12px] text-[#555555]">{s.roll_number}</span>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <span className="text-[11px] font-semibold text-[#C41212] bg-[#FEF2F2] border border-[#C41212]/25 rounded px-2 py-0.5">
+                            {s.department}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <span className="text-[11px] font-semibold text-[#555555] bg-[#F5F5F5] border border-[#E5E7EB] rounded px-2 py-0.5">
+                            Year {s.year_of_study}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <span className={`text-[13px] font-bold ${s.cgpa >= 8.5 ? 'text-[#16a34a]' : s.cgpa >= 6 ? 'text-[#d97706]' : 'text-[#ea580c]'}`}>
+                            {s.cgpa.toFixed(2)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                          <span className={`text-[11px] font-semibold rounded px-2 py-0.5 border ${
+                            s.is_approved_for_login
+                              ? 'text-[#374151] border-[#D1D5DB] bg-[#F9FAFB]'
+                              : 'text-[#C41212] border-[#C41212]/25 bg-[#FEF2F2]'
+                          }`}>
+                            {s.is_approved_for_login ? 'Enabled' : 'Disabled'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-b border-[#E5E7EB] text-right">
+                          <button
+                            className="flex items-center justify-center p-1.5 text-[#C41212] hover:bg-[#FEF2F2] rounded transition-colors ml-auto"
+                            onClick={() => setDeleteTarget(s)}
+                            id={`delete-${s.id}`}
+                            title="Delete Student"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination shared */}
               <Pagination 
                 page={page} 
                 limit={limit} 
@@ -256,7 +302,7 @@ export default function AdminStudents() {
                 onLimitChange={setLimit} 
                 isLoading={loading} 
               />
-            </div>
+            </>
           )}
         </div>
       </div>
