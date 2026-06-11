@@ -35,7 +35,7 @@ export default function ProfessorRegistrations() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [gradeInputs, setGradeInputs] = useState<Record<string, string>>({});
   const [exportLoading, setExportLoading] = useState<'csv' | 'xlsx' | null>(null);
-  const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
+  const [expandedRegId, setExpandedRegId] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -213,7 +213,7 @@ export default function ProfessorRegistrations() {
                 {regs.map(r => {
                   const isActing = actionLoading === r.registration_id + 'approved' || actionLoading === r.registration_id + 'rejected';
                   const isGrading = actionLoading === r.registration_id + 'grade';
-                  const isExpanded = expandedStudentId === r.student_id;
+                  const isExpanded = expandedRegId === r.registration_id;
 
                   return (
                     <div key={r.registration_id} className="p-4 border-b border-[#F3F4F6] last:border-b-0 transition-colors duration-150 hover:bg-[#FAFAFA]">
@@ -248,7 +248,7 @@ export default function ProfessorRegistrations() {
                       {/* ── Prior courses toggle ── */}
                       {r.self_reported_courses?.length > 0 && (
                         <button
-                          onClick={() => setExpandedStudentId(prev => prev === r.student_id ? null : r.student_id)}
+                          onClick={() => setExpandedRegId(prev => prev === r.registration_id ? null : r.registration_id)}
                           className="mb-3 inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold border border-[#E5E7EB] rounded-[4px] bg-white text-[#555555] hover:border-[#C41212] hover:text-[#C41212] transition-colors duration-150"
                         >
                           <ChevDown size={12} className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
@@ -374,17 +374,17 @@ export default function ProfessorRegistrations() {
                             <td style={{ padding: '12px 16px', verticalAlign: 'middle' }}>
                               {r.self_reported_courses?.length > 0 ? (
                                 <button
-                                  onClick={() => setExpandedStudentId(prev => prev === r.student_id ? null : r.student_id)}
+                                  onClick={() => setExpandedRegId(prev => prev === r.registration_id ? null : r.registration_id)}
                                   style={{
                                     display: 'inline-flex', alignItems: 'center', gap: 5,
                                     padding: '3px 10px', fontSize: 11, fontWeight: 700,
-                                    color: expandedStudentId === r.student_id ? '#fff' : '#C41212',
-                                    background: expandedStudentId === r.student_id ? '#C41212' : '#FEF2F2',
+                                    color: expandedRegId === r.registration_id ? '#fff' : '#C41212',
+                                    background: expandedRegId === r.registration_id ? '#C41212' : '#FEF2F2',
                                     border: '1px solid #C41212', borderRadius: 20, cursor: 'pointer',
                                     transition: 'all 0.15s',
                                   }}
                                 >
-                                  {expandedStudentId === r.student_id ? '▲' : '▼'}
+                                  {expandedRegId === r.registration_id ? '▲' : '▼'}
                                   &nbsp;{r.self_reported_courses.length} Course{r.self_reported_courses.length !== 1 ? 's' : ''}
                                 </button>
                               ) : (
@@ -423,7 +423,7 @@ export default function ProfessorRegistrations() {
                             </td>
                           </tr>
                           {/* ── Expanded: Self-Reported Prior Courses panel ── */}
-                          {expandedStudentId === r.student_id && (
+                          {expandedRegId === r.registration_id && (
                             <tr style={{ background: '#FFFBFB', borderBottom: '2px solid #FECACA' }}>
                               <td colSpan={8} style={{ padding: '0' }}>
                                 <div style={{ borderLeft: '3px solid #C41212', margin: '12px 16px 12px 24px', paddingLeft: 16 }}>
