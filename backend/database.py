@@ -207,6 +207,7 @@ class SupabaseAdapter:
             elif sort == "roll_number": flat_list.sort(key=lambda x: x.get("roll_number", ""), reverse=rev)
             elif sort == "department": flat_list.sort(key=lambda x: x.get("student_department", ""), reverse=rev)
             elif sort == "course_name": flat_list.sort(key=lambda x: x.get("course_name", ""), reverse=rev)
+            elif sort == "cgpa": flat_list.sort(key=lambda x: x.get("cgpa") or 0.0, reverse=rev)
             
         return flat_list, res.count
 

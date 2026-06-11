@@ -4,7 +4,7 @@ from utils.helpers import build_pagination_metadata, require_role
 
 professor_bp = Blueprint('professor', __name__)
 
-PROF_SORT_COLS = {'id', 'student_name', 'roll_number', 'course_name', 'status'}
+PROF_SORT_COLS = {'id', 'student_name', 'roll_number', 'course_name', 'status', 'cgpa', 'grade'}
 
 @professor_bp.route("/dashboard", methods=["GET"])
 @require_role('professor')
