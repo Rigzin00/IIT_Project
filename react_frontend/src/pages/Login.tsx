@@ -47,38 +47,42 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F5] text-[14px] text-[#1F2937] font-['Open_Sans',sans-serif]">
-      <div className="w-full max-w-[400px] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F5] text-[14px] text-[#1F2937] font-['Open_Sans',sans-serif] px-4 py-8">
+      <div className="w-full max-w-[400px]">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <img
             src="/logo.png"
             alt="logo"
-            className="w-[72px] h-[72px] object-contain mx-auto mb-4 opacity-90 grayscale-[20%]"
+            className="w-[56px] h-[56px] sm:w-[72px] sm:h-[72px] object-contain mx-auto mb-3 sm:mb-4 opacity-90 grayscale-[20%]"
           />
-          <div className="text-[20px] font-extrabold text-[#1F2937] tracking-tight">Academic Management System</div>
-          <div className="text-[13.5px] text-[#6B7280] mt-1.5 font-semibold">Secure Authentication Portal</div>
+          <div className="text-[18px] sm:text-[20px] font-extrabold text-[#1F2937] tracking-tight leading-snug">Academic Management System</div>
+          <div className="text-[12.5px] sm:text-[13.5px] text-[#6B7280] mt-1.5 font-semibold">Secure Authentication Portal</div>
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-[#E5E7EB] rounded-md shadow-sm p-7">
+        <div className="bg-white border border-[#E5E7EB] rounded-md shadow-sm p-5 sm:p-7">
           {/* Role Tabs */}
           <div className="flex border-b border-[#E5E7EB] mb-6">
-            {ROLES.map(r => (
-              <button
-                key={r.id}
-                className={`flex-1 pb-3 text-[13px] font-bold uppercase tracking-wider transition-colors outline-none border-b-[3px] ${
-                  role === r.id
-                    ? 'border-[#C41212] text-[#1F2937]'
-                    : 'border-transparent text-[#9CA3AF] hover:text-[#4B5563]'
-                }`}
-                onClick={() => { setRole(r.id); setError(''); setEmail(''); setShowHint(false); }}
-                type="button"
-                id={`role-tab-${r.id}`}
-              >
-                {r.label}
-              </button>
-            ))}
+            {ROLES.map(r => {
+              const TabIcon = r.icon;
+              return (
+                <button
+                  key={r.id}
+                  className={`flex-1 pb-3 flex flex-col items-center gap-1 sm:flex-row sm:justify-center sm:gap-1.5 text-[11px] sm:text-[13px] font-bold uppercase tracking-wider transition-colors outline-none border-b-[3px] ${
+                    role === r.id
+                      ? 'border-[#C41212] text-[#1F2937]'
+                      : 'border-transparent text-[#9CA3AF] hover:text-[#4B5563]'
+                  }`}
+                  onClick={() => { setRole(r.id); setError(''); setEmail(''); setShowHint(false); }}
+                  type="button"
+                  id={`role-tab-${r.id}`}
+                >
+                  <TabIcon size={14} className="shrink-0" />
+                  <span>{r.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Form */}
