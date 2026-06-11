@@ -167,12 +167,12 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-[#F5F5F5] font-['Open_Sans']">
 
       {/* ── Page Header ── */}
-      <div className="bg-white border-b border-[#E5E7EB] px-8">
-        <div className="py-5 flex items-center gap-3">
+      <div className="bg-white border-b border-[#E5E7EB] px-4 md:px-8">
+        <div className="py-4 md:py-5 flex items-center gap-3">
           {/* Left red accent bar */}
           <div className="w-1 h-9 bg-[#C41212] rounded-sm flex-shrink-0" />
           <div>
-            <div className="text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
+            <div className="text-[16px] md:text-[17px] font-bold text-[#1F2937] leading-tight tracking-tight">
               My Profile
             </div>
             <div className="w-6 h-0.5 bg-[#C41212] rounded-sm mt-1" />
@@ -184,7 +184,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* ── Body ── */}
-      <div className="px-8 py-6 space-y-5">
+      <div className="px-4 md:px-8 py-4 md:py-6 space-y-4 md:space-y-5">
 
         {/* ── Profile card ── */}
         <div className="bg-white border border-[#E5E7EB] rounded-md px-5 py-4 flex items-start justify-between gap-4 flex-wrap">
@@ -253,44 +253,66 @@ export default function StudentDashboard() {
                 No active pre-registrations yet.
               </div>
             ) : (
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#FAFAFA]">
-                    {['Course', 'Credits', 'Professor', 'Status', 'Grade'].map(h => (
-                      <th key={h} className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <>
+                {/* Mobile cards */}
+                <div className="md:hidden divide-y divide-[#F3F4F6]">
                   {registrations.map(r => (
-                    <tr key={r.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <div className="text-[13px] font-semibold text-[#1F2937]">{r.course_name}</div>
-                        <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{r.course_id}</div>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB] text-[13px] text-[#555555]">
-                        {r.credits}
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB] text-[12px] text-[#9CA3AF]">
-                        {r.professor_name}
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <span className={`text-[12px] font-semibold ${STATUS_STYLE[r.status] || 'text-[#9CA3AF]'}`}>
+                    <div key={r.id} className="p-4 hover:bg-[#FAFAFA] transition-colors duration-150">
+                      <div className="flex items-start justify-between gap-3 mb-1.5">
+                        <div className="min-w-0">
+                          <div className="text-[13px] font-semibold text-[#1F2937] leading-snug">{r.course_name}</div>
+                          <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{r.course_id}</div>
+                        </div>
+                        <span className={`shrink-0 text-[11px] font-bold uppercase tracking-wide ${STATUS_STYLE[r.status] || 'text-[#9CA3AF]'}`}>
                           {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
                         </span>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        {r.grade
-                          ? <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[r.grade] || '#1F2937' }}>{r.grade}</span>
-                          : <span className="text-[13px] text-[#D1D5DB]">—</span>
-                        }
-                      </td>
-                    </tr>
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#9CA3AF]">
+                        <span>{r.credits} credits</span>
+                        <span>{r.professor_name}</span>
+                        {r.grade && <span className="font-bold" style={{ color: GRADE_COLOR[r.grade] || '#1F2937' }}>Grade: {r.grade}</span>}
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-[#FAFAFA]">
+                        {['Course', 'Credits', 'Professor', 'Status', 'Grade'].map(h => (
+                          <th key={h} className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {registrations.map(r => (
+                        <tr key={r.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            <div className="text-[13px] font-semibold text-[#1F2937]">{r.course_name}</div>
+                            <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{r.course_id}</div>
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB] text-[13px] text-[#555555]">{r.credits}</td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB] text-[12px] text-[#9CA3AF]">{r.professor_name}</td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            <span className={`text-[12px] font-semibold ${STATUS_STYLE[r.status] || 'text-[#9CA3AF]'}`}>
+                              {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            {r.grade
+                              ? <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[r.grade] || '#1F2937' }}>{r.grade}</span>
+                              : <span className="text-[13px] text-[#D1D5DB]">—</span>
+                            }
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -306,38 +328,55 @@ export default function StudentDashboard() {
                 No completed courses on record.
               </div>
             ) : (
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-[#FAFAFA]">
-                    {['Course', 'Credits', 'Semester', 'Grade'].map(h => (
-                      <th key={h} className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+              <>
+                {/* Mobile cards */}
+                <div className="md:hidden divide-y divide-[#F3F4F6]">
                   {completed.map(c => (
-                    <tr key={c.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <div className="text-[13px] font-semibold text-[#1F2937]">{c.course_name}</div>
-                        <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{c.course_id}</div>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB] text-[13px] text-[#555555]">
-                        {c.credits}
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB] text-[12px] text-[#9CA3AF]">
-                        {c.semester}
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                        <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>
-                          {c.grade}
-                        </span>
-                      </td>
-                    </tr>
+                    <div key={c.id} className="p-4 hover:bg-[#FAFAFA] transition-colors duration-150">
+                      <div className="flex items-start justify-between gap-3 mb-1">
+                        <div className="min-w-0">
+                          <div className="text-[13px] font-semibold text-[#1F2937] leading-snug">{c.course_name}</div>
+                          <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{c.course_id}</div>
+                        </div>
+                        <span className="text-[14px] font-bold shrink-0" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>{c.grade}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 text-[11px] text-[#9CA3AF]">
+                        <span>{c.credits} credits</span>
+                        <span>{c.semester}</span>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-[#FAFAFA]">
+                        {['Course', 'Credits', 'Semester', 'Grade'].map(h => (
+                          <th key={h} className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {completed.map(c => (
+                        <tr key={c.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            <div className="text-[13px] font-semibold text-[#1F2937]">{c.course_name}</div>
+                            <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{c.course_id}</div>
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB] text-[13px] text-[#555555]">{c.credits}</td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB] text-[12px] text-[#9CA3AF]">{c.semester}</td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>{c.grade}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -353,8 +392,8 @@ export default function StudentDashboard() {
               ⚠ {srError}
             </div>
           )}
-          <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden p-5">
-            {/* Form */}
+          <div className="bg-white border border-[#E5E7EB] rounded-md overflow-hidden p-4 md:p-5">
+            {/* Form — already responsive via sm/md grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 mb-5">
               <input
                 className="col-span-1 md:col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
@@ -419,10 +458,7 @@ export default function StudentDashboard() {
                 <div className="flex justify-end gap-2">
                   {isEditingId && (
                     <button
-                      onClick={() => {
-                        setIsEditingId(null);
-                        setCourseForm(EMPTY_FORM);
-                      }}
+                      onClick={() => { setIsEditingId(null); setCourseForm(EMPTY_FORM); }}
                       className="px-4 py-2 bg-[#F5F5F5] hover:bg-[#E5E7EB] text-[#374151] rounded text-[13px] font-bold transition-colors"
                     >
                       Cancel
@@ -439,64 +475,73 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            {/* List */}
+            {/* Self-reported list */}
             {selfReportedCourses.length > 0 && (
               <div className="border border-[#E5E7EB] rounded-md overflow-hidden mt-6">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-[#FAFAFA]">
-                      {['Course', 'Credits', 'Term', 'Grade', 'Proof', 'Actions'].map(h => (
-                        <th key={h} className={`px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] ${h === 'Actions' ? 'text-right' : 'text-left'}`}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selfReportedCourses.map(c => (
-                      <tr key={c.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
-                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                          <div className="text-[13px] font-semibold text-[#1F2937]">{c.course_name}</div>
+                {/* Mobile cards */}
+                <div className="md:hidden divide-y divide-[#F3F4F6]">
+                  {selfReportedCourses.map(c => (
+                    <div key={c.id} className="p-4 hover:bg-[#FAFAFA] transition-colors duration-150">
+                      <div className="flex items-start justify-between gap-3 mb-1">
+                        <div className="min-w-0">
+                          <div className="text-[13px] font-semibold text-[#1F2937] leading-snug">{c.course_name}</div>
                           <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{c.course_code}</div>
-                        </td>
-                        <td className="px-4 py-3 border-b border-[#E5E7EB] text-[13px] text-[#555555]">
-                          {c.credits}
-                        </td>
-                        <td className="px-4 py-3 border-b border-[#E5E7EB] text-[12px] text-[#9CA3AF]">
-                          {c.semester} {c.year}
-                        </td>
-                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                          <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>
-                            {c.grade}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 border-b border-[#E5E7EB]">
-                          {c.proof_url ? (
-                            <a href={c.proof_url} target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline text-[12px] font-semibold">
-                              View Link
-                            </a>
-                          ) : (
-                            <span className="text-[#9CA3AF] text-[12px]">None</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 border-b border-[#E5E7EB] text-right">
-                          <button
-                            onClick={() => handleEditCourse(c)}
-                            className="text-[#2563EB] hover:text-[#1D4ED8] text-[12px] font-bold mr-3"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCourse(c.id)}
-                            className="text-[#C41212] hover:text-[#991B1B] text-[12px] font-bold"
-                          >
-                            Delete
-                          </button>
-                        </td>
+                        </div>
+                        <span className="text-[14px] font-bold shrink-0" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>{c.grade}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 text-[11px] text-[#9CA3AF] mb-3">
+                        <span>{c.credits} credits</span>
+                        <span>{c.semester} {c.year}</span>
+                        {c.proof_url && (
+                          <a href={c.proof_url} target="_blank" rel="noopener noreferrer" className="text-[#C41212] font-semibold hover:underline">View Proof</a>
+                        )}
+                      </div>
+                      <div className="flex gap-3">
+                        <button onClick={() => handleEditCourse(c)} className="text-[12px] font-bold text-[#555555] hover:text-[#1F2937] border border-[#E5E7EB] px-3 py-1 rounded hover:bg-[#F5F5F5] transition-colors">Edit</button>
+                        <button onClick={() => handleDeleteCourse(c.id)} className="text-[12px] font-bold text-[#C41212] hover:text-[#991B1B] border border-[#C41212]/30 px-3 py-1 rounded hover:bg-[#FEF2F2] transition-colors">Delete</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-[#FAFAFA]">
+                        {['Course', 'Credits', 'Term', 'Grade', 'Proof', 'Actions'].map(h => (
+                          <th key={h} className={`px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB] ${h === 'Actions' ? 'text-right' : 'text-left'}`}>
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {selfReportedCourses.map(c => (
+                        <tr key={c.id} className="hover:bg-[#FAFAFA] transition-colors duration-75">
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            <div className="text-[13px] font-semibold text-[#1F2937]">{c.course_name}</div>
+                            <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mt-0.5">{c.course_code}</div>
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB] text-[13px] text-[#555555]">{c.credits}</td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB] text-[12px] text-[#9CA3AF]">{c.semester} {c.year}</td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            <span className="text-[13px] font-bold" style={{ color: GRADE_COLOR[c.grade] || '#1F2937' }}>{c.grade}</span>
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB]">
+                            {c.proof_url
+                              ? <a href={c.proof_url} target="_blank" rel="noopener noreferrer" className="text-[#C41212] hover:underline text-[12px] font-semibold">View Link</a>
+                              : <span className="text-[#9CA3AF] text-[12px]">None</span>
+                            }
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#E5E7EB] text-right">
+                            <button onClick={() => handleEditCourse(c)} className="text-[#555555] hover:text-[#1F2937] text-[12px] font-bold mr-3">Edit</button>
+                            <button onClick={() => handleDeleteCourse(c.id)} className="text-[#C41212] hover:text-[#991B1B] text-[12px] font-bold">Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
