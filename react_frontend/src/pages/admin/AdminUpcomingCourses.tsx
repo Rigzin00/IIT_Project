@@ -11,6 +11,7 @@ export default function AdminUpcomingCourses() {
   const [courseName, setCourseName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [professor, setProfessor] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,13 +21,14 @@ export default function AdminUpcomingCourses() {
     }
     
     try {
-      const res = await createUpcomingCourse({ course_code: courseCode, course_name: courseName, start_date: startDate, professor });
+      const res = await createUpcomingCourse({ course_code: courseCode, course_name: courseName, start_date: startDate, professor, description });
       if (res.success) {
         showToast('success', res.message || `Upcoming Course ${courseCode} has been scheduled for ${startDate} with Professor ${professor}!`);
         setCourseCode('');
         setCourseName('');
         setStartDate('');
         setProfessor('');
+        setDescription('');
       } else {
         showToast('error', res.message || 'Failed to add upcoming course.');
       }
@@ -117,6 +119,19 @@ export default function AdminUpcomingCourses() {
                   className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all"
                   value={professor}
                   onChange={e => setProfessor(e.target.value)}
+                />
+              </div>
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="description">
+                  Short Description
+                </label>
+                <textarea
+                  id="description"
+                  rows={2}
+                  placeholder="e.g. This upcoming course will cover..."
+                  className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all resize-none"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
                 />
               </div>
             </div>

@@ -469,7 +469,7 @@ class SupabaseAdapter:
             return res.data[0]["id"]
         return None
 
-    def add_course(self, course_code, name, credits, department, professor_identifier):
+    def add_course(self, course_code, name, credits, department, professor_identifier, description=""):
         try:
             prof_id = self.get_professor_id_by_identifier(professor_identifier)
             if not prof_id:
@@ -482,13 +482,13 @@ class SupabaseAdapter:
                 "department": department.strip().upper(),
                 "professor_id": prof_id,
                 "is_minor_eligible": False,
-                "description": ""
+                "description": description.strip()
             }).execute()
             return True, "Course added successfully!"
         except Exception as e:
             return False, str(e)
 
-    def add_upcoming_course(self, course_code, name, expected_start_date, professor_identifier):
+    def add_upcoming_course(self, course_code, name, expected_start_date, professor_identifier, description=""):
         try:
             prof_id = self.get_professor_id_by_identifier(professor_identifier)
             if not prof_id:
@@ -498,7 +498,8 @@ class SupabaseAdapter:
                 "course_code": course_code.strip().upper(),
                 "course_name": name.strip(),
                 "expected_start_date": expected_start_date,
-                "professor_id": prof_id
+                "professor_id": prof_id,
+                "description": description.strip()
             }).execute()
             return True, "Upcoming course scheduled successfully!"
         except Exception as e:

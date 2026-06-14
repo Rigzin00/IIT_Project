@@ -99,11 +99,12 @@ def admin_add_course():
     course_name = data.get("course_name")
     credits = data.get("credits")
     professor = data.get("professor")
+    description = data.get("description", "")
 
     if not course_code or not course_name or not credits or not professor:
         return jsonify({"success": False, "message": "All fields are required!"}), 400
 
-    success, message = db.add_course(course_code, course_name, credits, 'CSE', professor)
+    success, message = db.add_course(course_code, course_name, credits, 'CSE', professor, description)
     if success:
         return jsonify({"success": True, "message": message})
     return jsonify({"success": False, "message": message}), 400
@@ -116,11 +117,12 @@ def admin_add_upcoming_course():
     course_name = data.get("course_name")
     start_date = data.get("start_date")
     professor = data.get("professor")
+    description = data.get("description", "")
 
     if not course_code or not course_name or not start_date or not professor:
         return jsonify({"success": False, "message": "All fields are required!"}), 400
 
-    success, message = db.add_upcoming_course(course_code, course_name, start_date, professor)
+    success, message = db.add_upcoming_course(course_code, course_name, start_date, professor, description)
     if success:
         return jsonify({"success": True, "message": message})
     return jsonify({"success": False, "message": message}), 400

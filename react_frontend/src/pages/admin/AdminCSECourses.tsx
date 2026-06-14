@@ -11,6 +11,7 @@ export default function AdminCSECourses() {
   const [courseName, setCourseName] = useState('');
   const [credits, setCredits] = useState('');
   const [professor, setProfessor] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,13 +21,14 @@ export default function AdminCSECourses() {
     }
     
     try {
-      const res = await createCourse({ course_code: courseCode, course_name: courseName, credits: Number(credits), professor });
+      const res = await createCourse({ course_code: courseCode, course_name: courseName, credits: Number(credits), professor, description });
       if (res.success) {
         showToast('success', res.message || `Course ${courseCode} has been added with Professor ${professor}!`);
         setCourseCode('');
         setCourseName('');
         setCredits('');
         setProfessor('');
+        setDescription('');
       } else {
         showToast('error', res.message || 'Failed to add course.');
       }
@@ -118,6 +120,19 @@ export default function AdminCSECourses() {
                   className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all"
                   value={professor}
                   onChange={e => setProfessor(e.target.value)}
+                />
+              </div>
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="description">
+                  Short Description
+                </label>
+                <textarea
+                  id="description"
+                  rows={2}
+                  placeholder="e.g. An introductory course to programming..."
+                  className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all resize-none"
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
                 />
               </div>
             </div>
