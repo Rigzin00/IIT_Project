@@ -123,3 +123,18 @@ export async function updateStudentCgpa(student_id: string, cgpa: number): Promi
   return safeJson(res);
 }
 
+export interface UpcomingCourse {
+  id: string;
+  course_code: string;
+  course_name: string;
+  expected_start_date: string;
+  description: string;
+  professor_name: string;
+}
+
+export async function getUpcomingCourses(): Promise<{ success: boolean; courses: UpcomingCourse[] }> {
+  const res = await fetch(`${BASE}/api/student/upcoming-courses`, {
+    headers: getAuthHeaders(),
+  });
+  return safeJson(res);
+}

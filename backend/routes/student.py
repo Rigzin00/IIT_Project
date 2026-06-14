@@ -92,6 +92,15 @@ def student_courses():
         "pagination": build_pagination_metadata(total, page, limit)
     })
 
+@student_bp.route("/upcoming-courses", methods=["GET"])
+@require_role('student')
+def student_upcoming_courses():
+    courses = db.get_upcoming_courses()
+    return jsonify({
+        "success": True,
+        "courses": courses
+    })
+
 @student_bp.route("/register", methods=["POST"])
 @require_role('student')
 def student_register():

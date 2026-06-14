@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, Clock, XCircle, Search } from 'lucide-react';
-import { getStudentCourses, getStudentProfile, registerCourse } from '../../api/student';
-import type { Course, Registration } from '../../api/student';
+import { BookOpen, CheckCircle2, Clock, XCircle, Search, Calendar } from 'lucide-react';
+import { getStudentCourses, getStudentProfile, registerCourse, getUpcomingCourses } from '../../api/student';
+import type { Course, Registration, UpcomingCourse } from '../../api/student';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/Spinner';
@@ -22,8 +22,10 @@ export default function StudentCourses() {
   useEffect(() => { document.title = 'Courses — AcadPortal'; }, []);
 
   const [courses, setCourses] = useState<Course[]>([]);
+  const [upcomingCourses, setUpcomingCourses] = useState<UpcomingCourse[]>([]);
   const [myRegs, setMyRegs] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [upcomingLoading, setUpcomingLoading] = useState(true);
   const [registering, setRegistering] = useState<string | null>(null);
   
   const [search, setSearch] = useState('');
@@ -51,8 +53,20 @@ export default function StudentCourses() {
       .finally(() => setLoading(false));
   };
 
+  const fetchUpcoming = () => {
+    setUpcomingLoading(true);
+    getUpcomingCourses()
+      .then(res => {
+        if (res.success) setUpcomingCourses(res.courses);
+      })
+      .finally(() => setUpcomingLoading(false));
+  };
+
   useEffect(() => {
-    const delay = setTimeout(() => fetchCourses(), 300);
+    const delay = setTimeout(() => {
+      fetchCourses();
+      fetchUpcoming();
+    }, 300);
     return () => clearTimeout(delay);
   }, [page, limit, search, sortKey, sortDir]);
 
@@ -198,7 +212,7 @@ export default function StudentCourses() {
                         <div className="text-[14px] font-bold text-[#1F2937] leading-snug mb-1.5">{course.name}</div>
                         <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-[#9CA3AF]">
                           <span className="text-[#555555]">{course.department}</span>
-                          <span className="text-[#D1D5DB] text-[10px]">·</span>
+                          <span className="text-[#D1D5DB] text-[10px]">-</span>
                           <span className="text-[#555555]">{course.professor_name}</span>
                         </div>
                       </div>
@@ -252,6 +266,58 @@ export default function StudentCourses() {
             </div>
           </div>
         )}
+
+        {/* ── Upcoming Courses Section ── */}
+        <div className="mt-12">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar size={20} className="text-[#C41212]" />
+            <div className="text-[18px] font-extrabold text-[#1F2937] tracking-tight">
+              Upcoming Courses
+            </div>
+          </div>
+          
+          {upcomingLoading && upcomingCourses.length === 0 ? (
+            <div className="flex justify-center py-8"><Spinner /></div>
+          ) : upcomingCourses.length === 0 ? (
+            <div className="text-center py-8 px-6 bg-white border border-[#E5E7EB] rounded-md text-[#9CA3AF] text-[13px]">
+              No upcoming courses scheduled at this time.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(360px,1fr))] gap-px bg-[#E5E7EB] border border-[#E5E7EB] rounded-md overflow-hidden">
+              {upcomingCourses.map((uc, idx) => (
+                <div
+                  key={uc.id}
+                  className="bg-white p-5 flex flex-col hover:bg-[#FAFAFA] transition-colors duration-150"
+                  style={{ animation: 'fadeUp 0.25s ease both', animationDelay: `${idx * 40}ms` }}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mb-1">{uc.course_code}</div>
+                      <div className="text-[14px] font-bold text-[#1F2937] leading-snug mb-1.5">{uc.course_name}</div>
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-[#9CA3AF]">
+                        <span className="text-[#555555]">Professor: {uc.professor_name}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0 pt-0.5">
+                      <div className="inline-flex items-center px-2 py-1 rounded text-[10px] font-bold bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A] whitespace-nowrap">
+                        Starts: {uc.expected_start_date}
+                      </div>
+                    </div>
+                  </div>
+                  {uc.description && (
+                    <div className="text-[12px] text-[#9CA3AF] leading-relaxed border-t border-[#E5E7EB] mt-3.5 pt-3">
+                      {uc.description}
+                    </div>
+                  )}
+                  <div className="mt-3 text-[11px] font-bold text-[#9CA3AF] italic text-right">
+                    Registration opens later
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );

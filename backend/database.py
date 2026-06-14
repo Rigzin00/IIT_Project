@@ -113,6 +113,21 @@ class SupabaseAdapter:
             })
         return flat_list, res.count
 
+    def get_upcoming_courses(self):
+        res = self.client.table("upcoming_courses").select("id, course_code, course_name, expected_start_date, description, professors(name)").order("expected_start_date", desc=False).execute()
+        flat_list = []
+        for row in res.data:
+            prof_info = row.get("professors", {}) or {}
+            flat_list.append({
+                "id": str(row["id"]),
+                "course_code": row["course_code"],
+                "course_name": row["course_name"],
+                "expected_start_date": row.get("expected_start_date", ""),
+                "description": row.get("description", ""),
+                "professor_name": prof_info.get("name", "TBA")
+            })
+        return flat_list
+
     def register_course(self, student_id, course_id):
         try:
             check = self.client.table("registrations").select("id").eq("student_id", student_id).eq("course_id", course_id).execute()
