@@ -9,6 +9,8 @@ import ProfessorRegistrations from './pages/professor/ProfessorRegistrations';
 import AdminStudents from './pages/admin/AdminStudents';
 import AdminPolicy from './pages/admin/AdminPolicy';
 import AdminExport from './pages/admin/AdminExport';
+import AdminCSECourses from './pages/admin/AdminCSECourses';
+import AdminUpcomingCourses from './pages/admin/AdminUpcomingCourses';
 
 // Default page per role
 const DEFAULT_PAGE: Record<string, string> = {
@@ -36,6 +38,8 @@ function PortalApp() {
       case 'prof-dashboard':      return <ProfessorDashboard />;
       case 'prof-registrations':  return <ProfessorRegistrations />;
       case 'admin-students':      return <AdminStudents />;
+      case 'admin-cse-courses':   return <AdminCSECourses />;
+      case 'admin-upcoming-courses': return <AdminUpcomingCourses />;
       case 'admin-policy':        return <AdminPolicy />;
       case 'admin-export':        return <AdminExport />;
       default:                    return <div className="p-12 text-center text-[#9CA3AF]">Select a section from the sidebar.</div>;

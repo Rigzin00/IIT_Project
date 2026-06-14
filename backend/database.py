@@ -450,4 +450,58 @@ class SupabaseAdapter:
             print(f"Audit log failed: {e}")
             pass
 
+    # ── Admin Courses Management ───────────────────────────────────────────────
+
+    def get_professor_id_by_identifier(self, identifier):
+        identifier = identifier.strip()
+        # Try as UUID first
+        if len(identifier) == 36 and identifier.count('-') == 4:
+            res = self.client.table("professors").select("id").eq("id", identifier).execute()
+            if res.data:
+                return res.data[0]["id"]
+        # Try as name
+        res = self.client.table("professors").select("id").ilike("name", f"%{identifier}%").execute()
+        if res.data:
+            return res.data[0]["id"]
+        # Try as email
+        res = self.client.table("professors").select("id").ilike("email", f"%{identifier}%").execute()
+        if res.data:
+            return res.data[0]["id"]
+        return None
+
+    def add_course(self, course_code, name, credits, department, professor_identifier):
+        try:
+            prof_id = self.get_professor_id_by_identifier(professor_identifier)
+            if not prof_id:
+                return False, f"Professor '{professor_identifier}' not found."
+
+            res = self.client.table("courses").upsert({
+                "id": course_code.strip().upper(),
+                "name": name.strip(),
+                "credits": int(credits),
+                "department": department.strip().upper(),
+                "professor_id": prof_id,
+                "is_minor_eligible": False,
+                "description": ""
+            }).execute()
+            return True, "Course added successfully!"
+        except Exception as e:
+            return False, str(e)
+
+    def add_upcoming_course(self, course_code, name, expected_start_date, professor_identifier):
+        try:
+            prof_id = self.get_professor_id_by_identifier(professor_identifier)
+            if not prof_id:
+                return False, f"Professor '{professor_identifier}' not found."
+
+            res = self.client.table("upcoming_courses").insert({
+                "course_code": course_code.strip().upper(),
+                "course_name": name.strip(),
+                "expected_start_date": expected_start_date,
+                "professor_id": prof_id
+            }).execute()
+            return True, "Upcoming course scheduled successfully!"
+        except Exception as e:
+            return False, str(e)
+
 db = SupabaseAdapter(supabase_client)

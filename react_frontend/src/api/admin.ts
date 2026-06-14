@@ -63,3 +63,25 @@ export async function setPolicy(min_eligible_year: number, max_eligible_year: nu
   });
   return safeJson(res);
 }
+
+export async function createCourse(data: {
+  course_code: string; course_name: string; credits: number; professor: string;
+}) {
+  const res = await fetch(`${BASE}/api/admin/courses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify(data),
+  });
+  return safeJson(res);
+}
+
+export async function createUpcomingCourse(data: {
+  course_code: string; course_name: string; start_date: string; professor: string;
+}) {
+  const res = await fetch(`${BASE}/api/admin/upcoming-courses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify(data),
+  });
+  return safeJson(res);
+}

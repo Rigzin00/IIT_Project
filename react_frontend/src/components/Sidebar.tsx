@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GraduationCap, Users, ShieldCheck, LayoutDashboard, BookOpen, ClipboardList, UserCog, Settings, Download, ChevronRight, Menu, X } from 'lucide-react';
+import { GraduationCap, Users, ShieldCheck, LayoutDashboard, BookOpen, ClipboardList, UserCog, Settings, Download, ChevronRight, Menu, X, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface Props {
@@ -19,6 +19,8 @@ const professorLinks = [
 
 const adminLinks = [
   { id: 'admin-students', label: 'Students', icon: Users },
+  { id: 'admin-cse-courses', label: 'CSE Courses', icon: BookOpen },
+  { id: 'admin-upcoming-courses', label: 'Upcoming Courses', icon: Calendar },
   { id: 'admin-policy', label: 'Policy', icon: Settings },
   { id: 'admin-export', label: 'Export', icon: Download },
 ];
