@@ -21,9 +21,22 @@ def student_profile():
     completed = db.get_student_completed_courses(student_id)
     registrations = db.get_student_registrations(student_id)
 
-    # Simple calculations
-    total_credits = sum(item["credits"] for item in completed)
-    minor_gpa = student.get("cgpa", 0.0) # Using CGPA for demonstration
+    # Credit-weighted Minor GPA calculation
+    total_credits = 0
+    total_grade_points = 0.0
+    grade_scale = {
+        'A+': 10.0, 'A': 10.0, 'A-': 9.0, 'B+': 8.0, 'B': 8.0, 'B-': 7.0, 'C+': 6.0, 'C': 6.0, 'C-': 5.0, 'D': 4.0, 'F': 0.0
+    }
+    
+    for item in completed:
+        creds = float(item.get("credits", 0))
+        total_credits += creds
+        raw_grade = item.get("grade")
+        if raw_grade:
+            grade_val = grade_scale.get(raw_grade.strip().upper(), 7.0)
+            total_grade_points += (grade_val * creds)
+
+    minor_gpa = round(total_grade_points / total_credits, 2) if total_credits > 0 else 0.0
 
     return jsonify({
         "success": True,
@@ -35,6 +48,27 @@ def student_profile():
             "minor_gpa": minor_gpa
         }
     })
+
+@student_bp.route("/update-cgpa", methods=["POST"])
+@require_role('student')
+def update_cgpa():
+    data = request.get_json() or {}
+    student_id = data.get("student_id")
+    new_cgpa = data.get("cgpa")
+    
+    if not student_id or new_cgpa is None:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+        
+    try:
+        new_cgpa_float = float(new_cgpa)
+        if new_cgpa_float < 0 or new_cgpa_float > 10:
+            return jsonify({"success": False, "message": "CGPA must be between 0 and 10"}), 400
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid CGPA format"}), 400
+        
+    if db.update_student_cgpa(student_id, new_cgpa_float):
+        return jsonify({"success": True, "message": "CGPA updated successfully"})
+    return jsonify({"success": False, "message": "Failed to update CGPA"}), 500
 
 @student_bp.route("/courses", methods=["GET"])
 @require_role('student')

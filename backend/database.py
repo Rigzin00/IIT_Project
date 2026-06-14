@@ -242,17 +242,15 @@ class SupabaseAdapter:
                 "grade": grade,
                 "semester": "Spring 2026"
             }, on_conflict="student_id,course_id").execute()
-            
-            comp_res = self.client.table("completed_courses").select("grade").eq("student_id", student_id).execute()
-            if comp_res.data:
-                grade_points = {
-                    'A+': 10.0, 'A': 10.0, 'A-': 9.0, 'B+': 8.0, 'B': 8.0, 'B-': 7.0, 'C+': 6.0, 'C': 6.0, 'C-': 5.0, 'D': 4.0, 'F': 0.0
-                }
-                total_pts = sum(grade_points.get(row['grade'].strip().upper(), 7.0) for row in comp_res.data)
-                new_cgpa = round(total_pts / len(comp_res.data), 2)
-                self.client.table("students").update({"cgpa": new_cgpa}).eq("id", student_id).execute()
                 
         return len(res.data) > 0
+
+    def update_student_cgpa(self, student_id, cgpa):
+        try:
+            res = self.client.table("students").update({"cgpa": float(cgpa)}).eq("id", student_id).execute()
+            return len(res.data) > 0
+        except Exception:
+            return False
 
     def get_all_students(self, page=1, limit=50, search="", sort="name", order="asc"):
         query = self.client.table("students").select("*", count="exact")

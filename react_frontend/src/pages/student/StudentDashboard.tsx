@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Edit2, Check, X } from 'lucide-react';
 import {
   getStudentProfile,
   getSelfReportedCourses,
   addSelfReportedCourse,
   updateSelfReportedCourse,
   deleteSelfReportedCourse,
+  updateStudentCgpa,
 } from '../../api/student';
 import type { StudentProfile, CompletedCourse, Registration, SelfReportedCourse } from '../../api/student';
 import { useAuth } from '../../context/AuthContext';
@@ -46,6 +48,32 @@ export default function StudentDashboard() {
   const EMPTY_FORM = { id: '', student_id: '', course_code: '', course_name: '', credits: 0, grade: '', year: '', semester: '', proof_url: '' };
   const [courseForm, setCourseForm] = useState<SelfReportedCourse>(EMPTY_FORM);
   const [isEditingId, setIsEditingId] = useState<string | null>(null);
+
+  const [isEditingCgpa, setIsEditingCgpa] = useState(false);
+  const [cgpaInput, setCgpaInput] = useState('');
+  const [cgpaUpdating, setCgpaUpdating] = useState(false);
+
+  const handleUpdateCgpa = async () => {
+    if (!studentUser?.id) return;
+    const val = parseFloat(cgpaInput);
+    if (isNaN(val) || val < 0 || val > 10) return;
+    
+    setCgpaUpdating(true);
+    setError('');
+    try {
+      const res = await updateStudentCgpa(studentUser.id, val);
+      if (res.success) {
+        setProfile(prev => prev ? { ...prev, cgpa: val } : prev);
+        setIsEditingCgpa(false);
+      } else {
+        setError(res.message || 'Failed to update CGPA');
+      }
+    } catch {
+      setError('Cannot reach server.');
+    } finally {
+      setCgpaUpdating(false);
+    }
+  };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCourseForm({ ...courseForm, [e.target.name]: e.target.value });
@@ -216,9 +244,41 @@ export default function StudentDashboard() {
           </div>
           {/* CGPA */}
           <div className="text-right flex-shrink-0 pt-0.5">
-            <div className="text-[34px] font-extrabold text-[#C41212] leading-none">
-              {profile.cgpa.toFixed(2)}
-            </div>
+            {isEditingCgpa ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  step="0.01"
+                  className="w-20 text-[24px] font-extrabold text-[#C41212] border-b-2 border-[#C41212] bg-transparent outline-none text-right placeholder-[#FCA5A5]"
+                  value={cgpaInput}
+                  onChange={e => setCgpaInput(e.target.value)}
+                  placeholder="0.00"
+                  disabled={cgpaUpdating}
+                  autoFocus
+                />
+                <button onClick={handleUpdateCgpa} disabled={cgpaUpdating} className="text-[#16a34a] hover:bg-[#dcfce7] p-1 rounded transition-colors disabled:opacity-50">
+                  <Check size={18} />
+                </button>
+                <button onClick={() => setIsEditingCgpa(false)} disabled={cgpaUpdating} className="text-[#9CA3AF] hover:bg-[#F3F4F6] p-1 rounded transition-colors disabled:opacity-50">
+                  <X size={18} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-end justify-end gap-2 group">
+                 <div className="text-[34px] font-extrabold text-[#C41212] leading-none">
+                   {profile.cgpa.toFixed(2)}
+                 </div>
+                 <button 
+                   onClick={() => { setCgpaInput(profile.cgpa.toString()); setIsEditingCgpa(true); }}
+                   className="text-[#9CA3AF] opacity-0 group-hover:opacity-100 hover:text-[#C41212] transition-all pb-1"
+                   title="Edit CGPA"
+                 >
+                   <Edit2 size={16} />
+                 </button>
+              </div>
+            )}
             <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mt-1">
               CGPA
             </div>

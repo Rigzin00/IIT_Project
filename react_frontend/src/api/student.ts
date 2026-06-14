@@ -114,3 +114,12 @@ export async function deleteSelfReportedCourse(id: string, student_id: string): 
   return safeJson(res);
 }
 
+export async function updateStudentCgpa(student_id: string, cgpa: number): Promise<{success: boolean, message?: string}> {
+  const res = await fetch(`${BASE}/api/student/update-cgpa`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify({ student_id, cgpa }),
+  });
+  return safeJson(res);
+}
+
