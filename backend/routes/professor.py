@@ -101,3 +101,21 @@ def professor_grade():
         return jsonify({"success": True, "message": "Student grade updated successfully! Academic record synchronized."})
     else:
         return jsonify({"success": False, "message": "Failed to update grade or registration not found."}), 404
+
+@professor_bp.route("/courses/<course_id>", methods=["PUT"])
+@require_role('professor')
+def professor_update_course(course_id):
+    data = request.get_json() or {}
+    prof_id = data.get("professor_id")
+    name = data.get("name")
+    description = data.get("description", "")
+    credits = data.get("credits")
+    department = data.get("department")
+
+    if not prof_id or not name or not credits or not department:
+        return jsonify({"success": False, "message": "Missing required fields!"}), 400
+
+    success, message = db.update_course_by_prof(course_id, prof_id, name, description, credits, department)
+    if success:
+        return jsonify({"success": True, "message": message})
+    return jsonify({"success": False, "message": message}), 400

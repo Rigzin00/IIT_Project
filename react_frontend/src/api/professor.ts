@@ -71,3 +71,14 @@ export async function profGrade(registration_id: string, grade: string) {
   });
   return safeJson(res);
 }
+
+export async function updateCourse(course_id: string, data: {
+  professor_id: string; name: string; description: string; credits: number; department: string;
+}) {
+  const res = await fetch(`${BASE}/api/professor/courses/${encodeURIComponent(course_id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify(data),
+  });
+  return safeJson(res);
+}

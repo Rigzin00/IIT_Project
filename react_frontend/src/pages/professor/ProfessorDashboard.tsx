@@ -1,20 +1,26 @@
 import { useEffect, useState } from 'react';
-import { BookOpen } from 'lucide-react';
-import { getProfessorDashboard } from '../../api/professor';
+import { BookOpen, Edit2, Check, X as XIcon } from 'lucide-react';
+import { getProfessorDashboard, updateCourse } from '../../api/professor';
 import type { ProfCourse } from '../../api/professor';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/Spinner';
 import type { ProfessorUser } from '../../api/auth';
 
 export default function ProfessorDashboard() {
   const { user } = useAuth();
   const profUser = user as ProfessorUser;
+  const { showToast } = useToast();
   useEffect(() => { document.title = 'Dashboard — AcadPortal'; }, []);
 
   const [professor, setProfessor] = useState<ProfessorUser | null>(null);
   const [courses, setCourses] = useState<ProfCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', description: '', credits: 0, department: '' });
+  const [savingCourse, setSavingCourse] = useState(false);
 
   useEffect(() => {
     if (!profUser?.id) return;
@@ -31,6 +37,44 @@ export default function ProfessorDashboard() {
       .catch(() => setError('Cannot reach server.'))
       .finally(() => setLoading(false));
   }, [profUser?.id]);
+
+  const handleEditClick = (c: ProfCourse) => {
+    setEditingCourseId(c.id);
+    setEditForm({ name: c.name, description: c.description || '', credits: c.credits, department: c.department });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCourseId(null);
+  };
+
+  const handleSaveCourse = async (courseId: string) => {
+    if (!profUser?.id) return;
+    if (!editForm.name || !editForm.department || !editForm.credits) {
+      showToast('error', 'Name, Department, and Credits are required!');
+      return;
+    }
+    setSavingCourse(true);
+    try {
+      const res = await updateCourse(courseId, {
+        professor_id: profUser.id,
+        name: editForm.name,
+        description: editForm.description,
+        credits: editForm.credits,
+        department: editForm.department
+      });
+      if (res.success) {
+        showToast('success', res.message || 'Course updated successfully!');
+        setCourses(courses.map(c => c.id === courseId ? { ...c, ...editForm } : c));
+        setEditingCourseId(null);
+      } else {
+        showToast('error', res.message || 'Failed to update course.');
+      }
+    } catch (err) {
+      showToast('error', 'Server error while updating course.');
+    } finally {
+      setSavingCourse(false);
+    }
+  };
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[300px] bg-[#F5F5F5]">
@@ -96,33 +140,59 @@ export default function ProfessorDashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3">
-            {courses.map(c => (
+            {courses.map(c => {
+              const isEditing = editingCourseId === c.id;
+
+              return (
               <div
                 key={c.id}
                 className="bg-white border border-[#E5E7EB] rounded-md p-4 md:p-5 flex flex-col hover:border-[#D1D5DB] hover:shadow-sm transition-all duration-200"
               >
-                <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider mb-1">{c.id}</div>
-                <div className="text-[14px] md:text-[15px] font-bold text-[#1F2937] leading-snug mb-1.5">{c.name}</div>
-                <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-[#6B7280] mb-2">
-                  <span className="font-semibold">{c.department}</span>
-                  <span className="text-[#D1D5DB] text-[10px]">·</span>
-                  <span className="font-semibold">{c.credits} cr</span>
-                  {c.is_minor_eligible ? (
-                    <span className="ml-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#FEF2F2] text-[#C41212] border border-[#C41212]/25 uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#C41212] shrink-0" />
-                      Minor Eligible
-                    </span>
-                  ) : (
-                    <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#F5F5F5] text-[#555555] border border-[#E5E7EB] uppercase tracking-wider">Core Course</span>
-                  )}
-                </div>
-                {c.description && (
-                  <div className="text-[12px] text-[#9CA3AF] leading-relaxed mt-1 mb-1 line-clamp-2">
-                    {c.description}
+                {isEditing ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider">{c.id}</div>
+                      <div className="flex gap-1">
+                        <button disabled={savingCourse} onClick={() => handleSaveCourse(c.id)} className="p-1 text-green-600 hover:bg-green-50 rounded" title="Save"><Check size={14} /></button>
+                        <button disabled={savingCourse} onClick={handleCancelEdit} className="p-1 text-gray-500 hover:bg-gray-100 rounded" title="Cancel"><XIcon size={14} /></button>
+                      </div>
+                    </div>
+                    <input type="text" className="w-full text-[14px] md:text-[15px] font-bold text-[#1F2937] leading-snug border border-[#E5E7EB] rounded px-2 py-1 outline-none focus:border-[#C41212]" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} placeholder="Course Name" />
+                    <div className="flex gap-2">
+                      <input type="text" className="w-1/2 text-[11.5px] font-semibold text-[#6B7280] border border-[#E5E7EB] rounded px-2 py-1 outline-none focus:border-[#C41212]" value={editForm.department} onChange={e => setEditForm({...editForm, department: e.target.value})} placeholder="Department" />
+                      <input type="number" className="w-1/2 text-[11.5px] font-semibold text-[#6B7280] border border-[#E5E7EB] rounded px-2 py-1 outline-none focus:border-[#C41212]" value={editForm.credits} onChange={e => setEditForm({...editForm, credits: Number(e.target.value)})} placeholder="Credits" />
+                    </div>
+                    <textarea rows={2} className="w-full text-[12px] text-[#9CA3AF] leading-relaxed border border-[#E5E7EB] rounded px-2 py-1 outline-none focus:border-[#C41212] resize-none" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} placeholder="Short Description..." />
                   </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-[10px] font-bold text-[#C41212] uppercase tracking-wider">{c.id}</div>
+                      <button onClick={() => handleEditClick(c)} className="p-1 text-[#9CA3AF] hover:text-[#C41212] transition-colors rounded cursor-pointer border-none bg-transparent" title="Edit Course"><Edit2 size={13} /></button>
+                    </div>
+                    <div className="text-[14px] md:text-[15px] font-bold text-[#1F2937] leading-snug mb-1.5">{c.name}</div>
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] text-[#6B7280] mb-2">
+                      <span className="font-semibold">{c.department}</span>
+                      <span className="text-[#D1D5DB] text-[10px]">·</span>
+                      <span className="font-semibold">{c.credits} cr</span>
+                      {c.is_minor_eligible ? (
+                        <span className="ml-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#FEF2F2] text-[#C41212] border border-[#C41212]/25 uppercase tracking-wider">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C41212] shrink-0" />
+                          Minor Eligible
+                        </span>
+                      ) : (
+                        <span className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-[#F5F5F5] text-[#555555] border border-[#E5E7EB] uppercase tracking-wider">Core Course</span>
+                      )}
+                    </div>
+                    {c.description && (
+                      <div className="text-[12px] text-[#9CA3AF] leading-relaxed mt-1 mb-1 line-clamp-2">
+                        {c.description}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>

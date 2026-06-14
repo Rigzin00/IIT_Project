@@ -135,11 +135,28 @@ class SupabaseAdapter:
         if not prof_res.data:
             return None
             
-        courses_res = self.client.table("courses").select("*").eq("professor_id", professor_id).execute()
+        courses_res = self.client.table("courses").select("*").eq("professor_id", professor_id).order("id", desc=False).execute()
         return {
             "professor": prof_res.data[0],
             "courses": courses_res.data
         }
+
+    def update_course_by_prof(self, course_id, professor_id, name, description, credits, department):
+        try:
+            # Security check: ensures course belongs to professor
+            check = self.client.table("courses").select("id").eq("id", course_id).eq("professor_id", professor_id).execute()
+            if not check.data:
+                return False, "Course not found or access denied."
+                
+            res = self.client.table("courses").update({
+                "name": name.strip(),
+                "description": description.strip() if description else "",
+                "credits": int(credits),
+                "department": department.strip().upper()
+            }).eq("id", course_id).execute()
+            return True, "Course updated successfully!"
+        except Exception as e:
+            return False, str(e)
 
     def get_professor_registrations(self, professor_id, page=1, limit=50, search="", sort="id", order="asc"):
         query = self.client.table("registrations").select(
