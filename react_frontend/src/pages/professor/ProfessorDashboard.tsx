@@ -19,7 +19,7 @@ export default function ProfessorDashboard() {
   const [error, setError] = useState('');
   
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: '', description: '', credits: 0, department: '' });
+  const [editForm, setEditForm] = useState({ name: '', description: '', credits: 0, department: '', is_minor_eligible: false });
   const [savingCourse, setSavingCourse] = useState(false);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function ProfessorDashboard() {
 
   const handleEditClick = (c: ProfCourse) => {
     setEditingCourseId(c.id);
-    setEditForm({ name: c.name, description: c.description || '', credits: c.credits, department: c.department });
+    setEditForm({ name: c.name, description: c.description || '', credits: c.credits, department: c.department, is_minor_eligible: !!c.is_minor_eligible });
   };
 
   const handleCancelEdit = () => {
@@ -60,11 +60,12 @@ export default function ProfessorDashboard() {
         name: editForm.name,
         description: editForm.description,
         credits: editForm.credits,
-        department: editForm.department
+        department: editForm.department,
+        is_minor_eligible: editForm.is_minor_eligible
       });
       if (res.success) {
         showToast('success', res.message || 'Course updated successfully!');
-        setCourses(courses.map(c => c.id === courseId ? { ...c, ...editForm } : c));
+        setCourses(courses.map(c => c.id === courseId ? { ...c, ...editForm, is_minor_eligible: editForm.is_minor_eligible ? 1 : 0 } : c));
         setEditingCourseId(null);
       } else {
         showToast('error', res.message || 'Failed to update course.');
@@ -163,6 +164,10 @@ export default function ProfessorDashboard() {
                       <input type="number" className="w-1/2 text-[11.5px] font-semibold text-[#6B7280] border border-[#E5E7EB] rounded px-2 py-1 outline-none focus:border-[#C41212]" value={editForm.credits} onChange={e => setEditForm({...editForm, credits: Number(e.target.value)})} placeholder="Credits" />
                     </div>
                     <textarea rows={2} className="w-full text-[12px] text-[#9CA3AF] leading-relaxed border border-[#E5E7EB] rounded px-2 py-1 outline-none focus:border-[#C41212] resize-none" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} placeholder="Short Description..." />
+                    <label className="flex items-center gap-1.5 cursor-pointer mt-0.5">
+                      <input type="checkbox" className="w-3.5 h-3.5 text-[#C41212] border-[#E5E7EB] rounded focus:ring-[#C41212] cursor-pointer" checked={editForm.is_minor_eligible} onChange={e => setEditForm({...editForm, is_minor_eligible: e.target.checked})} />
+                      <span className="text-[11.5px] font-semibold text-[#1F2937]">Minor Eligible</span>
+                    </label>
                   </div>
                 ) : (
                   <>

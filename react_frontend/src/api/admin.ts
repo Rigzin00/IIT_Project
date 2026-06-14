@@ -65,7 +65,7 @@ export async function setPolicy(min_eligible_year: number, max_eligible_year: nu
 }
 
 export async function createCourse(data: {
-  course_code: string; course_name: string; credits: number; professor: string; description: string;
+  course_code: string; course_name: string; credits: number; professor: string; description: string; is_minor_eligible: boolean;
 }) {
   const res = await fetch(`${BASE}/api/admin/courses`, {
     method: 'POST',

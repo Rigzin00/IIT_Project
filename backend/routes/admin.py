@@ -100,11 +100,12 @@ def admin_add_course():
     credits = data.get("credits")
     professor = data.get("professor")
     description = data.get("description", "")
+    is_minor_eligible = data.get("is_minor_eligible", False)
 
     if not course_code or not course_name or not credits or not professor:
         return jsonify({"success": False, "message": "All fields are required!"}), 400
 
-    success, message = db.add_course(course_code, course_name, credits, 'CSE', professor, description)
+    success, message = db.add_course(course_code, course_name, credits, 'CSE', professor, description, is_minor_eligible)
     if success:
         return jsonify({"success": True, "message": message})
     return jsonify({"success": False, "message": message}), 400

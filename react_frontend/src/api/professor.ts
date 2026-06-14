@@ -73,7 +73,7 @@ export async function profGrade(registration_id: string, grade: string) {
 }
 
 export async function updateCourse(course_id: string, data: {
-  professor_id: string; name: string; description: string; credits: number; department: string;
+  professor_id: string; name: string; description: string; credits: number; department: string; is_minor_eligible: boolean;
 }) {
   const res = await fetch(`${BASE}/api/professor/courses/${encodeURIComponent(course_id)}`, {
     method: 'PUT',

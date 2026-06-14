@@ -141,7 +141,7 @@ class SupabaseAdapter:
             "courses": courses_res.data
         }
 
-    def update_course_by_prof(self, course_id, professor_id, name, description, credits, department):
+    def update_course_by_prof(self, course_id, professor_id, name, description, credits, department, is_minor_eligible=False):
         try:
             # Security check: ensures course belongs to professor
             check = self.client.table("courses").select("id").eq("id", course_id).eq("professor_id", professor_id).execute()
@@ -152,7 +152,8 @@ class SupabaseAdapter:
                 "name": name.strip(),
                 "description": description.strip() if description else "",
                 "credits": int(credits),
-                "department": department.strip().upper()
+                "department": department.strip().upper(),
+                "is_minor_eligible": bool(is_minor_eligible)
             }).eq("id", course_id).execute()
             return True, "Course updated successfully!"
         except Exception as e:
@@ -486,7 +487,7 @@ class SupabaseAdapter:
             return res.data[0]["id"]
         return None
 
-    def add_course(self, course_code, name, credits, department, professor_identifier, description=""):
+    def add_course(self, course_code, name, credits, department, professor_identifier, description="", is_minor_eligible=False):
         try:
             prof_id = self.get_professor_id_by_identifier(professor_identifier)
             if not prof_id:
@@ -498,7 +499,7 @@ class SupabaseAdapter:
                 "credits": int(credits),
                 "department": department.strip().upper(),
                 "professor_id": prof_id,
-                "is_minor_eligible": False,
+                "is_minor_eligible": bool(is_minor_eligible),
                 "description": description.strip()
             }).execute()
             return True, "Course added successfully!"

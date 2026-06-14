@@ -111,11 +111,12 @@ def professor_update_course(course_id):
     description = data.get("description", "")
     credits = data.get("credits")
     department = data.get("department")
+    is_minor_eligible = data.get("is_minor_eligible", False)
 
     if not prof_id or not name or not credits or not department:
         return jsonify({"success": False, "message": "Missing required fields!"}), 400
 
-    success, message = db.update_course_by_prof(course_id, prof_id, name, description, credits, department)
+    success, message = db.update_course_by_prof(course_id, prof_id, name, description, credits, department, is_minor_eligible)
     if success:
         return jsonify({"success": True, "message": message})
     return jsonify({"success": False, "message": message}), 400

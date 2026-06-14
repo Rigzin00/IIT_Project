@@ -12,6 +12,7 @@ export default function AdminCSECourses() {
   const [credits, setCredits] = useState('');
   const [professor, setProfessor] = useState('');
   const [description, setDescription] = useState('');
+  const [isMinorEligible, setIsMinorEligible] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ export default function AdminCSECourses() {
     }
     
     try {
-      const res = await createCourse({ course_code: courseCode, course_name: courseName, credits: Number(credits), professor, description });
+      const res = await createCourse({ course_code: courseCode, course_name: courseName, credits: Number(credits), professor, description, is_minor_eligible: isMinorEligible });
       if (res.success) {
         showToast('success', res.message || `Course ${courseCode} has been added with Professor ${professor}!`);
         setCourseCode('');
@@ -29,6 +30,7 @@ export default function AdminCSECourses() {
         setCredits('');
         setProfessor('');
         setDescription('');
+        setIsMinorEligible(false);
       } else {
         showToast('error', res.message || 'Failed to add course.');
       }
@@ -136,6 +138,20 @@ export default function AdminCSECourses() {
                 />
               </div>
             </div>
+            
+            <div className="flex items-center gap-2 mb-6 mt-4">
+              <input
+                type="checkbox"
+                id="isMinorEligible"
+                className="w-4 h-4 text-[#C41212] bg-white border-[#E5E7EB] rounded focus:ring-[#C41212] focus:ring-2 cursor-pointer"
+                checked={isMinorEligible}
+                onChange={e => setIsMinorEligible(e.target.checked)}
+              />
+              <label htmlFor="isMinorEligible" className="text-[13px] font-semibold text-[#1F2937] cursor-pointer">
+                Make this course Minor Eligible
+              </label>
+            </div>
+
             <button
               type="submit"
               className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow"
