@@ -92,7 +92,35 @@ export default function StudentDashboard() {
   };
 
   const handleSaveCourse = async () => {
-    if (!courseForm.course_code || !courseForm.course_name || !courseForm.credits) return;
+    if (!courseForm.course_code || !courseForm.course_name || !courseForm.credits) {
+      setSrError('Please select a valid course from the list.');
+      return;
+    }
+    if (!courseForm.grade) {
+      setSrError('Grade is required.');
+      return;
+    }
+    if (!courseForm.year) {
+      setSrError('Year is required.');
+      return;
+    }
+    if (!courseForm.semester) {
+      setSrError('Semester is required.');
+      return;
+    }
+
+    const isDuplicateSelf = selfReportedCourses.some(c => c.course_code === courseForm.course_code && c.id !== isEditingId);
+    if (isDuplicateSelf) {
+      setSrError('You have already added this course to your self-reported list.');
+      return;
+    }
+
+    const isDuplicateOfficial = completed.some(c => c.course_id === courseForm.course_code);
+    if (isDuplicateOfficial) {
+      setSrError('This course is already in your official completed courses record.');
+      return;
+    }
+
     if (!studentUser?.id) return;
     setSrSaving(true);
     setSrError('');
