@@ -54,6 +54,18 @@ export interface SelfReportedCourse {
 }
 export interface SelfReportedResponse { success: boolean; courses?: SelfReportedCourse[]; course?: SelfReportedCourse; message?: string; }
 
+export interface CatalogCourse {
+  id: string;
+  name: string;
+  credits: number;
+}
+export async function getStudentCatalog(): Promise<{success: boolean, catalog?: CatalogCourse[], message?: string}> {
+  const res = await fetch(`${BASE}/api/student/catalog`, {
+    headers: getAuthHeaders(),
+  });
+  return safeJson(res);
+}
+
 export async function getStudentProfile(student_id: string): Promise<ProfileResponse> {
   const res = await fetch(`${BASE}/api/student/profile?student_id=${encodeURIComponent(student_id)}`, {
     headers: getAuthHeaders(),

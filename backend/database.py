@@ -502,6 +502,10 @@ class SupabaseAdapter:
             return res.data[0]["id"]
         return None
 
+    def get_all_course_codes(self):
+        res = self.client.table("courses").select("id, name, credits").order("id", desc=False).execute()
+        return res.data
+
     def add_course(self, course_code, name, credits, department, professor_identifier, description="", is_minor_eligible=False):
         try:
             prof_id = self.get_professor_id_by_identifier(professor_identifier)

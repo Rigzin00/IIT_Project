@@ -7,8 +7,9 @@ import {
   updateSelfReportedCourse,
   deleteSelfReportedCourse,
   updateStudentCgpa,
+  getStudentCatalog,
 } from '../../api/student';
-import type { StudentProfile, CompletedCourse, Registration, SelfReportedCourse } from '../../api/student';
+import type { StudentProfile, CompletedCourse, Registration, SelfReportedCourse, CatalogCourse } from '../../api/student';
 import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/Spinner';
 import type { StudentUser } from '../../api/auth';
@@ -39,6 +40,7 @@ export default function StudentDashboard() {
   const [stats,         setStats]         = useState<{ completed_credits: number; minor_gpa: number } | null>(null);
   const [loading,       setLoading]       = useState(true);
   const [error,         setError]         = useState('');
+  const [catalog,       setCatalog]       = useState<CatalogCourse[]>([]);
 
   const [selfReportedCourses, setSelfReportedCourses] = useState<SelfReportedCourse[]>([]);
   const [srLoading, setSrLoading] = useState(false);
@@ -72,6 +74,16 @@ export default function StudentDashboard() {
       setError('Cannot reach server.');
     } finally {
       setCgpaUpdating(false);
+    }
+  };
+
+  const handleCourseCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.toUpperCase();
+    const match = catalog.find(c => c.id === val);
+    if (match) {
+      setCourseForm({ ...courseForm, course_code: val, course_name: match.name, credits: match.credits });
+    } else {
+      setCourseForm({ ...courseForm, course_code: val, course_name: '', credits: 0 });
     }
   };
 
@@ -176,6 +188,12 @@ export default function StudentDashboard() {
       .catch(() => setSrError('Could not load self-reported courses.'))
       .finally(() => setSrLoading(false));
   }, [studentUser?.id]);
+
+  useEffect(() => {
+    getStudentCatalog().then(res => {
+      if (res.success && res.catalog) setCatalog(res.catalog);
+    }).catch(console.error);
+  }, []);
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[300px] bg-[#F5F5F5]">
@@ -462,22 +480,30 @@ export default function StudentDashboard() {
                 placeholder="Code (e.g. CS101)"
                 name="course_code"
                 value={courseForm.course_code}
-                onChange={handleFormChange}
+                onChange={handleCourseCodeChange}
+                list="course-catalog"
+                autoComplete="off"
               />
+              <datalist id="course-catalog">
+                {catalog.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </datalist>
+
               <input
-                className="col-span-1 md:col-span-2 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
-                placeholder="Course Name"
+                className="col-span-1 md:col-span-2 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#555555] bg-[#F9FAFB] cursor-not-allowed focus:outline-none"
+                placeholder="Course Name (Auto-filled)"
                 name="course_name"
                 value={courseForm.course_name}
                 onChange={handleFormChange}
+                readOnly
               />
               <input
                 type="number"
-                className="col-span-1 md:col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                className="col-span-1 md:col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#555555] bg-[#F9FAFB] cursor-not-allowed focus:outline-none"
                 placeholder="Credits"
                 name="credits"
-                value={courseForm.credits}
+                value={courseForm.credits || ''}
                 onChange={handleFormChange}
+                readOnly
               />
               <input
                 className="col-span-1 border border-[#E5E7EB] rounded-md px-3 py-2 text-[13px] text-[#1F2937] focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"

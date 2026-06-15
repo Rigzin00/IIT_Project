@@ -70,6 +70,12 @@ def update_cgpa():
         return jsonify({"success": True, "message": "CGPA updated successfully"})
     return jsonify({"success": False, "message": "Failed to update CGPA"}), 500
 
+@student_bp.route("/catalog", methods=["GET"])
+@require_role('student')
+def get_course_catalog():
+    courses = db.get_all_course_codes()
+    return jsonify({"success": True, "catalog": courses})
+
 @student_bp.route("/courses", methods=["GET"])
 @require_role('student')
 def student_courses():
