@@ -460,7 +460,7 @@ export default function StudentDashboard() {
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="bg-[#FAFAFA]">
-                        {['Course', 'Credits', 'Semester', 'Grade'].map(h => (
+                        {['Course', 'Credits', 'Year', 'Grade'].map(h => (
                           <th key={h} className="text-left px-4 py-2.5 text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider border-b border-[#E5E7EB]">
                             {h}
                           </th>

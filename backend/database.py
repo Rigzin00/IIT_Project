@@ -36,9 +36,10 @@ class SupabaseAdapter:
         res = self.client.table("system_settings").select("key, value").execute()
         return {row['key']: row['value'] for row in res.data}
 
-    def update_system_settings(self, min_year, max_year):
+    def update_system_settings(self, min_year, max_year, active_year="2026"):
         self.client.table("system_settings").upsert({"key": "min_eligible_year", "value": str(min_year)}).execute()
         self.client.table("system_settings").upsert({"key": "max_eligible_year", "value": str(max_year)}).execute()
+        self.client.table("system_settings").upsert({"key": "active_year", "value": str(active_year)}).execute()
         return True
 
     def get_student_profile(self, student_id):
@@ -269,11 +270,14 @@ class SupabaseAdapter:
             student_id = reg["student_id"]
             course_id = reg["course_id"]
             
+            settings = self.get_system_settings()
+            active_year = settings.get("active_year", "2026")
+            
             self.client.table("completed_courses").upsert({
                 "student_id": student_id,
                 "course_id": course_id,
                 "grade": grade,
-                "semester": "Spring 2026"
+                "semester": active_year
             }, on_conflict="student_id,course_id").execute()
                 
         return len(res.data) > 0

@@ -14,8 +14,10 @@ export default function AdminPolicy() {
   useEffect(() => { document.title = 'Registration Policy — AcadPortal'; }, []);
   const [minYear, setMinYear] = useState<number>(2022);
   const [maxYear, setMaxYear] = useState<number>(2025);
+  const [activeYear, setActiveYear] = useState<string>('2026');
   const [editMin, setEditMin] = useState('');
   const [editMax, setEditMax] = useState('');
+  const [editActiveYear, setEditActiveYear] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -26,8 +28,10 @@ export default function AdminPolicy() {
         if (res.success) {
           setMinYear(res.min_eligible_year);
           setMaxYear(res.max_eligible_year);
+          setActiveYear(res.active_year || '2026');
           setEditMin(String(res.min_eligible_year));
           setEditMax(String(res.max_eligible_year));
+          setEditActiveYear(res.active_year || '2026');
         } else { showToast('error', 'Failed to load policy.'); }
       })
       .catch(() => showToast('error', 'Cannot reach server.'))
@@ -38,16 +42,17 @@ export default function AdminPolicy() {
     e.preventDefault();
     const min = parseInt(editMin);
     const max = parseInt(editMax);
-    if (isNaN(min) || isNaN(max) || min < 2000 || max > 2099 || min > max) {
-      showToast('error', 'Invalid batch year range. Min must be ≤ Max, both between 2000–2099.');
+    const active_y = editActiveYear.trim();
+    if (isNaN(min) || isNaN(max) || min < 2000 || max > 2099 || min > max || !active_y) {
+      showToast('error', 'Invalid input. Please check years and active term.');
       return;
     }
     setSaving(true);
     try {
-      const res = await setPolicy(min, max);
+      const res = await setPolicy(min, max, active_y);
       if (res.success) {
-        setMinYear(min); setMaxYear(max);
-        showToast('success', `Policy updated! Only students from Batch ${min}–${max} can log in.`);
+        setMinYear(min); setMaxYear(max); setActiveYear(active_y);
+        showToast('success', `Policy and Active Term updated successfully!`);
       } else { showToast('error', res.message || 'Failed to update policy.'); }
     } catch { showToast('error', 'Cannot reach server.'); }
     finally { setSaving(false); }
@@ -103,6 +108,13 @@ export default function AdminPolicy() {
               <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Maximum Eligible Batch</div>
             </div>
           </div>
+          
+          <div className="flex gap-3 mb-5">
+            <div className="flex-1 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md py-3 text-center">
+              <div className="text-[20px] font-extrabold text-[#C41212] leading-none mb-1">{activeYear}</div>
+              <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mt-1.5">Currently Active Year (Stamping)</div>
+            </div>
+          </div>
 
           <div className="h-px bg-[#E5E7EB] my-4" />
 
@@ -135,6 +147,20 @@ export default function AdminPolicy() {
                   {BATCH_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-[12px] font-bold text-[#555555] mb-1" htmlFor="policy-active-year">
+                Active Academic Year
+              </label>
+              <input
+                id="policy-active-year"
+                type="text"
+                placeholder="e.g. 2026"
+                className="w-full bg-white border border-[#E5E7EB] rounded-md text-[13px] text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all"
+                value={editActiveYear}
+                onChange={e => setEditActiveYear(e.target.value)}
+              />
             </div>
             <button
               type="submit"

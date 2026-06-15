@@ -67,15 +67,17 @@ def admin_policy():
         return jsonify({
             "success": True,
             "min_eligible_year": int(settings.get("min_eligible_year", 2022)),
-            "max_eligible_year": int(settings.get("max_eligible_year", 2025))
+            "max_eligible_year": int(settings.get("max_eligible_year", 2025)),
+            "active_year": str(settings.get("active_year", "2026"))
         })
     elif request.method == "POST":
         data = request.get_json() or {}
         min_y = data.get("min_eligible_year")
         max_y = data.get("max_eligible_year")
+        active_y = data.get("active_year", "2026")
 
-        if min_y is None or max_y is None:
-            return jsonify({"success": False, "message": "Min and Max batch year are required!"}), 400
+        if min_y is None or max_y is None or not active_y:
+            return jsonify({"success": False, "message": "Min, Max batch year, and Active Year are required!"}), 400
 
         try:
             min_y, max_y = int(min_y), int(max_y)
@@ -88,8 +90,8 @@ def admin_policy():
         if not (allowed_min <= min_y <= allowed_max) or not (allowed_min <= max_y <= allowed_max) or min_y > max_y:
             return jsonify({"success": False, "message": f"Invalid batch year range. Both must be between {allowed_min}–{allowed_max} and Min ≤ Max."}), 400
 
-        db.update_system_settings(min_y, max_y)
-        return jsonify({"success": True, "message": "Registration eligibility policy updated successfully!"})
+        db.update_system_settings(min_y, max_y, str(active_y).strip())
+        return jsonify({"success": True, "message": "Policy mapped and updated successfully!"})
 
 @admin_bp.route("/courses", methods=["POST"])
 @require_role('admin')

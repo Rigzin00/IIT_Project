@@ -18,7 +18,7 @@ export interface Student {
   is_approved_for_login: number; created_at: string;
 }
 export interface StudentsResponse { success: boolean; students: Student[]; pagination?: PaginationMetadata; message?: string; }
-export interface PolicyResponse { success: boolean; min_eligible_year: number; max_eligible_year: number; }
+export interface PolicyResponse { success: boolean; min_eligible_year: number; max_eligible_year: number; active_year: string; }
 
 export async function getAdminStudents(page=1, limit=50, search='', sort='name', order='asc'): Promise<StudentsResponse> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit), search, sort, order });
@@ -55,11 +55,11 @@ export async function getPolicy(): Promise<PolicyResponse> {
   return safeJson(res);
 }
 
-export async function setPolicy(min_eligible_year: number, max_eligible_year: number) {
+export async function setPolicy(min_eligible_year: number, max_eligible_year: number, active_year: string) {
   const res = await fetch(`${BASE}/api/admin/policy`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-    body: JSON.stringify({ min_eligible_year, max_eligible_year }),
+    body: JSON.stringify({ min_eligible_year, max_eligible_year, active_year }),
   });
   return safeJson(res);
 }
