@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Shield, Save } from 'lucide-react';
+import { Shield, Save, UserCog } from 'lucide-react';
 import { getPolicy, setPolicy } from '../../api/admin';
 import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/Spinner';
@@ -14,10 +14,12 @@ export default function AdminPolicy() {
   useEffect(() => { document.title = 'Registration Policy — AcadPortal'; }, []);
   const [minYear, setMinYear] = useState<number>(2022);
   const [maxYear, setMaxYear] = useState<number>(2025);
-  const [activeYear, setActiveYear] = useState<string>('2026');
+  const [activeYear, setActiveYear] = useState<string>('');
+  const [adminEmails, setAdminEmails] = useState<string>('');
   const [editMin, setEditMin] = useState('');
   const [editMax, setEditMax] = useState('');
   const [editActiveYear, setEditActiveYear] = useState('');
+  const [editAdminEmails, setEditAdminEmails] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -28,10 +30,14 @@ export default function AdminPolicy() {
         if (res.success) {
           setMinYear(res.min_eligible_year);
           setMaxYear(res.max_eligible_year);
-          setActiveYear(res.active_year || '2026');
+          const ay = res.active_year || String(new Date().getFullYear());
+          const ae = res.admin_emails || '';
+          setActiveYear(ay);
+          setAdminEmails(ae);
           setEditMin(String(res.min_eligible_year));
           setEditMax(String(res.max_eligible_year));
-          setEditActiveYear(res.active_year || '2026');
+          setEditActiveYear(ay);
+          setEditAdminEmails(ae);
         } else { showToast('error', 'Failed to load policy.'); }
       })
       .catch(() => showToast('error', 'Cannot reach server.'))
@@ -43,15 +49,20 @@ export default function AdminPolicy() {
     const min = parseInt(editMin);
     const max = parseInt(editMax);
     const active_y = editActiveYear.trim();
+    const emails = editAdminEmails.split(',').map(e => e.trim()).filter(Boolean);
     if (isNaN(min) || isNaN(max) || min < 2000 || max > 2099 || min > max || !active_y) {
       showToast('error', 'Invalid input. Please check years and active term.');
       return;
     }
+    if (emails.length === 0) {
+      showToast('error', 'At least one admin email is required.');
+      return;
+    }
     setSaving(true);
     try {
-      const res = await setPolicy(min, max, active_y);
+      const res = await setPolicy(min, max, active_y, emails.join(','));
       if (res.success) {
-        setMinYear(min); setMaxYear(max); setActiveYear(active_y);
+        setMinYear(min); setMaxYear(max); setActiveYear(active_y); setAdminEmails(emails.join(','));
         showToast('success', `Policy and Active Term updated successfully!`);
       } else { showToast('error', res.message || 'Failed to update policy.'); }
     } catch { showToast('error', 'Cannot reach server.'); }
@@ -164,18 +175,63 @@ export default function AdminPolicy() {
             </div>
             <button
               type="submit"
-              id="save-policy"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:active:scale-100"
-              disabled={saving}
-            >
-              {saving ? <><Spinner /> Saving…</> : <><Save size={13} /> Save Policy</>}
-            </button>
+              id="save-policy-placeholder"
+              className="hidden"
+            />
           </form>
         </div>
 
         {/* Info box */}
         <div className="w-full max-w-[500px] p-3 bg-[#F5F5F5] border border-[#E5E7EB] rounded-md text-[12px] text-[#555555] leading-relaxed animate-fade-in delay-100">
           <strong className="text-[#1F2937]">ℹ How this works:</strong> Students whose <strong>batch year</strong> (first 4 digits of roll number, e.g. <em>2023</em>EE1012) falls outside the selected range will receive an <em>"Access Denied"</em> error when attempting to log in or register for courses. Changes take effect immediately.
+        </div>
+
+        {/* Admin Emails panel */}
+        <div className="bg-white border border-[#E5E7EB] rounded-md px-4 md:px-5 py-4 w-full max-w-[500px] shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-md bg-[#FEF2F2] border border-[#C41212]/25 flex items-center justify-center flex-shrink-0">
+              <UserCog size={18} className="text-[#C41212]" />
+            </div>
+            <div>
+              <div className="font-bold text-[#1F2937] text-[15px]">Administrator Access</div>
+              <div className="text-[12px] text-[#9CA3AF]">Emails authorised to log in as Admin — one per line or comma-separated</div>
+            </div>
+          </div>
+
+          {/* Current admin emails display */}
+          <div className="mb-4">
+            <div className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-2">Currently Authorised</div>
+            <div className="flex flex-col gap-1">
+              {adminEmails.split(',').filter(Boolean).map(email => (
+                <div key={email} className="text-[12.5px] font-mono text-[#1F2937] bg-[#F5F5F5] border border-[#E5E7EB] rounded px-3 py-1.5">
+                  {email.trim()}
+                </div>
+              ))}
+              {!adminEmails && <div className="text-[12px] text-[#9CA3AF] italic">No emails set — admin login is blocked!</div>}
+            </div>
+          </div>
+
+          <div className="h-px bg-[#E5E7EB] my-4" />
+
+          <div className="font-bold text-[13px] text-[#1F2937] mb-2">Update Admin Emails</div>
+          <textarea
+            id="policy-admin-emails"
+            rows={4}
+            placeholder="admin@institute.edu, director@iit.ac.in"
+            className="w-full bg-white border border-[#E5E7EB] rounded-md text-[12.5px] font-mono text-[#1F2937] px-3 py-2 outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] transition-all resize-none"
+            value={editAdminEmails}
+            onChange={e => setEditAdminEmails(e.target.value)}
+          />
+          <div className="text-[11px] text-[#9CA3AF] mt-1 mb-3">Separate multiple emails with commas.</div>
+          <button
+            type="button"
+            id="save-policy"
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-[#C41212] hover:bg-[#a01313] rounded-md transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:active:scale-100"
+          >
+            {saving ? <><Spinner /> Saving…</> : <><Save size={13} /> Save All Policy Settings</>}
+          </button>
         </div>
       </div>
     </div>

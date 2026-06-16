@@ -68,13 +68,15 @@ def admin_policy():
             "success": True,
             "min_eligible_year": int(settings.get("min_eligible_year", 2022)),
             "max_eligible_year": int(settings.get("max_eligible_year", 2025)),
-            "active_year": str(settings.get("active_year", "2026"))
+            "active_year": str(settings.get("active_year", "2026")),
+            "admin_emails": str(settings.get("admin_emails", "admin@institute.edu"))
         })
     elif request.method == "POST":
         data = request.get_json() or {}
         min_y = data.get("min_eligible_year")
         max_y = data.get("max_eligible_year")
         active_y = data.get("active_year", "2026")
+        admin_emails_raw = data.get("admin_emails", None)
 
         if min_y is None or max_y is None or not active_y:
             return jsonify({"success": False, "message": "Min, Max batch year, and Active Year are required!"}), 400
@@ -88,9 +90,17 @@ def admin_policy():
         allowed_min = current_year - 20
         allowed_max = current_year + 20
         if not (allowed_min <= min_y <= allowed_max) or not (allowed_min <= max_y <= allowed_max) or min_y > max_y:
-            return jsonify({"success": False, "message": f"Invalid batch year range. Both must be between {allowed_min}–{allowed_max} and Min ≤ Max."}), 400
+            return jsonify({"success": False, "message": f"Invalid batch year range. Both must be between {allowed_min}\u2013{allowed_max} and Min \u2264 Max."}), 400
 
-        db.update_system_settings(min_y, max_y, str(active_y).strip())
+        # Validate and normalise admin emails if provided
+        admin_emails_to_save = None
+        if admin_emails_raw is not None:
+            emails = [e.strip().lower() for e in str(admin_emails_raw).split(",") if e.strip()]
+            if not emails:
+                return jsonify({"success": False, "message": "At least one admin email is required!"}), 400
+            admin_emails_to_save = ",".join(emails)
+
+        db.update_system_settings(min_y, max_y, str(active_y).strip(), admin_emails_to_save)
         return jsonify({"success": True, "message": "Policy mapped and updated successfully!"})
 
 @admin_bp.route("/courses", methods=["POST"])

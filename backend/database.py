@@ -36,10 +36,12 @@ class SupabaseAdapter:
         res = self.client.table("system_settings").select("key, value").execute()
         return {row['key']: row['value'] for row in res.data}
 
-    def update_system_settings(self, min_year, max_year, active_year="2026"):
+    def update_system_settings(self, min_year, max_year, active_year="2026", admin_emails=None):
         self.client.table("system_settings").upsert({"key": "min_eligible_year", "value": str(min_year)}).execute()
         self.client.table("system_settings").upsert({"key": "max_eligible_year", "value": str(max_year)}).execute()
         self.client.table("system_settings").upsert({"key": "active_year", "value": str(active_year)}).execute()
+        if admin_emails is not None:
+            self.client.table("system_settings").upsert({"key": "admin_emails", "value": admin_emails}).execute()
         return True
 
     def get_student_profile(self, student_id):
