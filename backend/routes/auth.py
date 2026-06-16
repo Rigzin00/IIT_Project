@@ -30,14 +30,21 @@ def auth_login():
     # Professor Login Check
     elif role == "professor":
         prof = db.get_professor_by_email(email)
-        if prof:
-            return jsonify({
-                "success": True,
-                "role": "professor",
-                "user": prof
-            })
-        else:
+        if not prof:
             return jsonify({"success": False, "message": "Professor email not registered with institute!"}), 401
+
+        # Check: Is this professor still active at the institute?
+        if not prof.get("is_active", True):
+            return jsonify({
+                "success": False,
+                "message": "Access Denied: Your account has been deactivated by the Administrator."
+            }), 403
+
+        return jsonify({
+            "success": True,
+            "role": "professor",
+            "user": prof
+        })
 
     # Student Login Check
     elif role == "student":

@@ -42,11 +42,17 @@ def build_pagination_metadata(total_count, page, limit):
     }
 
 # Helper to verify Admin credentials
+# Fetches the admin email list dynamically from system_settings.
+# No longer hardcoded — admins can be added or revoked via the Admin Policy panel.
 def verify_admin(email):
-    if email == "admin@institute.edu":
+    from database import db
+    settings = db.get_system_settings()
+    raw = settings.get("admin_emails", "")
+    allowed = [e.strip().lower() for e in raw.split(",") if e.strip()]
+    if email.lower().strip() in allowed:
         return {
             "name": "Institute Administrator",
-            "email": "admin@institute.edu",
+            "email": email.lower().strip(),
             "department": "Administration"
         }
     return None
