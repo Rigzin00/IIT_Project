@@ -527,6 +527,10 @@ class SupabaseAdapter:
                 "is_minor_eligible": bool(is_minor_eligible),
                 "description": description.strip()
             }).execute()
+            
+            # Automatically remove from upcoming_courses if it exists there
+            self.client.table("upcoming_courses").delete().eq("course_code", course_code.strip().upper()).execute()
+            
             return True, "Course added successfully!"
         except Exception as e:
             return False, str(e)
