@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Edit2, Check, X } from 'lucide-react';
 import {
   getStudentProfile,
@@ -9,12 +10,11 @@ import {
   updateStudentCgpa,
   getStudentCatalog,
 } from '../../api/student';
-import type { StudentProfile, CompletedCourse, Registration, SelfReportedCourse, CatalogCourse } from '../../api/student';
+import type { SelfReportedCourse } from '../../api/student';
 import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/Spinner';
 import type { StudentUser } from '../../api/auth';
 
-// SelfReportedCourse interface is now imported from ../../api/student
 
 const STATUS_STYLE: Record<string, string> = {
   pending:  'text-[#9CA3AF]',
@@ -34,16 +34,32 @@ export default function StudentDashboard() {
   const studentUser = user as StudentUser;
 
   useEffect(() => { document.title = 'My Profile — AcadPortal'; }, []);
-  const [profile,       setProfile]       = useState<StudentProfile | null>(null);
-  const [completed,     setCompleted]     = useState<CompletedCourse[]>([]);
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [stats,         setStats]         = useState<{ completed_credits: number; minor_gpa: number } | null>(null);
-  const [loading,       setLoading]       = useState(true);
-  const [error,         setError]         = useState('');
-  const [catalog,       setCatalog]       = useState<CatalogCourse[]>([]);
+  const queryClient = useQueryClient();
 
-  const [selfReportedCourses, setSelfReportedCourses] = useState<SelfReportedCourse[]>([]);
-  const [srLoading, setSrLoading] = useState(false);
+  const { data: profileData, isLoading: loading, isError } = useQuery({
+    queryKey: ['studentProfile', studentUser?.id],
+    queryFn: () => getStudentProfile(studentUser.id),
+    enabled: !!studentUser?.id,
+  });
+
+  const { data: srData } = useQuery({
+    queryKey: ['selfReportedCourses', studentUser?.id],
+    queryFn: () => getSelfReportedCourses(studentUser.id),
+    enabled: !!studentUser?.id,
+  });
+
+  const { data: catalogData } = useQuery({
+    queryKey: ['studentCatalog'],
+    queryFn: () => getStudentCatalog(),
+  });
+
+  const profile       = profileData?.success ? profileData.profile : null;
+  const completed     = profileData?.success ? profileData.completed : [];
+  const registrations = profileData?.success ? profileData.registrations : [];
+  const stats         = profileData?.success ? profileData.stats : null;
+  const selfReportedCourses = srData?.success ? srData.courses : [];
+  const catalog             = catalogData?.success ? catalogData.catalog : [];
+
   const [srSaving,  setSrSaving]  = useState(false);
   const [srError,   setSrError]   = useState('');
 
@@ -61,17 +77,16 @@ export default function StudentDashboard() {
     if (isNaN(val) || val < 0 || val > 10) return;
     
     setCgpaUpdating(true);
-    setError('');
     try {
       const res = await updateStudentCgpa(studentUser.id, val);
       if (res.success) {
-        setProfile(prev => prev ? { ...prev, cgpa: val } : prev);
+        queryClient.invalidateQueries({ queryKey: ['studentProfile', studentUser.id] });
         setIsEditingCgpa(false);
       } else {
-        setError(res.message || 'Failed to update CGPA');
+        setSrError(res.message || 'Failed to update CGPA');
       }
     } catch {
-      setError('Cannot reach server.');
+      setSrError('Cannot reach server.');
     } finally {
       setCgpaUpdating(false);
     }
@@ -135,8 +150,8 @@ export default function StudentDashboard() {
           semester: courseForm.semester,
           proof_url: courseForm.proof_url,
         });
-        if (res.success && res.course) {
-          setSelfReportedCourses(prev => prev.map(c => c.id === isEditingId ? res.course! : c));
+        if (res.success) {
+          queryClient.invalidateQueries({ queryKey: ['selfReportedCourses', studentUser.id] });
           setIsEditingId(null);
         } else {
           setSrError(res.message || 'Update failed.');
@@ -152,8 +167,8 @@ export default function StudentDashboard() {
           semester: courseForm.semester,
           proof_url: courseForm.proof_url,
         });
-        if (res.success && res.course) {
-          setSelfReportedCourses(prev => [...prev, res.course!]);
+        if (res.success) {
+          queryClient.invalidateQueries({ queryKey: ['selfReportedCourses', studentUser.id] });
         } else {
           setSrError(res.message || 'Add failed.');
         }
@@ -177,7 +192,7 @@ export default function StudentDashboard() {
     try {
       const res = await deleteSelfReportedCourse(id, studentUser.id);
       if (res.success) {
-        setSelfReportedCourses(prev => prev.filter(c => c.id !== id));
+        queryClient.invalidateQueries({ queryKey: ['selfReportedCourses', studentUser.id] });
         if (isEditingId === id) { setIsEditingId(null); setCourseForm(EMPTY_FORM); }
       } else {
         setSrError(res.message || 'Delete failed.');
@@ -187,41 +202,7 @@ export default function StudentDashboard() {
     }
   };
 
-  useEffect(() => {
-    if (!studentUser?.id) return;
-    setLoading(true);
-    getStudentProfile(studentUser.id)
-      .then(res => {
-        if (res.success) {
-          setProfile(res.profile);
-          setCompleted(res.completed);
-          setRegistrations(res.registrations);
-          setStats(res.stats);
-        } else {
-          setError(res.message || 'Failed to load profile.');
-        }
-      })
-      .catch(() => setError('Cannot reach server.'))
-      .finally(() => setLoading(false));
-  }, [studentUser?.id]);
-
-  // Load self-reported courses from Supabase
-  useEffect(() => {
-    if (!studentUser?.id) return;
-    setSrLoading(true);
-    getSelfReportedCourses(studentUser.id)
-      .then(res => {
-        if (res.success && res.courses) setSelfReportedCourses(res.courses);
-      })
-      .catch(() => setSrError('Could not load self-reported courses.'))
-      .finally(() => setSrLoading(false));
-  }, [studentUser?.id]);
-
-  useEffect(() => {
-    getStudentCatalog().then(res => {
-      if (res.success && res.catalog) setCatalog(res.catalog);
-    }).catch(console.error);
-  }, []);
+  // Data fetching is handled by useQuery hooks above.
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[300px] bg-[#F5F5F5]">
@@ -229,10 +210,10 @@ export default function StudentDashboard() {
     </div>
   );
 
-  if (error) return (
+  if (isError) return (
     <div className="min-h-screen bg-[#F5F5F5] p-8">
       <div className="bg-white border border-[#E5E7EB] rounded-md px-4 py-3 text-[13px] text-[#C41212] font-['Open_Sans']">
-        ⚠ {error}
+        ⚠ Cannot reach server. Please refresh.
       </div>
     </div>
   );
@@ -493,7 +474,6 @@ export default function StudentDashboard() {
         <div>
           <div className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 flex items-center justify-between">
             <span>Prior Completed Courses (Self-Reported)</span>
-            {srLoading && <span className="text-[10px] text-[#9CA3AF] font-normal">Loading…</span>}
           </div>
           {srError && (
             <div className="text-[12px] text-[#C41212] bg-[#FEF2F2] border border-[#C41212]/20 rounded px-3 py-2 mb-3">

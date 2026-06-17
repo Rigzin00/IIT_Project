@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
-import StudentDashboard from './pages/student/StudentDashboard';
-import StudentCourses from './pages/student/StudentCourses';
-import ProfessorDashboard from './pages/professor/ProfessorDashboard';
-import ProfessorRegistrations from './pages/professor/ProfessorRegistrations';
-import AdminStudents from './pages/admin/AdminStudents';
-import AdminPolicy from './pages/admin/AdminPolicy';
-import AdminExport from './pages/admin/AdminExport';
-import AdminCSECourses from './pages/admin/AdminCSECourses';
-import AdminUpcomingCourses from './pages/admin/AdminUpcomingCourses';
+
+// Lazy loading the dashboard pages to reduce initial bundle size
+const StudentDashboard = React.lazy(() => import('./pages/student/StudentDashboard'));
+const StudentCourses = React.lazy(() => import('./pages/student/StudentCourses'));
+const ProfessorDashboard = React.lazy(() => import('./pages/professor/ProfessorDashboard'));
+const ProfessorRegistrations = React.lazy(() => import('./pages/professor/ProfessorRegistrations'));
+const AdminStudents = React.lazy(() => import('./pages/admin/AdminStudents'));
+const AdminPolicy = React.lazy(() => import('./pages/admin/AdminPolicy'));
+const AdminExport = React.lazy(() => import('./pages/admin/AdminExport'));
+const AdminCSECourses = React.lazy(() => import('./pages/admin/AdminCSECourses'));
+const AdminUpcomingCourses = React.lazy(() => import('./pages/admin/AdminUpcomingCourses'));
 
 // Default page per role
 const DEFAULT_PAGE: Record<string, string> = {
@@ -50,7 +52,9 @@ function PortalApp() {
     <div className="flex min-h-screen bg-[#F5F5F5]">
       <Sidebar activePage={page} onNavigate={setPage} />
       <main key={page} className="flex-1 overflow-x-hidden animate-[fadeIn_0.35s_ease-out] pt-[52px] md:pt-0">
-        {renderPage()}
+        <Suspense fallback={<div className="p-12 text-center text-[#9CA3AF]">Loading module...</div>}>
+          {renderPage()}
+        </Suspense>
       </main>
     </div>
   );

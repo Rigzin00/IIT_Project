@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CheckCircle2, Clock, XCircle, Search, Calendar } from 'lucide-react';
 import { getStudentCourses, getStudentProfile, registerCourse, getUpcomingCourses } from '../../api/student';
-import type { Course, Registration, UpcomingCourse } from '../../api/student';
+import type { Registration } from '../../api/student';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Spinner from '../../components/Spinner';
@@ -21,62 +22,36 @@ export default function StudentCourses() {
 
   useEffect(() => { document.title = 'Courses — AcadPortal'; }, []);
 
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [upcomingCourses, setUpcomingCourses] = useState<UpcomingCourse[]>([]);
-  const [myRegs, setMyRegs] = useState<Registration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [upcomingLoading, setUpcomingLoading] = useState(true);
-  const [registering, setRegistering] = useState<string | null>(null);
-  
+  const queryClient = useQueryClient();
+
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
   const [sortKey, setSortKey] = useState<string>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [registering, setRegistering] = useState<string | null>(null);
 
-  const fetchCourses = () => {
-    setLoading(true);
-    getStudentCourses(page, limit, search, sortKey, sortDir)
-      .then(res => {
-        if (res.success) {
-          setCourses(res.courses);
-          if (res.pagination) {
-            setTotal(res.pagination.total);
-            setTotalPages(res.pagination.total_pages);
-            setPage(res.pagination.page);
-          }
-        }
-      })
-      .catch(() => showToast('error', 'Cannot reach server.'))
-      .finally(() => setLoading(false));
-  };
+  const { data: coursesData, isLoading: loading } = useQuery({
+    queryKey: ['studentCourses', page, limit, search, sortKey, sortDir],
+    queryFn: () => getStudentCourses(page, limit, search, sortKey, sortDir),
+  });
 
-  const fetchUpcoming = () => {
-    setUpcomingLoading(true);
-    getUpcomingCourses()
-      .then(res => {
-        if (res.success) setUpcomingCourses(res.courses);
-      })
-      .finally(() => setUpcomingLoading(false));
-  };
+  const { data: upcomingData, isLoading: upcomingLoading } = useQuery({
+    queryKey: ['upcomingCourses'],
+    queryFn: () => getUpcomingCourses(),
+  });
 
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      fetchCourses();
-      fetchUpcoming();
-    }, 300);
-    return () => clearTimeout(delay);
-  }, [page, limit, search, sortKey, sortDir]);
+  const { data: profileData } = useQuery({
+    queryKey: ['studentProfile', studentUser?.id],
+    queryFn: () => getStudentProfile(studentUser.id),
+    enabled: !!studentUser?.id,
+  });
 
-  useEffect(() => {
-    if (studentUser?.id) {
-      getStudentProfile(studentUser.id).then(res => {
-        if (res.success) setMyRegs(res.registrations);
-      });
-    }
-  }, [studentUser?.id]);
+  const courses = coursesData?.success ? coursesData.courses : [];
+  const total = coursesData?.success && coursesData.pagination ? coursesData.pagination.total : 0;
+  const totalPages = coursesData?.success && coursesData.pagination ? coursesData.pagination.total_pages : 1;
+  const upcomingCourses = upcomingData?.success ? upcomingData.courses : [];
+  const myRegs = profileData?.success ? profileData.registrations : [];
 
   const handleSearch = (val: string) => {
     setSearch(val);
@@ -93,8 +68,7 @@ export default function StudentCourses() {
       const res = await registerCourse(studentUser.id, courseId);
       if (res.success) {
         showToast('success', 'Pre-registration submitted!');
-        const profileRes = await getStudentProfile(studentUser.id);
-        if (profileRes.success) setMyRegs(profileRes.registrations);
+        queryClient.invalidateQueries({ queryKey: ['studentProfile', studentUser.id] });
       } else {
         showToast('error', res.message || 'Registration failed.');
       }
