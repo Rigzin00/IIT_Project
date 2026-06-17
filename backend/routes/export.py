@@ -59,7 +59,14 @@ def export_students():
             raw_data = db.get_filtered_professor_registrations(prof_id, year_filter, dept_filter, cgpa_cutoff, valid_student_ids)
             filtered_student_ids = list(set(r["student_id"] for r in raw_data))
             all_completions = db.get_completed_courses_for_students(filtered_student_ids)
-            
+            completions_map = {}
+            for c in all_completions:
+                completions_map.setdefault(c["student_id"], []).append(c)
+                
+            regs_map = {}
+            for r in raw_data:
+                regs_map.setdefault(r["student_id"], []).append(r)
+                
             seen_students = set()
             for r in raw_data:
                 s_id = r["student_id"]
@@ -67,11 +74,11 @@ def export_students():
                     continue
                 seen_students.add(s_id)
                 
-                c_data = [c for c in all_completions if c["student_id"] == s_id]
+                c_data = completions_map.get(s_id, [])
                 completed_str = ", ".join([f"{c['course_id']}({c['grade']})" for c in c_data])
                 
-                registered_under_prof = [reg["course_id"] for reg in raw_data if reg["student_id"] == s_id]
-                registered_str = ", ".join(registered_under_prof)
+                r_data = regs_map.get(s_id, [])
+                registered_str = ", ".join([reg["course_id"] for reg in r_data])
                 
                 students_pool.append({
                     "Roll Number": r["roll_number"],
@@ -89,12 +96,20 @@ def export_students():
             filtered_student_ids = [s["id"] for s in students]
             all_completions = db.get_completed_courses_for_students(filtered_student_ids)
             all_regs = db.get_registrations_for_students(filtered_student_ids)
-            
+            completions_map = {}
+            for c in all_completions:
+                completions_map.setdefault(c["student_id"], []).append(c)
+                
+            regs_map = {}
+            for r in all_regs:
+                regs_map.setdefault(r["student_id"], []).append(r)
+                
             for s in students:
-                c_data = [c for c in all_completions if c["student_id"] == s["id"]]
+                s_id = s["id"]
+                c_data = completions_map.get(s_id, [])
                 completed_str = ", ".join([f"{c['course_id']}({c['grade']})" for c in c_data])
                 
-                r_data = [r for r in all_regs if r["student_id"] == s["id"]]
+                r_data = regs_map.get(s_id, [])
                 registered_str = ", ".join([f"{r['course_id']}({r['status']})" for r in r_data])
                 
                 students_pool.append({

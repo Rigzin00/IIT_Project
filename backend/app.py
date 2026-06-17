@@ -20,10 +20,18 @@ from utils.limiter import limiter
 
 app = Flask(__name__, static_folder="../react_frontend/dist", static_url_path="")
 
-# Enable CORS only in development.
-# In production, Flask serves the React build on the same origin — no CORS needed.
+# Define Allowed Origins for Security Hardening
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",       # Local development
+    "http://127.0.0.1:5173",
+    "https://acadportal.com",      # Proposed Production Frontend Domain
+]
+
+# Apply strict CORS hardening for all routes
 if os.getenv("FLASK_ENV", "development") == "development":
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
+else:
+    CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
 
 limiter.init_app(app)
 
