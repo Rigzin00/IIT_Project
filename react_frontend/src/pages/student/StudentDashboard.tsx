@@ -57,8 +57,8 @@ export default function StudentDashboard() {
   const completed     = profileData?.success ? profileData.completed : [];
   const registrations = profileData?.success ? profileData.registrations : [];
   const stats         = profileData?.success ? profileData.stats : null;
-  const selfReportedCourses = srData?.success ? srData.courses : [];
-  const catalog             = catalogData?.success ? catalogData.catalog : [];
+  const selfReportedCourses = (srData?.success ? srData.courses : []) || [];
+  const catalog             = (catalogData?.success ? catalogData.catalog : []) || [];
 
   const [srSaving,  setSrSaving]  = useState(false);
   const [srError,   setSrError]   = useState('');
