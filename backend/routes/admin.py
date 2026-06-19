@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 from database import db
 from utils.helpers import build_pagination_metadata, require_role
 from datetime import datetime
+import csv
+import io
+from flask import Response
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -139,3 +142,189 @@ def admin_add_upcoming_course():
     if success:
         return jsonify({"success": True, "message": message})
     return jsonify({"success": False, "message": message}), 400
+
+@admin_bp.route("/courses/template", methods=["GET"])
+def admin_courses_template():
+    csv_content = "Course Code,Course Name,Credits,Professor,Description,Minor Eligible\nCS301,Machine Learning,4,Dr Sharma,Intro to ML,True\nCS302,Cloud Computing,3,Dr Singh,Cloud basics,False\n"
+    response = Response(csv_content, mimetype="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=cse_courses_template.csv"
+    return response
+
+@admin_bp.route("/upcoming-courses/template", methods=["GET"])
+def admin_upcoming_courses_template():
+    csv_content = "Course Code,Course Name,Start Date,Professor,Description\nCS401,Advanced AI,2026-08-01,Dr Sharma,Next level AI course\n"
+    response = Response(csv_content, mimetype="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=upcoming_courses_template.csv"
+    return response
+
+@admin_bp.route("/courses/upload", methods=["POST"])
+@require_role('admin')
+def admin_upload_courses():
+    if 'file' not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
+        
+    file = request.files['file']
+    if not file.filename.endswith('.csv'):
+        return jsonify({"success": False, "error": "Only CSV allowed"}), 400
+        
+    try:
+        stream = io.StringIO(file.stream.read().decode("utf8"), newline=None)
+        reader = csv.DictReader(stream)
+        
+        required_headers = {"Course Code", "Course Name", "Credits", "Professor", "Description", "Minor Eligible"}
+        if not reader.fieldnames or set(reader.fieldnames) != required_headers:
+            return jsonify({"success": False, "error": "Invalid CSV format or missing columns"}), 400
+            
+        existing_courses = {c["id"].upper() for c in db.get_all_course_codes()}
+        
+        valid_rows = []
+        errors = []
+        total = 0
+        
+        for idx, row in enumerate(reader, start=2): # Start 2 because line 1 is header
+            total += 1
+            ccode = row.get("Course Code", "").strip().upper()
+            cname = row.get("Course Name", "").strip()
+            credits = row.get("Credits", "").strip()
+            prof_identifier = row.get("Professor", "").strip()
+            
+            if not ccode or not cname or not credits or not prof_identifier:
+                errors.append({"row": idx, "message": "Missing required fields"})
+                continue
+                
+            if ccode in existing_courses:
+                errors.append({"row": idx, "message": "Course code already exists"})
+                continue
+                
+            try:
+                credits_int = int(credits)
+            except ValueError:
+                errors.append({"row": idx, "message": "Credits must be a number"})
+                continue
+                
+            prof_id = db.get_professor_id_by_identifier(prof_identifier)
+            if not prof_id:
+                errors.append({"row": idx, "message": f"Professor '{prof_identifier}' not found"})
+                continue
+                
+            minor_elig = str(row.get("Minor Eligible", "")).strip().lower() in ['true', '1', 'yes', 'y']
+            
+            valid_rows.append({
+                "id": ccode,
+                "name": cname,
+                "credits": credits_int,
+                "department": "CSE",  # Always CSE for this endpoint
+                "professor_id": prof_id,
+                "is_minor_eligible": minor_elig,
+                "description": row.get("Description", "").strip()
+            })
+            existing_courses.add(ccode) # avoid duplicates in same file
+            
+        if valid_rows:
+            db.bulk_add_courses(valid_rows)
+            
+        return jsonify({
+            "success": True,
+            "total_rows": total,
+            "success_count": len(valid_rows),
+            "failure_count": len(errors),
+            "errors": errors
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to process CSV: {str(e)}"}), 500
+
+@admin_bp.route("/upcoming-courses/upload", methods=["POST"])
+@require_role('admin')
+def admin_upload_upcoming_courses():
+    if 'file' not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
+        
+    file = request.files['file']
+    if not file.filename.endswith('.csv'):
+        return jsonify({"success": False, "error": "Only CSV allowed"}), 400
+        
+    try:
+        raw_bytes = file.stream.read()
+        # Handle UTF-8 BOM that Excel adds when saving CSVs
+        content = raw_bytes.decode("utf-8-sig")
+        stream = io.StringIO(content, newline=None)
+        reader = csv.DictReader(stream)
+
+        # Normalise header names: strip whitespace and BOM artifacts
+        if not reader.fieldnames:
+            return jsonify({"success": False, "error": "CSV file is empty or has no headers"}), 400
+
+        normalised_headers = {h.strip() for h in reader.fieldnames}
+        required_headers = {"Course Code", "Course Name", "Start Date", "Professor", "Description"}
+        missing = required_headers - normalised_headers
+        if missing:
+            return jsonify({"success": False, "error": f"Missing required columns: {', '.join(sorted(missing))}"}), 400
+
+        def normalise_date(raw):
+            """Accept YYYY-MM-DD, DD-MM-YYYY, DD/MM/YYYY and return YYYY-MM-DD."""
+            from datetime import datetime
+            raw = raw.strip()
+            for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%m/%d/%Y", "%d-%b-%Y"):
+                try:
+                    return datetime.strptime(raw, fmt).strftime("%Y-%m-%d")
+                except ValueError:
+                    continue
+            return None  # unrecognised format
+
+        existing_upcoming = {c["course_code"].upper() for c in (db.get_all_upcoming_course_codes() or [])}
+        existing_active = {c["id"].upper() for c in db.get_all_course_codes()}
+        existing_all = existing_upcoming.union(existing_active)
+
+        valid_rows = []
+        errors = []
+        total = 0
+
+        for idx, row in enumerate(reader, start=2):
+            total += 1
+            # Strip keys too in case of whitespace around header names
+            row = {k.strip(): v for k, v in row.items() if k}
+            ccode = row.get("Course Code", "").strip().upper()
+            cname = row.get("Course Name", "").strip()
+            sdate_raw = row.get("Start Date", "").strip()
+            prof_identifier = row.get("Professor", "").strip()
+
+            if not ccode or not cname or not sdate_raw or not prof_identifier:
+                errors.append({"row": idx, "message": "Missing required fields"})
+                continue
+
+            # Normalise date format
+            sdate = normalise_date(sdate_raw)
+            if not sdate:
+                errors.append({"row": idx, "message": f"Unrecognised date format '{sdate_raw}'. Use YYYY-MM-DD or DD-MM-YYYY"})
+                continue
+
+            if ccode in existing_all:
+                errors.append({"row": idx, "message": "Course code already exists (active or upcoming)"})
+                continue
+
+            prof_id = db.get_professor_id_by_identifier(prof_identifier)
+            if not prof_id:
+                errors.append({"row": idx, "message": f"Professor '{prof_identifier}' not found"})
+                continue
+
+            valid_rows.append({
+                "course_code": ccode,
+                "course_name": cname,
+                "expected_start_date": sdate,
+                "professor_id": prof_id,
+                "description": row.get("Description", "").strip()
+            })
+            existing_all.add(ccode)
+
+        if valid_rows:
+            db.bulk_add_upcoming_courses(valid_rows)
+
+        return jsonify({
+            "success": True,
+            "total_rows": total,
+            "success_count": len(valid_rows),
+            "failure_count": len(errors),
+            "errors": errors
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to process CSV: {str(e)}"}), 500

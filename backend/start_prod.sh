@@ -46,5 +46,5 @@ exec gunicorn \
     --timeout "${TIMEOUT}" \
     --log-level "${LOG_LEVEL}" \
     --access-logfile "-" \
-    --error- logfile "-" \
+    --error-logfile "-" \
     "${APP_MODULE}"

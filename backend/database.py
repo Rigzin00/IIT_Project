@@ -535,6 +535,25 @@ class SupabaseAdapter:
         except Exception as e:
             return False, str(e)
 
+    def bulk_add_courses(self, courses_data):
+        try:
+            if not courses_data:
+                return True, "No valid courses to insert."
+            res = self.client.table("courses").insert(courses_data).execute()
+            
+            # Clean up upcoming_courses that match exactly inserted codes
+            course_codes = [c["id"] for c in courses_data]
+            if course_codes:
+                self.client.table("upcoming_courses").delete().in_("course_code", course_codes).execute()
+            
+            return True, "Batch inserted successfully!"
+        except Exception as e:
+            return False, str(e)
+
+    def get_all_upcoming_course_codes(self):
+        res = self.client.table("upcoming_courses").select("course_code").execute()
+        return res.data
+
     def add_upcoming_course(self, course_code, name, expected_start_date, professor_identifier, description=""):
         try:
             prof_id = self.get_professor_id_by_identifier(professor_identifier)
@@ -549,6 +568,15 @@ class SupabaseAdapter:
                 "description": description.strip()
             }).execute()
             return True, "Upcoming course scheduled successfully!"
+        except Exception as e:
+            return False, str(e)
+
+    def bulk_add_upcoming_courses(self, upcoming_courses_data):
+        try:
+            if not upcoming_courses_data:
+                return True, "No valid upcoming courses to insert."
+            res = self.client.table("upcoming_courses").insert(upcoming_courses_data).execute()
+            return True, "Batch scheduled successfully!"
         except Exception as e:
             return False, str(e)
 

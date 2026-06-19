@@ -1,0 +1,3 @@
+Course Code,Course Name,Credits,Professor,Description,Minor Eligible
+CSV101,Test CSV Upload Course,4,admin@institute.edu,A newly uploaded course.,True
+CSV102,Second Test Course,3,admin@institute.edu,Another course for bulk insert validation.,False

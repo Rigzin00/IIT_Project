@@ -85,3 +85,33 @@ export async function createUpcomingCourse(data: {
   });
   return safeJson(res);
 }
+
+export async function uploadCoursesCSV(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const headers = getAuthHeaders();
+  delete headers['Content-Type']; // Let browser set multipart/form-data with boundary
+  
+  const res = await fetch(`${BASE}/api/admin/courses/upload`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  return safeJson(res);
+}
+
+export async function uploadUpcomingCoursesCSV(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const headers = getAuthHeaders();
+  delete headers['Content-Type'];
+  
+  const res = await fetch(`${BASE}/api/admin/upcoming-courses/upload`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  return safeJson(res);
+}
