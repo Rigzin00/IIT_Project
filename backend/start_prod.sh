@@ -18,8 +18,8 @@ set -e  # Exit immediately on any error
 APP_MODULE="app:app"          # Flask app entrypoint  (file: app.py, object: app)
 HOST="0.0.0.0"               # Listen on all interfaces so Nginx/proxy can reach it
 PORT="${PORT:-5000}"          # Default port 5000; override with: PORT=8080 ./start_prod.sh
-WORKERS=$((2 * $(nproc) + 1))                     # Rule of thumb: (2 × CPU cores) + 1
-WORKER_CLASS="gevent"         # Async worker — needed for Supabase long-poll connections
+WORKERS=4                     # Rule of thumb: (2 × CPU cores) + 1
+WORKER_CLASS="sync"         # Async worker — needed for Supabase long-poll connections
 TIMEOUT=120                   # Seconds before a worker is killed (covers slow CSV exports)
 LOG_LEVEL="info"
 
