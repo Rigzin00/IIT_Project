@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Users, ShieldCheck, LayoutDashboard, BookOpen, ClipboardList, UserCog, Settings, Download, ChevronRight, Menu, X, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,6 +34,7 @@ const roleInfo: Record<string, { label: string; icon: typeof GraduationCap }> = 
 
 export default function Sidebar({ activePage, onNavigate }: Props) {
   const { role, user, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   if (!role) return null;
@@ -105,7 +107,7 @@ export default function Sidebar({ activePage, onNavigate }: Props) {
         <div className="text-[12px] font-semibold text-[#1F2937] mb-[8px] whitespace-nowrap overflow-hidden text-ellipsis">{userName}</div>
         <button
           className="w-full p-[6px_12px] border border-[#E5E7EB] rounded-[4px] bg-transparent text-[12px] font-bold text-[#555555] cursor-pointer tracking-[0.1px] transition-all duration-[150ms] text-center hover:border-[#C41212] hover:text-[#C41212] hover:bg-[#FEF2F2]"
-          onClick={logout}
+          onClick={async () => { await logout(); navigate('/login', { replace: true }); }}
         >
           Sign out
         </button>

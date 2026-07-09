@@ -3,6 +3,9 @@ import logging
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,29 +23,43 @@ from utils.limiter import limiter
 
 app = Flask(__name__, static_folder="../react_frontend/dist", static_url_path="")
 
-# Define Allowed Origins for Security Hardening
+# ── App config ────────────────────────────────────────────────────────────────
+# SECRET_KEY signs the Flask server-side session cookie used to store the
+# OAuth state parameter (CSRF protection).  Must be set before deploying.
+app.secret_key                    = os.getenv("SECRET_KEY", "change-me-flask-session-secret")
+app.config["JWT_SECRET"]          = os.getenv("JWT_SECRET", "change-me-jwt-secret")
+app.config["JWT_EXPIRES_SECONDS"] = int(os.getenv("JWT_EXPIRES_SECONDS", 28800))  # 8 h
+app.config["FRONTEND_URL"]        = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+# ── CORS ───────────────────────────────────────────────────────────────────────
+# supports_credentials=True is required so the browser attaches the HttpOnly
+# JWT cookie on cross-origin requests during local development.
 ALLOWED_ORIGINS = [
-    "http://localhost:5173",       # Local development
+    "http://localhost:5173",        # Vite dev server
     "http://127.0.0.1:5173",
-    "https://acadportal.com",      # Proposed Production Frontend Domain
+    "http://10.17.51.45:8000",      # Production
+    "https://acadportal.com",       # Proposed production domain
 ]
 
-# Apply strict CORS hardening for all routes
 if os.getenv("FLASK_ENV", "development") == "development":
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 else:
-    CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": ALLOWED_ORIGINS}},
+        supports_credentials=True,
+    )
 
 limiter.init_app(app)
 
 # Register Blueprints
-app.register_blueprint(auth_bp, url_prefix="/api/auth")
-app.register_blueprint(student_bp, url_prefix="/api/student")
+app.register_blueprint(auth_bp,      url_prefix="/api/auth")
+app.register_blueprint(student_bp,   url_prefix="/api/student")
 app.register_blueprint(professor_bp, url_prefix="/api/professor")
-app.register_blueprint(admin_bp, url_prefix="/api/admin")
-app.register_blueprint(export_bp, url_prefix="/api/export")
+app.register_blueprint(admin_bp,     url_prefix="/api/admin")
+app.register_blueprint(export_bp,    url_prefix="/api/export")
 
-# ── Security Headers ────────────────────────────────────────────────────────────
+# ── Security Headers ───────────────────────────────────────────────────────────
 @app.after_request
 def add_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
@@ -50,12 +67,18 @@ def add_security_headers(response):
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     return response
 
-# Static File Routes
+# ── Static / SPA Routes ────────────────────────────────────────────────────────
 @app.route("/")
 def serve_index():
     return app.send_static_file("index.html")
 
-# --- Error Handlers ---
+# The React OAuthCallback component is mounted at /auth/callback.
+# Flask must serve index.html for this path so the SPA can handle it.
+@app.route("/auth/callback")
+def serve_oauth_callback():
+    return app.send_static_file("index.html")
+
+# ── Error Handlers ─────────────────────────────────────────────────────────────
 @app.errorhandler(429)
 def too_many_requests(e):
     return jsonify({"success": False, "message": f"Rate limit exceeded: {e.description}"}), 429
@@ -84,7 +107,6 @@ def handle_exception(e):
     # Pass through HTTP errors
     if isinstance(e, HTTPException):
         return e
-    # Now you're handling non-HTTP exceptions only
     logger.error("Unhandled Exception: %s", e, exc_info=True)
     return jsonify({"success": False, "message": "An unexpected server error occurred."}), 500
 
