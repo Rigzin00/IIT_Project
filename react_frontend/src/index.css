@@ -2,6 +2,9 @@
 
 @layer base {
   :root {
+    /* Tailwind v4 spacing scale — MUST be defined; all utilities use calc(var(--spacing) * N) */
+    --spacing: 0.25rem;
+
     /* Color palette */
     --bg-base: #0a0c12;
     --bg-card: #111318;
