@@ -1,10 +1,18 @@
 from flask import Blueprint, request, jsonify
 from database import db
-from utils.helpers import build_pagination_metadata, require_role
+from utils.helpers import build_pagination_metadata, require_role, get_professor_from_request
 
 professor_bp = Blueprint('professor', __name__)
 
 PROF_SORT_COLS = {'id', 'student_name', 'roll_number', 'course_name', 'status', 'cgpa', 'grade'}
+
+# ── Identity guard ─────────────────────────────────────────────────────────────
+def _get_professor_or_401():
+    """Resolve the authenticated professor from the JWT cookie."""
+    prof = get_professor_from_request(request)
+    if not prof:
+        return None, (jsonify({"success": False, "message": "Not authenticated."}), 401)
+    return prof, None
 
 @professor_bp.route("/dashboard", methods=["GET"])
 @require_role('professor')
@@ -73,6 +81,11 @@ def professor_registrations():
 @professor_bp.route("/action", methods=["POST"])
 @require_role('professor')
 def professor_action():
+    # Resolve professor from JWT — do not trust prof_id from the request body
+    prof, err = _get_professor_or_401()
+    if err:
+        return err
+
     data = request.get_json() or {}
     reg_id = data.get("registration_id")
     status = data.get("status")  # 'approved' or 'rejected'
@@ -80,15 +93,21 @@ def professor_action():
     if not reg_id or status not in ["approved", "rejected"]:
         return jsonify({"success": False, "message": "Registration ID and valid status ('approved'/'rejected') are required!"}), 400
 
-    success = db.approve_registration(reg_id, status)
+    # Pass professor_id to DB so it can enforce course ownership
+    success = db.approve_registration(reg_id, status, professor_id=prof["id"])
     if success:
         return jsonify({"success": True, "message": f"Pre-registration {status} successfully!"})
     else:
-        return jsonify({"success": False, "message": "Failed to update registration or registration not found."}), 404
+        return jsonify({"success": False, "message": "Registration not found or you do not have permission to update it."}), 403
 
 @professor_bp.route("/grade", methods=["POST"])
 @require_role('professor')
 def professor_grade():
+    # Resolve professor from JWT — do not trust prof_id from the request body
+    prof, err = _get_professor_or_401()
+    if err:
+        return err
+
     data = request.get_json() or {}
     reg_id = data.get("registration_id")
     grade = data.get("grade", "").strip().upper()  # A, A-, B, B-, etc.
@@ -96,27 +115,33 @@ def professor_grade():
     if not reg_id or not grade:
         return jsonify({"success": False, "message": "Registration ID and Grade are required!"}), 400
 
-    success = db.update_registration_grade(reg_id, grade)
+    # Pass professor_id to DB so it can enforce course ownership
+    success = db.update_registration_grade(reg_id, grade, professor_id=prof["id"])
     if success:
         return jsonify({"success": True, "message": "Student grade updated successfully! Academic record synchronized."})
     else:
-        return jsonify({"success": False, "message": "Failed to update grade or registration not found."}), 404
+        return jsonify({"success": False, "message": "Registration not found or you do not have permission to grade it."}), 403
 
 @professor_bp.route("/courses/<course_id>", methods=["PUT"])
 @require_role('professor')
 def professor_update_course(course_id):
+    # Resolve professor from JWT — do not trust prof_id from the request body
+    prof, err = _get_professor_or_401()
+    if err:
+        return err
+
     data = request.get_json() or {}
-    prof_id = data.get("professor_id")
     name = data.get("name")
     description = data.get("description", "")
     credits = data.get("credits")
     department = data.get("department")
     is_minor_eligible = data.get("is_minor_eligible", False)
 
-    if not prof_id or not name or not credits or not department:
+    if not name or not credits or not department:
         return jsonify({"success": False, "message": "Missing required fields!"}), 400
 
-    success, message = db.update_course_by_prof(course_id, prof_id, name, description, credits, department, is_minor_eligible)
+    # DB layer enforces professor_id ownership (course must belong to this prof)
+    success, message = db.update_course_by_prof(course_id, prof["id"], name, description, credits, department, is_minor_eligible)
     if success:
         return jsonify({"success": True, "message": message})
     return jsonify({"success": False, "message": message}), 400

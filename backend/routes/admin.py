@@ -144,6 +144,7 @@ def admin_add_upcoming_course():
     return jsonify({"success": False, "message": message}), 400
 
 @admin_bp.route("/courses/template", methods=["GET"])
+@require_role('admin')
 def admin_courses_template():
     csv_content = "Course Code,Course Name,Credits,Professor,Description,Minor Eligible\nCS301,Machine Learning,4,Dr Sharma,Intro to ML,True\nCS302,Cloud Computing,3,Dr Singh,Cloud basics,False\n"
     response = Response(csv_content, mimetype="text/csv")
@@ -151,6 +152,7 @@ def admin_courses_template():
     return response
 
 @admin_bp.route("/upcoming-courses/template", methods=["GET"])
+@require_role('admin')
 def admin_upcoming_courses_template():
     csv_content = "Course Code,Course Name,Start Date,Professor,Description\nCS401,Advanced AI,2026-08-01,Dr Sharma,Next level AI course\n"
     response = Response(csv_content, mimetype="text/csv")

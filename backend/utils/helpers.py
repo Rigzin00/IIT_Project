@@ -72,3 +72,54 @@ def require_role(*roles):
             return f(*args, **kwargs)
         return wrapper
     return decorator
+
+
+# ── JWT-based identity helpers ─────────────────────────────────────────────────
+# These resolve the *authenticated* user's DB row from the HttpOnly JWT cookie.
+# They must be used instead of trusting client-supplied IDs in request bodies/params.
+
+def get_student_from_request(req):
+    """
+    Decode the JWT cookie and return the authenticated student's DB row.
+    Returns None if the cookie is missing, invalid, or the email is not a student.
+    """
+    import jwt as pyjwt
+    from flask import current_app
+    from database import db
+
+    token = req.cookies.get("jwt")
+    if not token:
+        return None
+    try:
+        secret = current_app.config.get("JWT_SECRET", "change-me-jwt-secret")
+        payload = pyjwt.decode(token, secret, algorithms=["HS256"])
+        email = payload.get("email", "")
+        if not email:
+            return None
+        return db.get_student_by_email(email)
+    except Exception:
+        return None
+
+
+def get_professor_from_request(req):
+    """
+    Decode the JWT cookie and return the authenticated professor's DB row.
+    Returns None if the cookie is missing, invalid, or the email is not a professor.
+    """
+    import jwt as pyjwt
+    from flask import current_app
+    from database import db
+
+    token = req.cookies.get("jwt")
+    if not token:
+        return None
+    try:
+        secret = current_app.config.get("JWT_SECRET", "change-me-jwt-secret")
+        payload = pyjwt.decode(token, secret, algorithms=["HS256"])
+        email = payload.get("email", "")
+        if not email:
+            return None
+        return db.get_professor_by_email(email)
+    except Exception:
+        return None
+

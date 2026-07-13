@@ -1,23 +1,35 @@
 from flask import Blueprint, request, jsonify
 from database import db
 from utils.helpers import build_pagination_metadata, require_role
-from utils.helpers import is_student_eligible
+from utils.helpers import is_student_eligible, get_student_from_request
 
 student_bp = Blueprint('student', __name__)
 
 STUDENT_SORT_COLS = {'name', 'credits', 'department', 'professor_name'}
 
+# ── Identity guard ─────────────────────────────────────────────────────────────
+# All student routes call this to get the authenticated student from the JWT
+# cookie. The client-supplied student_id in the request body/params is IGNORED
+# — we always use the identity proven by the JWT to prevent IDOR attacks.
+
+def _get_student_or_401():
+    """Resolve the authenticated student from the JWT cookie.
+    Returns (student_dict, None) on success or (None, error_response) on failure."""
+    student = get_student_from_request(request)
+    if not student:
+        return None, (jsonify({"success": False, "message": "Not authenticated."}), 401)
+    return student, None
+
+
 @student_bp.route("/profile", methods=["GET"])
 @require_role('student')
 def student_profile():
-    student_id = request.args.get("student_id")
-    if not student_id:
-        return jsonify({"success": False, "message": "Student ID is required!"}), 400
+    # Get identity from JWT — ignore any student_id param from client
+    student, err = _get_student_or_401()
+    if err:
+        return err
 
-    student = db.get_student_profile(student_id)
-    if not student:
-        return jsonify({"success": False, "message": "Student not found!"}), 404
-
+    student_id = student["id"]
     completed = db.get_student_completed_courses(student_id)
     registrations = db.get_student_registrations(student_id)
 
@@ -52,11 +64,15 @@ def student_profile():
 @student_bp.route("/update-cgpa", methods=["POST"])
 @require_role('student')
 def update_cgpa():
+    # Get identity from JWT — ignore student_id from request body
+    student, err = _get_student_or_401()
+    if err:
+        return err
+
     data = request.get_json() or {}
-    student_id = data.get("student_id")
     new_cgpa = data.get("cgpa")
     
-    if not student_id or new_cgpa is None:
+    if new_cgpa is None:
         return jsonify({"success": False, "message": "Missing required fields"}), 400
         
     try:
@@ -66,7 +82,7 @@ def update_cgpa():
     except ValueError:
         return jsonify({"success": False, "message": "Invalid CGPA format"}), 400
         
-    if db.update_student_cgpa(student_id, new_cgpa_float):
+    if db.update_student_cgpa(student["id"], new_cgpa_float):
         return jsonify({"success": True, "message": "CGPA updated successfully"})
     return jsonify({"success": False, "message": "Failed to update CGPA"}), 500
 
@@ -110,18 +126,18 @@ def student_upcoming_courses():
 @student_bp.route("/register", methods=["POST"])
 @require_role('student')
 def student_register():
+    # Get identity from JWT — ignore student_id from request body
+    student, err = _get_student_or_401()
+    if err:
+        return err
+
     data = request.get_json() or {}
-    student_id = data.get("student_id")
     course_id = data.get("course_id")
 
-    if not student_id or not course_id:
-        return jsonify({"success": False, "message": "Student ID and Course ID are required!"}), 400
+    if not course_id:
+        return jsonify({"success": False, "message": "Course ID is required!"}), 400
 
-    # Enforce Admin Registration Policy
-    student = db.get_student_profile(student_id)
-    if not student:
-        return jsonify({"success": False, "message": "Student not found!"}), 404
-
+    # Enforce Admin Registration Policy using the DB-verified student record
     settings = db.get_system_settings()
     if not is_student_eligible(student.get("roll_number", ""), settings):
         return jsonify({
@@ -129,7 +145,7 @@ def student_register():
             "message": "Registration is locked for your batch under current administration policies."
         }), 403
 
-    success, message_or_id = db.register_course(student_id, course_id)
+    success, message_or_id = db.register_course(student["id"], course_id)
     if success:
         return jsonify({"success": True, "message": "Pre-registration request submitted successfully!", "registration_id": message_or_id})
     else:
@@ -141,31 +157,29 @@ def student_register():
 @student_bp.route("/self-reported", methods=["GET", "POST"])
 @require_role('student')
 def self_reported_courses():
+    # Get identity from JWT — ignore student_id from request params/body
+    student, err = _get_student_or_401()
+    if err:
+        return err
+
+    student_id = student["id"]
+
     if request.method == "GET":
-        student_id = request.args.get("student_id")
-        if not student_id:
-            return jsonify({"success": False, "message": "Student ID is required!"}), 400
         courses = db.get_self_reported_courses(student_id)
         return jsonify({"success": True, "courses": courses})
 
     elif request.method == "POST":
         data = request.get_json() or {}
-        student_id   = data.get("student_id", "").strip()
         course_code  = data.get("course_code", "").strip()
         course_name  = data.get("course_name", "").strip()
         credits      = data.get("credits")
-        grade        = data.get("grade") or ""
-        year         = data.get("year") or ""
-        semester     = data.get("semester") or ""
-        proof_url    = data.get("proof_url") or ""
-        
-        grade        = grade.strip()
-        year         = year.strip()
-        semester     = semester.strip()
-        proof_url    = proof_url.strip()
+        grade        = (data.get("grade") or "").strip()
+        year         = (data.get("year") or "").strip()
+        semester     = (data.get("semester") or "").strip()
+        proof_url    = (data.get("proof_url") or "").strip()
 
-        if not student_id or not course_code or not course_name or credits is None:
-            return jsonify({"success": False, "message": "student_id, course_code, course_name and credits are required!"}), 400
+        if not course_code or not course_name or credits is None:
+            return jsonify({"success": False, "message": "course_code, course_name and credits are required!"}), 400
 
         try:
             credits = float(credits)
@@ -182,9 +196,12 @@ def self_reported_courses():
 @student_bp.route("/self-reported/<record_id>", methods=["PUT", "DELETE"])
 @require_role('student')
 def self_reported_course_detail(record_id):
-    student_id = (request.args.get("student_id") or (request.get_json() or {}).get("student_id", "")).strip()
-    if not student_id:
-        return jsonify({"success": False, "message": "Student ID is required!"}), 400
+    # Get identity from JWT — ignore student_id from request params/body
+    student, err = _get_student_or_401()
+    if err:
+        return err
+
+    student_id = student["id"]
 
     if request.method == "DELETE":
         ok = db.delete_self_reported_course(record_id, student_id)
@@ -198,15 +215,10 @@ def self_reported_course_detail(record_id):
         course_code  = data.get("course_code", "").strip()
         course_name  = data.get("course_name", "").strip()
         credits      = data.get("credits")
-        grade        = data.get("grade") or ""
-        year         = data.get("year") or ""
-        semester     = data.get("semester") or ""
-        proof_url    = data.get("proof_url") or ""
-
-        grade        = grade.strip()
-        year         = year.strip()
-        semester     = semester.strip()
-        proof_url    = proof_url.strip()
+        grade        = (data.get("grade") or "").strip()
+        year         = (data.get("year") or "").strip()
+        semester     = (data.get("semester") or "").strip()
+        proof_url    = (data.get("proof_url") or "").strip()
 
         if not course_code or not course_name or credits is None:
             return jsonify({"success": False, "message": "course_code, course_name and credits are required!"}), 400
@@ -221,4 +233,3 @@ def self_reported_course_detail(record_id):
             return jsonify({"success": True, "course": result})
         else:
             return jsonify({"success": False, "message": result}), 400
-

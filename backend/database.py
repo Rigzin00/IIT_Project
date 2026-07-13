@@ -261,11 +261,34 @@ class SupabaseAdapter:
             })
         return flat_list
 
-    def approve_registration(self, registration_id, status):
+    def approve_registration(self, registration_id, status, professor_id=None):
+        # If professor_id is supplied, verify the registration's course belongs to that professor.
+        # This prevents a professor from approving/rejecting registrations for other professors' courses.
+        if professor_id:
+            ownership = (
+                self.client.table("registrations")
+                .select("id, courses!inner(professor_id)")
+                .eq("id", registration_id)
+                .eq("courses.professor_id", professor_id)
+                .execute()
+            )
+            if not ownership.data:
+                return False  # not found or does not belong to this professor
         res = self.client.table("registrations").update({"status": status}).eq("id", registration_id).execute()
         return len(res.data) > 0
 
-    def update_registration_grade(self, registration_id, grade):
+    def update_registration_grade(self, registration_id, grade, professor_id=None):
+        # Verify course ownership before grading
+        if professor_id:
+            ownership = (
+                self.client.table("registrations")
+                .select("id, courses!inner(professor_id)")
+                .eq("id", registration_id)
+                .eq("courses.professor_id", professor_id)
+                .execute()
+            )
+            if not ownership.data:
+                return False  # not found or does not belong to this professor
         res = self.client.table("registrations").update({"grade": grade}).eq("id", registration_id).execute()
         if len(res.data) > 0 and grade:
             reg = res.data[0]
@@ -324,7 +347,7 @@ class SupabaseAdapter:
 
     def delete_student(self, student_id):
         res = self.client.table("students").delete().eq("id", student_id).execute()
-        return len(res.data) > 0 or True
+        return len(res.data) > 0  # correctly returns False if student was not found
 
     # --- Export Filtering Helpers ---
     
