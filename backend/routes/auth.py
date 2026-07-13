@@ -148,8 +148,12 @@ def iitd_login():
     three parameters: response_type, client_id, state.
     No redirect_uri, no scope — these are not required by IIT Delhi.
 
-    The state parameter is a cryptographically random value stored in the
-    Flask server-side session for CSRF protection (validated in /callback).
+    The state parameter is a cryptographically random value stored in a
+    dedicated short-lived cookie (NOT the Flask session) for CSRF protection.
+    The Flask session cookie uses SameSite=Lax, which browsers block on the
+    cross-site top-level redirect from oauth.iitd.ac.in back to this server,
+    causing the stored state to be invisible in the callback. A separate
+    oauth_state cookie with SameSite=None (prod) / Lax (dev) survives it.
     """
     client_id = os.getenv("IITD_CLIENT_ID", "")
 
@@ -164,10 +168,9 @@ def iitd_login():
             ),
         }), 503
 
-    # Generate a secure random state and store it in the server-side session
+    # Generate a secure random state value
     state = secrets.token_urlsafe(32)
-    session["oauth_state"] = state
-    logger.info("OAuth flow initiated — state stored in session.")
+    logger.info("OAuth flow initiated — state stored in cookie.")
 
     # Build the authorization URL with exactly the parameters required by IIT Delhi
     params = {
@@ -176,7 +179,22 @@ def iitd_login():
         "state":         state,
     }
     auth_url = IITD_AUTHORIZE_URL + "?" + urllib.parse.urlencode(params)
-    return redirect(auth_url)
+    response = make_response(redirect(auth_url))
+
+    # Store state in its own cookie so it survives the cross-site redirect.
+    # In production (HTTPS) we need SameSite=None; Secure=True.
+    # In development (HTTP) SameSite=Lax is fine (same host, no HTTPS required).
+    is_prod = _is_production()
+    response.set_cookie(
+        "oauth_state",
+        value=state,
+        httponly=True,
+        secure=is_prod,
+        samesite="None" if is_prod else "Lax",
+        max_age=600,   # 10-minute window to complete login
+        path="/",
+    )
+    return response
 
 
 # ── Step 2: Handle OAuth callback ─────────────────────────────────────────────
@@ -199,10 +217,13 @@ def iitd_callback():
 
     # ── Step 5.1: Validate state ───────────────────────────────────────────────
     received_state = request.args.get("state", "")
-    stored_state   = session.pop("oauth_state", None)   # consume once
+    stored_state   = request.cookies.get("oauth_state", None)   # read from cookie
 
     if not stored_state or not received_state or received_state != stored_state:
-        logger.warning("OAuth state mismatch — possible CSRF attempt.")
+        logger.warning(
+            "OAuth state mismatch — possible CSRF attempt. "
+            "received=%r stored=%r", received_state, stored_state
+        )
         return redirect(
             frontend_callback + "?error=" + urllib.parse.quote("State validation failed. Please try logging in again.")
         )
@@ -296,8 +317,10 @@ def iitd_callback():
 
     # ── Step 8 & 9: Set HttpOnly cookie and redirect ───────────────────────────
     # JWT goes into a cookie — never into the URL or response body visible to JS.
+    # Also clear the temporary oauth_state cookie now that it has been consumed.
     response = make_response(redirect(frontend_callback))
     _set_auth_cookie(response, jwt_token)
+    response.set_cookie("oauth_state", value="", max_age=0, path="/")  # clear state cookie
     logger.info("JWT cookie set for %s, redirecting to %s", email, frontend_callback)
     return response
 
