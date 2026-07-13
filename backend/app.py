@@ -42,7 +42,11 @@ ALLOWED_ORIGINS = [
 ]
 
 if os.getenv("FLASK_ENV", "development") == "development":
-    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+    CORS(
+        app,
+        resources={r"/*": {"origins": ALLOWED_ORIGINS}},
+        supports_credentials=True,
+    )
 else:
     CORS(
         app,

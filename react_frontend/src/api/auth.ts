@@ -59,6 +59,7 @@ export async function login(email: string, role: Role): Promise<LoginResponse> {
   const res = await fetch(`${BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',   // <-- required so the browser stores the Set-Cookie
     body: JSON.stringify({ email, role }),
   });
   return res.json();

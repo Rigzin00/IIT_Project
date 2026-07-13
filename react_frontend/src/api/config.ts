@@ -1,7 +1,7 @@
-// In development (npm run dev), Vite runs on a different port than Flask,
-// so we need the full URL to avoid CORS issues.
-// In production, Flask serves the built React app on the same origin,
-// so we use an empty string (relative URLs work fine).
-const BASE = import.meta.env.DEV ? 'http://127.0.0.1:5000' : '';
+// In development, Vite proxies /api/* to Flask at :5000 (see vite.config.ts).
+// In production, Flask serves the built React app on the same origin.
+// Either way, relative URLs work — no hardcoded port needed.
+const BASE = '';
 
 export default BASE;
+
