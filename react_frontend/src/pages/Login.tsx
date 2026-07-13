@@ -17,9 +17,9 @@ export default function Login() {
   const navigate = useNavigate();
 
   // Dev panel state
-  const [devEmail, setDevEmail]   = useState('');
-  const [devRole,  setDevRole]    = useState<Role>('student');
-  const [devError, setDevError]   = useState('');
+  const [devEmail, setDevEmail] = useState('');
+  const [devRole, setDevRole] = useState<Role>('student');
+  const [devError, setDevError] = useState('');
   const [devLoading, setDevLoading] = useState(false);
 
   const handleIITDLogin = () => {
@@ -63,7 +63,7 @@ export default function Login() {
             Academic Management System
           </div>
           <div className="text-[13px] text-[#6B7280] mt-1.5 font-semibold">
-            IIT Delhi — Secure Authentication Portal
+            IIT Delhi — Integrated Academic Portal
           </div>
         </div>
 
