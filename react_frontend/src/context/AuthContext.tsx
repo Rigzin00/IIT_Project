@@ -21,9 +21,21 @@ const AuthContext = createContext<AuthState>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user,      setUser]      = useState<AnyUser | null>(null);
-  const [role,      setRole]      = useState<Role | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // ── Optimistic restore from localStorage ───────────────────────────────────
+  // Read the cached session synchronously on first render so the UI can show
+  // the correct page immediately, without waiting for the backend round-trip.
+  // The backend check still runs in the background to confirm the cookie is valid.
+  const cached = (() => {
+    try {
+      const raw = localStorage.getItem('ap_session');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  })();
+
+  const [user,      setUser]      = useState<AnyUser | null>(cached?.user ?? null);
+  const [role,      setRole]      = useState<Role | null>(cached?.role ?? null);
+  // If we have a cached session, skip the loading spinner entirely.
+  const [isLoading, setIsLoading] = useState(!cached);
 
   // On mount: verify the session against the backend (reads the HttpOnly cookie).
   // localStorage is used only as a UI hint — the backend JWT is the source of truth.
